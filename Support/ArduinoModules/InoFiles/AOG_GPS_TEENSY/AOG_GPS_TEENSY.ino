@@ -25,7 +25,7 @@
 //the settings below are written as defalt values and can be reloaded.
 //So if changing settings set EEPROM_clear = true; (line ~109) - flash - boot - reset to EEPROM_clear = false - flash again to keep them as defauls
 
-#define HardwarePlatform 1      //0 = runs on ESP32, 1 = runs on Arduino Mega (Or teensy?)
+#define HardwarePlatform 0      //0 = runs on ESP32, 1 = runs on Arduino Mega (Or teensy?)
 
 struct set {
     //connection plan:
@@ -58,11 +58,11 @@ struct set {
     byte timeoutWebIO = 10;                 //time (min) afterwards webinterface is switched off
 
     //static IP
-    byte myip[4] = { 192, 168, 1, 79 };     // Roofcontrol module 
-    byte gwip[4] = { 192, 168, 1, 1 };      // Gateway IP also used if Accesspoint created
+    byte myip[4] = { 192, 168, 2001, 79 };     // Roofcontrol module 
+    byte gwip[4] = { 192, 168, 200, 1 };      // Gateway IP also used if Accesspoint created
     byte mask[4] = { 255, 255, 255, 0 };
     byte myDNS[4] = { 8, 8, 8, 8 };         //optional
-    byte ipDestination[4] = { 192, 168, 1, 255 };//IP address to send UDP data to
+    byte ipDestination[4] = { 192, 168, 200, 255 };//IP address to send UDP data to
     byte myIPEnding = 79;             //ending of IP adress x.x.x.79 
 
     unsigned int portMy = 5544;             //this is port of this module: Autosteer = 5577 IMU = 5566 GPS = 
@@ -274,7 +274,7 @@ struct NAV_RELPOSNED {
 NAV_RELPOSNED UBXRelPosNED[sizeOfUBXArray];
 
 #if HardwarePlatform == 0
-#include <AsyncUDP.h>
+//#include <AsyncUDP.h>
 //#include <WiFiUdp.h>
 //#include <WiFiSTA.h>
 //#include <WiFiServer.h>

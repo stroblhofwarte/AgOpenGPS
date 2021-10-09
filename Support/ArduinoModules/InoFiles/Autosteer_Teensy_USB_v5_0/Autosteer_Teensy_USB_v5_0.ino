@@ -260,7 +260,7 @@
           }
           else
           {
-            Serial.println("BNO080 not detected at given I2C address.");
+            Serial.println("BNO08x not detected at given I2C address.");
           }
         }
         else 
@@ -269,6 +269,16 @@
           Serial.println("BNO08X not Connected or Found"); 
         }
       }
+    }
+
+    // Check ADC 
+    if(adc.testConnection())
+    {
+      Serial.println("ADC Connecton OK");
+    }
+    else
+    {
+      Serial.println("ADC Connecton FAILED!");
     }
   
     //50Khz I2C
@@ -420,7 +430,11 @@
               
         steeringPosition = (steeringPosition >> 1); //bit shift by 2  0 to 13610 is 0 to 5v
       }
-     
+
+      // steeringPosition
+      //Serial.print("ADC value: ");
+      //Serial.println(steeringPosition);
+      
       //DETERMINE ACTUAL STEERING POSITION
             
         //convert position to steer angle. 32 counts per degree of steer pot position in my case
