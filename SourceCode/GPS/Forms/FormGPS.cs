@@ -158,7 +158,6 @@ namespace AgOpenGPS
         /// </summary>
         public CTram tram;
 
-
         /// <summary>
         /// Contour Mode Instance
         /// </summary>
@@ -202,7 +201,7 @@ namespace AgOpenGPS
         /// <summary>
         /// Resource manager for gloabal strings
         /// </summary>
-        public ResourceManager _rm;
+        //public ResourceManager _rm;
 
         /// <summary>
         /// Heading, Roll, Pitch, GPS, Properties
@@ -220,62 +219,9 @@ namespace AgOpenGPS
         public CFieldData fd;
 
         /// <summary>
-        /// Class containing workswitch functionality
-        /// </summary>
-        public CWorkSwitch workSwitch;
-
-        /// <summary>
         /// Sound for approaching boundary
         /// </summary>
         public SoundPlayer sndBoundaryAlarm;
-
-        private void stripBtnConfig_Click(object sender, EventArgs e)
-        {
-            using (FormConfig form = new FormConfig(this))
-            {
-                form.ShowDialog(this);
-            }
-        }
-
-        private void btnStanleyPure_Click(object sender, EventArgs e)
-        {
-            isStanleyUsed = !isStanleyUsed;
-
-            if (isStanleyUsed)
-            {
-                btnStanleyPure.Image = Resources.ModeStanley;
-            }
-            else
-            {
-                btnStanleyPure.Image = Resources.ModePurePursuit;
-            }
-
-            Properties.Vehicle.Default.setVehicle_isStanleyUsed = isStanleyUsed;
-            Properties.Vehicle.Default.Save();
-        }
-
-
-        /// <summary>
-        /// Sound for approaching boundary
-        /// </summary>
-        public SoundPlayer sndHydraulicLift;
-
-        /// <summary>
-        /// Sound for approaching boundary
-        /// </summary>
-        public SoundPlayer sndHydraulicLower;
-
-        public bool isJump = false;
-        private void btnRight_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btnLeft_Click(object sender, EventArgs e)
-        {
-
-        }
-
 
         /// <summary>
         /// The font class
@@ -368,7 +314,7 @@ namespace AgOpenGPS
             yt = new CYouTurn(this);
 
             //module communication
-            mc = new CModuleComm();
+            mc = new CModuleComm(this);
 
             //boundary object
             bnd = new CBoundary(this);
@@ -392,10 +338,7 @@ namespace AgOpenGPS
             tram = new CTram(this);
 
             //resource for gloabal language strings
-            _rm = new ResourceManager("AgOpenGPS.gStr", Assembly.GetExecutingAssembly());
-
-            // Access to workswitch functionality
-            workSwitch = new CWorkSwitch(this);
+            //_rm = new ResourceManager("AgOpenGPS.gStr", Assembly.GetExecutingAssembly());
 
             //access to font class
             font = new CFont(this);
@@ -565,8 +508,6 @@ namespace AgOpenGPS
                         FileSaveEverythingBeforeClosingField();
 
                         displayFieldName = gStr.gsNone;
-                        //shutdown and reset all module data
-                        mc.ResetAllModuleCommValues();
                     }
                 }
             }
@@ -1082,7 +1023,7 @@ namespace AgOpenGPS
             for (int j = 0; j < MAXSECTIONS; j++)
             {
                 section[j].isAllowedOn = false;
-                section[j].manBtnState = manBtn.On;
+                section[j].manBtnState = btnStates.On;
             }
 
             //fix ManualOffOnAuto buttons
@@ -1200,9 +1141,6 @@ namespace AgOpenGPS
 
             //reset GUI areas
             fd.UpdateFieldBoundaryGUIAreas();
-
-            //reset all Port Module values
-            mc.ResetAllModuleCommValues();
 
             displayFieldName = gStr.gsNone;
             FixTramModeButton();

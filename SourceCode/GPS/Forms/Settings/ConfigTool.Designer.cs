@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace AgOpenGPS
@@ -318,17 +312,17 @@ namespace AgOpenGPS
             for (int j = 0; j < FormGPS.MAXSECTIONS; j++)
             {
                 mf.section[j].isAllowedOn = false;
-                mf.section[j].manBtnState = FormGPS.manBtn.On;
+                mf.section[j].manBtnState = btnStates.On;
             }
 
             cboxSectionResponse.Checked = Properties.Vehicle.Default.setSection_isFast;
 
             //fix ManualOffOnAuto buttons
-            mf.manualBtnState = FormGPS.btnStates.Off;
+            mf.manualBtnState = btnStates.Off;
             mf.btnManualOffOn.Image = Properties.Resources.ManualOff;
 
             //fix auto button
-            mf.autoBtnState = FormGPS.btnStates.Off;
+            mf.autoBtnState = btnStates.Off;
             mf.btnSectionOffAutoOn.Image = Properties.Resources.SectionMasterOff;
 
             //Update the button colors and text

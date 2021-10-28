@@ -3,7 +3,7 @@
     public class CModuleComm
     {
         //copy of the mainform address
-        //private readonly FormGPS mf = null;
+        private readonly FormGPS mf;
 
         //Critical Safety Properties
         public bool isOutOfBounds = true;
@@ -42,11 +42,13 @@
         //for the workswitch
         public bool isWorkSwitchActiveLow, isWorkSwitchEnabled, isWorkSwitchManual, isSteerControlsManual;
 
-        public int workSwitchValue, steerSwitchValue = 0;
+        public int workSwitchValue, oldWorkSwitchValue, steerSwitchValue = 0;
 
         //constructor
-        public CModuleComm()
+        public CModuleComm(FormGPS _f)
         {
+            mf = _f;
+
             //WorkSwitch logic
             isWorkSwitchEnabled = false;
 
@@ -54,10 +56,35 @@
             isWorkSwitchActiveLow = true;
         }
 
-        //Reset all the byte arrays from modules
-        public void ResetAllModuleCommValues()
+        //Called from "OpenGL.Designer.cs" when requied
+        public void CheckWorkSwitch()
         {
+            if (isSteerControlsManual) workSwitchValue = steerSwitchValue;
+
+            if (workSwitchValue != oldWorkSwitchValue)
+            {
+                oldWorkSwitchValue = workSwitchValue;
+
+                if (workSwitchValue == 0 == isWorkSwitchActiveLow)
+                {
+                    if (isWorkSwitchManual)
+                    {
+                        if (mf.manualBtnState != btnStates.On)
+                        {
+                            mf.btnManualOffOn.PerformClick();
+                        }
+                    }
+                    else if (mf.autoBtnState != btnStates.Auto)
+                    {
+                        mf.btnSectionOffAutoOn.PerformClick();
+                    }
+                }
+                //Checks both on-screen buttons, performs click if button is not off
+                else if (mf.autoBtnState != btnStates.Off)
+                    mf.btnSectionOffAutoOn.PerformClick();
+                else if (mf.manualBtnState != btnStates.Off)
+                    mf.btnManualOffOn.PerformClick();
+            }
         }
     }
-
 }

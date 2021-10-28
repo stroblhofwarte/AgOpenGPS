@@ -14,6 +14,9 @@ using System.Media;
 
 namespace AgOpenGPS
 {
+    //master Manual and Auto, 3 states possible
+    public enum btnStates { Off, Auto, On }
+
     public partial class FormGPS
     {
         //ABLines directory
@@ -45,7 +48,7 @@ namespace AgOpenGPS
         public bool isVehicleImage;
 
         //Is it in 2D or 3D, metric or imperial, display lightbar, display grid etc
-        public bool isMetric = true, isLightbarOn = true, isGridOn, isFullScreen;
+        public bool isMetric = true, isLightbarOn = true, isGridOn;
         public bool isUTurnAlwaysOn, isCompassOn, isSpeedoOn, isAutoDayNight, isSideGuideLines = true;
         public bool isPureDisplayOn = true, isSkyOn = true, isRollMeterOn = false, isTextureOn = true;
         public bool isDay = true, isDayTime = true;
@@ -53,8 +56,6 @@ namespace AgOpenGPS
 
         public bool isUTurnOn = true, isLateralOn = true;
 
-        //master Manual and Auto, 3 states possible
-        public enum btnStates { Off, Auto, On }
         public btnStates manualBtnState = btnStates.Off;
         public btnStates autoBtnState = btnStates.Off;
 
@@ -71,9 +72,6 @@ namespace AgOpenGPS
         private int navPanelCounter = 0;
 
         public uint sentenceCounter = 0;
-
-        //section button states
-        public enum manBtn { Off, Auto, On }
 
         //Timer triggers at 125 msec
         private void tmrWatchdog_tick(object sender, EventArgs e)
@@ -439,32 +437,15 @@ namespace AgOpenGPS
 
             string directoryName = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
 
-            {
-                sndBoundaryAlarm = new SoundPlayer(Properties.Resources.Alarm10);
-            }
-
-            {
-                sndHydraulicLift = new SoundPlayer(Properties.Resources.HydUp);
-            }
-
-            {
-                sndHydraulicLower = new SoundPlayer(Properties.Resources.HydDown);
-            }
-
+            sndBoundaryAlarm = new SoundPlayer(Properties.Resources.Alarm10);
+            
             //grab the current vehicle filename - make sure it exists
             vehicleFileName = Vehicle.Default.setVehicle_vehicleName;
 
             simulatorOnToolStripMenuItem.Checked = Settings.Default.setMenu_isSimulatorOn;
-            if (simulatorOnToolStripMenuItem.Checked)
-            {
-                panelSim.Visible = true;
-                timerSim.Enabled = true;
-            }
-            else
-            {
-                panelSim.Visible = false;
-                timerSim.Enabled = false;
-            }
+
+            panelSim.Visible = simulatorOnToolStripMenuItem.Checked;
+            timerSim.Enabled = simulatorOnToolStripMenuItem.Checked;
 
             if (timerSim.Enabled) fixUpdateHz = 10;
             fixUpdateTime = 1 / (double)fixUpdateHz;
@@ -505,14 +486,7 @@ namespace AgOpenGPS
             btnChangeMappingColor.Text = Application.ProductVersion.ToString(CultureInfo.InvariantCulture);
 
             if (Properties.Settings.Default.setDisplay_isStartFullScreen)
-            {
                 this.WindowState = FormWindowState.Maximized;
-                isFullScreen = true;
-            }
-            else
-            {
-                isFullScreen = false;
-            }
 
             //is rtk on?
             isRTK = Properties.Settings.Default.setGPS_isRTK;
@@ -917,8 +891,8 @@ namespace AgOpenGPS
         {
             switch (section[sectNumber].manBtnState)
             {
-                case manBtn.Off:
-                    section[sectNumber].manBtnState = manBtn.Auto;
+                case btnStates.Off:
+                    section[sectNumber].manBtnState = btnStates.Auto;
                     if (isDay)
                     {
                         btn.BackColor = Color.Lime;
@@ -932,8 +906,8 @@ namespace AgOpenGPS
                     break;
             
 
-                case manBtn.Auto:
-                    section[sectNumber].manBtnState = manBtn.On;
+                case btnStates.Auto:
+                    section[sectNumber].manBtnState = btnStates.On;
                     if (isDay)
                     {
                         btn.BackColor = Color.Yellow;
@@ -946,8 +920,8 @@ namespace AgOpenGPS
                     }
                     break;
 
-                case manBtn.On:
-                    section[sectNumber].manBtnState = manBtn.Off;
+                case btnStates.On:
+                    section[sectNumber].manBtnState = btnStates.Off;
                     if (isDay)
                     {
                         btn.ForeColor = Color.Black;

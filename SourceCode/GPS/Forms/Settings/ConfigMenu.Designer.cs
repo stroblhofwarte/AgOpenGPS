@@ -61,10 +61,10 @@ namespace AgOpenGPS
         {
             if (mf.isJobStarted)
             {
-                if (mf.autoBtnState == FormGPS.btnStates.Auto)
+                if (mf.autoBtnState == btnStates.Auto)
                     mf.btnSectionOffAutoOn.PerformClick();
 
-                if (mf.manualBtnState == FormGPS.btnStates.On)
+                if (mf.manualBtnState == btnStates.On)
                     mf.btnManualOffOn.PerformClick();
             }
 
@@ -72,15 +72,15 @@ namespace AgOpenGPS
             for (int j = 0; j < FormGPS.MAXSECTIONS; j++)
             {
                 mf.section[j].isAllowedOn = false;
-                mf.section[j].manBtnState = FormGPS.manBtn.On;
+                mf.section[j].manBtnState = btnStates.On;
             }
 
             //fix ManualOffOnAuto buttons
-            mf.manualBtnState = FormGPS.btnStates.Off;
+            mf.manualBtnState = btnStates.Off;
             mf.btnManualOffOn.Image = Properties.Resources.ManualOff;
 
             //fix auto button
-            mf.autoBtnState = FormGPS.btnStates.Off;
+            mf.autoBtnState = btnStates.Off;
             mf.btnSectionOffAutoOn.Image = Properties.Resources.SectionMasterOff;
 
             //Update the button colors and text

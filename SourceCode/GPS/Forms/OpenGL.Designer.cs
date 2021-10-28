@@ -677,7 +677,7 @@ namespace AgOpenGPS
             //find any off buttons, any outside of boundary, going backwards, and the farthest lookahead
             for (int j = 0; j < tool.numOfSections; j++)
             {
-                if (section[j].manBtnState == manBtn.Off) tool.isSuperSectionAllowedOn = false;
+                if (section[j].manBtnState == btnStates.Off) tool.isSuperSectionAllowedOn = false;
                 if (!section[j].isInBoundary) tool.isSuperSectionAllowedOn = false;
 
                 //check if any sections going backwards, section turned off waaay below
@@ -809,7 +809,7 @@ namespace AgOpenGPS
                     tool.isSuperSectionAllowedOn = true;
                     for (int j = 0; j < tool.numOfSections; j++)
                     {
-                        if (section[j].manBtnState == manBtn.Off) tool.isSuperSectionAllowedOn = false;
+                        if (section[j].manBtnState == btnStates.Off) tool.isSuperSectionAllowedOn = false;
                     }
                 }
 
@@ -1149,14 +1149,14 @@ namespace AgOpenGPS
                     }
 
                     // Manual on, force the section On and exit loop so digital is also overidden
-                    if (section[j].manBtnState == manBtn.On)
+                    if (section[j].manBtnState == btnStates.On)
                     {
                         section[j].sectionOnRequest = true;
                         section[j].sectionOffRequest = false;
                         continue;
                     }
 
-                    if (section[j].manBtnState == manBtn.Off)
+                    if (section[j].manBtnState == btnStates.Off)
                     {
                         section[j].sectionOnRequest = false;
                         section[j].sectionOffRequest = true;
@@ -1188,14 +1188,14 @@ namespace AgOpenGPS
                     }
 
                     // Manual on, force the section On and exit loop so digital is also overidden
-                    if (section[j].manBtnState == manBtn.On)
+                    if (section[j].manBtnState == btnStates.On)
                     {
                         section[j].mappingOnRequest = true;
                         section[j].mappingOffRequest = false;
                         continue;
                     }
 
-                    if (section[j].manBtnState == manBtn.Off)
+                    if (section[j].manBtnState == btnStates.Off)
                     {
                         section[j].mappingOnRequest = false;
                         section[j].mappingOffRequest = true;
@@ -1214,7 +1214,7 @@ namespace AgOpenGPS
             //Checks the workswitch if required
             if (isJobStarted && (mc.isWorkSwitchEnabled || mc.isSteerControlsManual))
             {                
-                workSwitch.CheckWorkSwitch();
+                mc.CheckWorkSwitch();
             }
 
             //Determine if sections want to be on or off
