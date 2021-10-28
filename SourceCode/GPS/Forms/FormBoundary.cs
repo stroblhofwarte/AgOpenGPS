@@ -373,7 +373,7 @@ namespace AgOpenGPS
                                         mf.pn.ConvertWGS84ToLocal(latK, lonK, out norting, out easting);
 
                                         //add the point to boundary
-                                        New.fenceLine.Add(new vec3(easting, norting, 0));
+                                        New.fenceLine.Points.Add(new vec3(easting, norting, 0));
                                     }
 
                                     New.CalculateFenceArea(mf.bnd.bndList.Count);

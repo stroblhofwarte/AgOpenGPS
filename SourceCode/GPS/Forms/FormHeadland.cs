@@ -54,10 +54,10 @@ namespace AgOpenGPS
             nudDistance.Value = 0;
             nudSetDistance.Value = 0;
 
-            if (mf.bnd.bndList[0].hdLine.Count > 0)
+            if (mf.bnd.bndList[0].hdLine.Points.Count > 0)
             {
-                hdArr = new vec3[mf.bnd.bndList[0].hdLine.Count];
-                mf.bnd.bndList[0].hdLine.CopyTo(hdArr);
+                hdArr = new vec3[mf.bnd.bndList[0].hdLine.Points.Count];
+                mf.bnd.bndList[0].hdLine.Points.CopyTo(hdArr);
                 RebuildHeadLineTemplate();
             }
             else
@@ -80,13 +80,13 @@ namespace AgOpenGPS
             //outside boundary - count the points from the boundary
             headLineTemplate.Clear();
 
-            int ptCount = mf.bnd.bndList[0].fenceLine.Count;
+            int ptCount = mf.bnd.bndList[0].fenceLine.Points.Count;
             for (int i = ptCount - 1; i >= 0; i--)
             {
                 //calculate the point inside the boundary
-                point.easting = mf.bnd.bndList[0].fenceLine[i].easting;
-                point.northing = mf.bnd.bndList[0].fenceLine[i].northing;
-                point.heading = mf.bnd.bndList[0].fenceLine[i].heading;
+                point.easting = mf.bnd.bndList[0].fenceLine.Points[i].easting;
+                point.northing = mf.bnd.bndList[0].fenceLine.Points[i].northing;
+                point.heading = mf.bnd.bndList[0].fenceLine.Points[i].heading;
                 headLineTemplate.Add(point);
             }
 
@@ -565,7 +565,7 @@ namespace AgOpenGPS
 
         private void btnExit_Click(object sender, EventArgs e)
         {
-            mf.bnd.bndList[0].hdLine?.Clear();
+            mf.bnd.bndList[0].hdLine.Points?.Clear();
 
             //middle points
             for (int i = 1; i < hdArr.Length; i++)
@@ -580,7 +580,7 @@ namespace AgOpenGPS
             {
                 if (i == 0)
                 {
-                    mf.bnd.bndList[0].hdLine.Add(new vec3(hdArr[i].easting, hdArr[i].northing, hdArr[i].heading));
+                    mf.bnd.bndList[0].hdLine.Points.Add(new vec3(hdArr[i].easting, hdArr[i].northing, hdArr[i].heading));
                     continue;
                 }
                 delta += (hdArr[i - 1].heading - hdArr[i].heading);
@@ -589,7 +589,7 @@ namespace AgOpenGPS
                 {
                     vec3 pt = new vec3(hdArr[i].easting, hdArr[i].northing, hdArr[i].heading);
 
-                    mf.bnd.bndList[0].hdLine.Add(pt);
+                    mf.bnd.bndList[0].hdLine.Points.Add(pt);
                     delta = 0;
                 }
             }
@@ -600,7 +600,7 @@ namespace AgOpenGPS
 
         private void btnTurnOffHeadland_Click(object sender, EventArgs e)
         {
-            mf.bnd.bndList[0].hdLine?.Clear();
+            mf.bnd.bndList[0].hdLine.Points?.Clear();
 
             mf.FileSaveHeadland();
 

@@ -47,12 +47,12 @@ namespace AgOpenGPS
             double distance;
 
             //remove the points too close to boundary
-            for (int i = 0; i < fenceLine.Count; i++)
+            for (int i = 0; i < fenceLine.Points.Count; i++)
             {
                 for (int j = 0; j < lineCount; j++)
                 {
                     //make sure distance between headland and boundary is not less then width
-                    distance = glm.DistanceSquared(fenceLine[i], turnLine[j]);
+                    distance = glm.DistanceSquared(fenceLine.Points[i], turnLine[j]);
                     if (distance < (totalHeadWidth * 0.99))
                     {
                         turnLine.RemoveAt(j);

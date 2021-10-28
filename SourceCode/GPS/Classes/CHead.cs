@@ -24,7 +24,7 @@ namespace AgOpenGPS
 
         public void WhereAreToolCorners()
         {
-            if (bndList.Count > 0 && bndList[0].hdLine.Count > 0)
+            if (bndList.Count > 0 && bndList[0].hdLine.Points.Count > 0)
             {
                 bool isLeftInWk, isRightInWk = true;
 
@@ -51,7 +51,7 @@ namespace AgOpenGPS
 
         public void WhereAreToolLookOnPoints()
         {
-            if (bndList.Count > 0 && bndList[0].hdLine.Count > 0)
+            if (bndList.Count > 0 && bndList[0].hdLine.Points.Count > 0)
             {
                 bool isLookRightIn = false;
 
@@ -85,11 +85,11 @@ namespace AgOpenGPS
         public bool IsPointInsideHeadArea(vec2 pt)
         {
             //if inside outer boundary, then potentially add
-            if (bndList[0].hdLine.IsPointInPolygon(pt))
+            if (bndList[0].hdLine.Points.IsPointInPolygon(pt))
             {
                 for (int i = 1; i < bndList.Count; i++)
                 {
-                    if (bndList[i].hdLine.IsPointInPolygon(pt))
+                    if (bndList[i].hdLine.Points.IsPointInPolygon(pt))
                     {
                         //point is in an inner turn area but inside outer
                         return false;

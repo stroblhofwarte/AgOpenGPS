@@ -225,14 +225,14 @@ namespace AgOpenGPS
                 bndList[j].turnLine.Clear();
                 if (bndList[j].isDriveThru) continue;
 
-                int ptCount = bndList[j].fenceLine.Count;
+                int ptCount = bndList[j].fenceLine.Points.Count;
 
                 for (int i = ptCount - 1; i >= 0; i--)
                 {
                     //calculate the point outside the boundary
-                    point.easting = bndList[j].fenceLine[i].easting + (-Math.Sin(glm.PIBy2 + bndList[j].fenceLine[i].heading) * totalHeadWidth);
-                    point.northing = bndList[j].fenceLine[i].northing + (-Math.Cos(glm.PIBy2 + bndList[j].fenceLine[i].heading) * totalHeadWidth);
-                    point.heading = bndList[j].fenceLine[i].heading;
+                    point.easting = bndList[j].fenceLine.Points[i].easting + (-Math.Sin(glm.PIBy2 + bndList[j].fenceLine.Points[i].heading) * totalHeadWidth);
+                    point.northing = bndList[j].fenceLine.Points[i].northing + (-Math.Cos(glm.PIBy2 + bndList[j].fenceLine.Points[i].heading) * totalHeadWidth);
+                    point.heading = bndList[j].fenceLine.Points[i].heading;
                     if (point.heading < -glm.twoPI) point.heading += glm.twoPI;
 
                     //only add if outside actual field boundary

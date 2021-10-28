@@ -246,7 +246,7 @@ namespace AgOpenGPS
 
             //ControlExtension.Draggable(panelSnap, true);
             ControlExtension.Draggable(oglZoom, true);
-            //ControlExtension.Draggable(panelSim, true);
+            ControlExtension.Draggable(oglBack, true);
 
             setWorkingDirectoryToolStripMenuItem.Text = gStr.gsDirectories;
             enterSimCoordsToolStripMenuItem.Text = gStr.gsEnterSimCoords;
@@ -461,6 +461,12 @@ namespace AgOpenGPS
 
             //nmea limiter
             udpWatch.Start();
+        }
+
+        private void lblCurveLineName_Click(object sender, EventArgs e)
+        {
+            mode += 1;
+            if (mode > 1) mode = 0;
         }
 
         //form is closing so tidy up and save settings
@@ -878,7 +884,7 @@ namespace AgOpenGPS
             section[tool.numOfSections].positionRight = tool.toolFarRightPosition;
 
             //find the right side pixel position
-            tool.rpXPosition = 250 + (int)(Math.Round(tool.toolFarLeftPosition * 10, 0, MidpointRounding.AwayFromZero));
+            tool.rpXPosition = 375 + (int)(Math.Round(tool.toolFarLeftPosition * 10, 0, MidpointRounding.AwayFromZero));
             tool.rpWidth = (int)(Math.Round(tool.toolWidth * 10, 0, MidpointRounding.AwayFromZero));
         }
 
@@ -1156,6 +1162,86 @@ namespace AgOpenGPS
         //Does the logic to process section on off requests
         private void ProcessSectionOnOffRequests()
         {
+            if (mode == 1)
+            {
+                for (int j = 0; j < tool.numOfSections; j++)
+                {
+                    //SECTIONS - 
+                    if (section[j].sectionOnRequest)
+                    {
+                        if (!section[j].isSectionOn)
+                        {
+                            section[j].isSectionOn = true;
+                        }
+                        section[j].sectionOverlapTimer = (int)(HzTime * tool.turnOffDelay + 1);
+
+                        if (section[j].mappingOnTimer == 0) section[j].mappingOnTimer = (int)(HzTime * tool.mappingOnDelay + 1);
+                    }
+                    else
+                    {
+                        if (section[j].sectionOverlapTimer > 0) section[j].sectionOverlapTimer--;
+                        if (section[j].isSectionOn && section[j].sectionOverlapTimer == 0)
+                        {
+                            section[j].isSectionOn = false;
+                        }
+                    }
+
+                    //MAPPING -
+                    if (tool.isSuperSectionAllowedOn)
+                    {
+                        if (section[j].isMappingOn)
+                        {
+                            section[j].TurnMappingOff();
+                            section[j].mappingOnTimer = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (!section[j].isMappingOn && section[j].mappingOnTimer > 0)
+                        {
+                            if (section[j].mappingOnTimer > 0) section[j].mappingOnTimer--;
+                            if (section[j].mappingOnTimer == 0)
+                            {
+                                section[j].TurnMappingOn(j);
+                            }
+                        }
+
+                        if (section[j].isSectionOn)
+                        {
+                            section[j].mappingOffTimer = (int)(tool.mappingOffDelay * HzTime + 1);
+                        }
+                        else
+                        {
+                            if (section[j].mappingOffTimer > 0) section[j].mappingOffTimer--;
+                            if (section[j].mappingOffTimer == 0)
+                            {
+                                if (section[j].isMappingOn)
+                                {
+                                    section[j].TurnMappingOff();
+                                    section[j].mappingOnTimer = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (tool.isSuperSectionAllowedOn)
+                {
+                    if (!section[tool.numOfSections].isMappingOn)
+                    {
+                        section[tool.numOfSections].TurnMappingOn(tool.numOfSections);
+                    }
+                }
+                else if (tool.numOfSections > 0)
+                {
+                    if (section[tool.numOfSections].isMappingOn)
+                    {
+                        section[tool.numOfSections].TurnMappingOff();
+                    }
+                }
+
+            }
+            else
             {
                 double mapFactor = 1 + ((100 - tool.minCoverage) * 0.01);
                 for (int j = 0; j < tool.numOfSections + 1; j++)

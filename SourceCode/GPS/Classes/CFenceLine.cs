@@ -13,17 +13,17 @@ namespace AgOpenGPS
         public void CalculateFenceLineHeadings()
         {
             //to calc heading based on next and previous points to give an average heading.
-            int cnt = fenceLine.Count;
+            int cnt = fenceLine.Points.Count;
             vec3[] arr = new vec3[cnt];
             cnt--;
-            fenceLine.CopyTo(arr);
-            fenceLine.Clear();
+            fenceLine.Points.CopyTo(arr);
+            fenceLine.Points.Clear();
 
             //first point needs last, first, second points
             vec3 pt3 = arr[0];
             pt3.heading = Math.Atan2(arr[1].easting - arr[cnt].easting, arr[1].northing - arr[cnt].northing);
             if (pt3.heading < 0) pt3.heading += glm.twoPI;
-            fenceLine.Add(pt3);
+            fenceLine.Points.Add(pt3);
 
             //middle points
             for (int i = 1; i < cnt; i++)
@@ -31,14 +31,14 @@ namespace AgOpenGPS
                 pt3 = arr[i];
                 pt3.heading = Math.Atan2(arr[i + 1].easting - arr[i - 1].easting, arr[i + 1].northing - arr[i - 1].northing);
                 if (pt3.heading < 0) pt3.heading += glm.twoPI;
-                fenceLine.Add(pt3);
+                fenceLine.Points.Add(pt3);
             }
 
             //last and first point
             pt3 = arr[cnt];
             pt3.heading = Math.Atan2(arr[0].easting - arr[cnt - 1].easting, arr[0].northing - arr[cnt - 1].northing);
             if (pt3.heading < 0) pt3.heading += glm.twoPI;
-            fenceLine.Add(pt3);
+            fenceLine.Points.Add(pt3);
         }
 
         public void FixFenceLine(int bndNum)
@@ -52,7 +52,7 @@ namespace AgOpenGPS
 
             if (bndNum > 0) spacing *= 0.5;
 
-            int bndCount = fenceLine.Count;
+            int bndCount = fenceLine.Points.Count;
             double distance;
 
             //make sure distance isn't too big between points on boundary
@@ -61,48 +61,48 @@ namespace AgOpenGPS
                 int j = i + 1;
 
                 if (j == bndCount) j = 0;
-                distance = glm.Distance(fenceLine[i], fenceLine[j]);
+                distance = glm.Distance(fenceLine.Points[i], fenceLine.Points[j]);
                 if (distance > spacing * 1.5)
                 {
-                    vec3 pointB = new vec3((fenceLine[i].easting + fenceLine[j].easting) / 2.0,
-                        (fenceLine[i].northing + fenceLine[j].northing) / 2.0, fenceLine[i].heading);
+                    vec3 pointB = new vec3((fenceLine.Points[i].easting + fenceLine.Points[j].easting) / 2.0,
+                        (fenceLine.Points[i].northing + fenceLine.Points[j].northing) / 2.0, fenceLine.Points[i].heading);
 
-                    fenceLine.Insert(j, pointB);
-                    bndCount = fenceLine.Count;
+                    fenceLine.Points.Insert(j, pointB);
+                    bndCount = fenceLine.Points.Count;
                     i--;
                 }
             }
 
             //make sure distance isn't too big between points on boundary
-            bndCount = fenceLine.Count;
+            bndCount = fenceLine.Points.Count;
 
             for (int i = 0; i < bndCount; i++)
             {
                 int j = i + 1;
 
                 if (j == bndCount) j = 0;
-                distance = glm.Distance(fenceLine[i], fenceLine[j]);
+                distance = glm.Distance(fenceLine.Points[i], fenceLine.Points[j]);
                 if (distance > spacing * 1.6)
                 {
-                    vec3 pointB = new vec3((fenceLine[i].easting + fenceLine[j].easting) / 2.0,
-                        (fenceLine[i].northing + fenceLine[j].northing) / 2.0, fenceLine[i].heading);
+                    vec3 pointB = new vec3((fenceLine.Points[i].easting + fenceLine.Points[j].easting) / 2.0,
+                        (fenceLine.Points[i].northing + fenceLine.Points[j].northing) / 2.0, fenceLine.Points[i].heading);
 
-                    fenceLine.Insert(j, pointB);
-                    bndCount = fenceLine.Count;
+                    fenceLine.Points.Insert(j, pointB);
+                    bndCount = fenceLine.Points.Count;
                     i--;
                 }
             }
 
             //make sure distance isn't too small between points on headland
             spacing *= 1.2;
-            bndCount = fenceLine.Count;
+            bndCount = fenceLine.Points.Count;
             for (int i = 0; i < bndCount - 1; i++)
             {
-                distance = glm.Distance(fenceLine[i], fenceLine[i + 1]);
+                distance = glm.Distance(fenceLine.Points[i], fenceLine.Points[i + 1]);
                 if (distance < spacing)
                 {
-                    fenceLine.RemoveAt(i + 1);
-                    bndCount = fenceLine.Count;
+                    fenceLine.Points.RemoveAt(i + 1);
+                    bndCount = fenceLine.Points.Count;
                     i--;
                 }
             }
@@ -113,17 +113,17 @@ namespace AgOpenGPS
             double delta = 0;
             fenceLineEar?.Clear();
 
-            for (int i = 0; i < fenceLine.Count; i++)
+            for (int i = 0; i < fenceLine.Points.Count; i++)
             {
                 if (i == 0)
                 {
-                    fenceLineEar.Add(new vec2(fenceLine[i].easting, fenceLine[i].northing));
+                    fenceLineEar.Add(new vec2(fenceLine.Points[i].easting, fenceLine.Points[i].northing));
                     continue;
                 }
-                delta += (fenceLine[i - 1].heading - fenceLine[i].heading);
+                delta += (fenceLine.Points[i - 1].heading - fenceLine.Points[i].heading);
                 if (Math.Abs(delta) > 0.01)
                 {
-                    fenceLineEar.Add(new vec2(fenceLine[i].easting, fenceLine[i].northing));
+                    fenceLineEar.Add(new vec2(fenceLine.Points[i].easting, fenceLine.Points[i].northing));
                     delta = 0;
                 }
             }
@@ -132,23 +132,23 @@ namespace AgOpenGPS
         public void ReverseWinding()
         {
             //reverse the boundary
-            int cnt = fenceLine.Count;
+            int cnt = fenceLine.Points.Count;
             vec3[] arr = new vec3[cnt];
             cnt--;
-            fenceLine.CopyTo(arr);
-            fenceLine.Clear();
+            fenceLine.Points.CopyTo(arr);
+            fenceLine.Points.Clear();
             for (int i = cnt; i >= 0; i--)
             {
                 arr[i].heading -= Math.PI;
                 if (arr[i].heading < 0) arr[i].heading += glm.twoPI;
-                fenceLine.Add(arr[i]);
+                fenceLine.Points.Add(arr[i]);
             }
         }
 
         //obvious
         public bool CalculateFenceArea(int idx)
         {
-            int ptCount = fenceLine.Count;
+            int ptCount = fenceLine.Points.Count;
             if (ptCount < 1) return false;
 
             area = 0;         // Accumulates area in the loop
@@ -156,7 +156,7 @@ namespace AgOpenGPS
 
             for (int i = 0; i < ptCount; j = i++)
             {
-                area += (fenceLine[j].easting + fenceLine[i].easting) * (fenceLine[j].northing - fenceLine[i].northing);
+                area += (fenceLine.Points[j].easting + fenceLine.Points[i].easting) * (fenceLine.Points[j].northing - fenceLine.Points[i].northing);
             }
 
             bool isClockwise = area >= 0;

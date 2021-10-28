@@ -963,7 +963,7 @@
             this.oglBack.Location = new System.Drawing.Point(180, 70);
             this.oglBack.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.oglBack.Name = "oglBack";
-            this.oglBack.Size = new System.Drawing.Size(500, 300);
+            this.oglBack.Size = new System.Drawing.Size(750, 300);
             this.oglBack.TabIndex = 181;
             this.oglBack.VSync = false;
             this.oglBack.Load += new System.EventHandler(this.oglBack_Load);
@@ -1977,6 +1977,7 @@
             this.lblCurveLineName.Size = new System.Drawing.Size(34, 16);
             this.lblCurveLineName.TabIndex = 486;
             this.lblCurveLineName.Text = "Line";
+            this.lblCurveLineName.Click += new System.EventHandler(this.lblCurveLineName_Click);
             // 
             // lblCurrentField
             // 

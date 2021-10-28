@@ -22,6 +22,7 @@ namespace AgOpenGPS
 
         public double lookAheadOffSetting, lookAheadOnSetting;
         public double turnOffDelay;
+        public int mappingOffDelay = 0, mappingOnDelay;
 
         public double lookAheadDistanceOnPixelsLeft, lookAheadDistanceOnPixelsRight;
         public double lookAheadDistanceOffPixelsLeft, lookAheadDistanceOffPixelsRight;

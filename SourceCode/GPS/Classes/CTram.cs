@@ -101,7 +101,7 @@ namespace AgOpenGPS
         private void CreateBndInnerTramTrack()
         {
             //count the points from the boundary
-            int ptCount = mf.bnd.bndList[0].fenceLine.Count;
+            int ptCount = mf.bnd.bndList[0].fenceLine.Points.Count;
             tramBndInnerArr?.Clear();
 
             //outside point
@@ -113,18 +113,18 @@ namespace AgOpenGPS
             for (int i = 0; i < ptCount; i++)
             {
                 //calculate the point inside the boundary
-                pt3.easting = mf.bnd.bndList[0].fenceLine[i].easting -
-                    (Math.Sin(glm.PIBy2 + mf.bnd.bndList[0].fenceLine[i].heading) * (tramWidth * 0.5 + halfWheelTrack));
+                pt3.easting = mf.bnd.bndList[0].fenceLine.Points[i].easting -
+                    (Math.Sin(glm.PIBy2 + mf.bnd.bndList[0].fenceLine.Points[i].heading) * (tramWidth * 0.5 + halfWheelTrack));
 
-                pt3.northing = mf.bnd.bndList[0].fenceLine[i].northing -
-                    (Math.Cos(glm.PIBy2 + mf.bnd.bndList[0].fenceLine[i].heading) * (tramWidth * 0.5 + halfWheelTrack));
+                pt3.northing = mf.bnd.bndList[0].fenceLine.Points[i].northing -
+                    (Math.Cos(glm.PIBy2 + mf.bnd.bndList[0].fenceLine.Points[i].heading) * (tramWidth * 0.5 + halfWheelTrack));
 
                 bool Add = true;
 
                 for (int j = 0; j < ptCount; j++)
                 {
                     double check = glm.DistanceSquared(pt3.northing, pt3.easting,
-                                        mf.bnd.bndList[0].fenceLine[j].northing, mf.bnd.bndList[0].fenceLine[j].easting);
+                                        mf.bnd.bndList[0].fenceLine.Points[j].northing, mf.bnd.bndList[0].fenceLine.Points[j].easting);
                     if (check < distSq)
                     {
                         Add = false;
@@ -149,7 +149,7 @@ namespace AgOpenGPS
         public void CreateBndOuterTramTrack()
         {
             //count the points from the boundary
-            int ptCount = mf.bnd.bndList[0].fenceLine.Count;
+            int ptCount = mf.bnd.bndList[0].fenceLine.Points.Count;
             tramBndOuterArr?.Clear();
 
             //outside point
@@ -161,18 +161,18 @@ namespace AgOpenGPS
             for (int i = 0; i < ptCount; i++)
             {
                 //calculate the point inside the boundary
-                pt3.easting = mf.bnd.bndList[0].fenceLine[i].easting -
-                    (Math.Sin(glm.PIBy2 + mf.bnd.bndList[0].fenceLine[i].heading) * (tramWidth * 0.5 - halfWheelTrack));
+                pt3.easting = mf.bnd.bndList[0].fenceLine.Points[i].easting -
+                    (Math.Sin(glm.PIBy2 + mf.bnd.bndList[0].fenceLine.Points[i].heading) * (tramWidth * 0.5 - halfWheelTrack));
 
-                pt3.northing = mf.bnd.bndList[0].fenceLine[i].northing -
-                    (Math.Cos(glm.PIBy2 + mf.bnd.bndList[0].fenceLine[i].heading) * (tramWidth * 0.5 - halfWheelTrack));
+                pt3.northing = mf.bnd.bndList[0].fenceLine.Points[i].northing -
+                    (Math.Cos(glm.PIBy2 + mf.bnd.bndList[0].fenceLine.Points[i].heading) * (tramWidth * 0.5 - halfWheelTrack));
 
                 bool Add = true;
 
                 for (int j = 0; j < ptCount; j++)
                 {
                     double check = glm.DistanceSquared(pt3.northing, pt3.easting,
-                                        mf.bnd.bndList[0].fenceLine[j].northing, mf.bnd.bndList[0].fenceLine[j].easting);
+                                        mf.bnd.bndList[0].fenceLine.Points[j].northing, mf.bnd.bndList[0].fenceLine.Points[j].easting);
                     if (check < distSq)
                     {
                         Add = false;

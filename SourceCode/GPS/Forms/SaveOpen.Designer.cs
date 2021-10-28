@@ -715,7 +715,7 @@ namespace AgOpenGPS
                                     double.Parse(words[1], CultureInfo.InvariantCulture),
                                     double.Parse(words[2], CultureInfo.InvariantCulture));
 
-                                    New.fenceLine.Add(vecPt);
+                                    New.fenceLine.Points.Add(vecPt);
                                 }
 
                                 New.CalculateFenceArea(k);
@@ -723,17 +723,17 @@ namespace AgOpenGPS
                                 double delta = 0;
                                 New.fenceLineEar?.Clear();
 
-                                for (int i = 0; i < New.fenceLine.Count; i++)
+                                for (int i = 0; i < New.fenceLine.Points.Count; i++)
                                 {
                                     if (i == 0)
                                     {
-                                        New.fenceLineEar.Add(new vec2(New.fenceLine[i].easting, New.fenceLine[i].northing));
+                                        New.fenceLineEar.Add(new vec2(New.fenceLine.Points[i].easting, New.fenceLine.Points[i].northing));
                                         continue;
                                     }
-                                    delta += (New.fenceLine[i - 1].heading - New.fenceLine[i].heading);
+                                    delta += (New.fenceLine.Points[i - 1].heading - New.fenceLine.Points[i].heading);
                                     if (Math.Abs(delta) > 0.04)
                                     {
-                                        New.fenceLineEar.Add(new vec2(New.fenceLine[i].easting, New.fenceLine[i].northing));
+                                        New.fenceLineEar.Add(new vec2(New.fenceLine.Points[i].easting, New.fenceLine.Points[i].northing));
                                         delta = 0;
                                     }
                                 }
@@ -774,7 +774,7 @@ namespace AgOpenGPS
 
                             if (bnd.bndList.Count > k)
                             {
-                                bnd.bndList[k].hdLine.Clear();
+                                bnd.bndList[k].hdLine.Points.Clear();
 
                                 //read the number of points
                                 line = reader.ReadLine();
@@ -791,7 +791,7 @@ namespace AgOpenGPS
                                             double.Parse(words[0], CultureInfo.InvariantCulture),
                                             double.Parse(words[1], CultureInfo.InvariantCulture),
                                             double.Parse(words[2], CultureInfo.InvariantCulture));
-                                        bnd.bndList[k].hdLine.Add(vecPt);
+                                        bnd.bndList[k].hdLine.Points.Add(vecPt);
                                     }
                                 }
                             }
@@ -807,7 +807,7 @@ namespace AgOpenGPS
                 }
             }
 
-            if (bnd.bndList.Count > 0 && bnd.bndList[0].hdLine.Count > 0)
+            if (bnd.bndList.Count > 0 && bnd.bndList[0].hdLine.Points.Count > 0)
             {
                 bnd.isHeadlandOn = true;
                 btnHeadlandOnOff.Image = Properties.Resources.HeadlandOn;
@@ -1213,13 +1213,13 @@ namespace AgOpenGPS
                     writer.WriteLine(bnd.bndList[i].isDriveThru);
                     //writer.WriteLine(bnd.bndList[i].isDriveAround);
 
-                    writer.WriteLine(bnd.bndList[i].fenceLine.Count.ToString(CultureInfo.InvariantCulture));
-                    if (bnd.bndList[i].fenceLine.Count > 0)
+                    writer.WriteLine(bnd.bndList[i].fenceLine.Points.Count.ToString(CultureInfo.InvariantCulture));
+                    if (bnd.bndList[i].fenceLine.Points.Count > 0)
                     {
-                        for (int j = 0; j < bnd.bndList[i].fenceLine.Count; j++)
-                            writer.WriteLine(Math.Round(bnd.bndList[i].fenceLine[j].easting,3).ToString(CultureInfo.InvariantCulture) + "," +
-                                                Math.Round(bnd.bndList[i].fenceLine[j].northing, 3).ToString(CultureInfo.InvariantCulture) + "," +
-                                                    Math.Round(bnd.bndList[i].fenceLine[j].heading,5).ToString(CultureInfo.InvariantCulture));
+                        for (int j = 0; j < bnd.bndList[i].fenceLine.Points.Count; j++)
+                            writer.WriteLine(Math.Round(bnd.bndList[i].fenceLine.Points[j].easting,3).ToString(CultureInfo.InvariantCulture) + "," +
+                                                Math.Round(bnd.bndList[i].fenceLine.Points[j].northing, 3).ToString(CultureInfo.InvariantCulture) + "," +
+                                                    Math.Round(bnd.bndList[i].fenceLine.Points[j].heading,5).ToString(CultureInfo.InvariantCulture));
                     }
                 }
             }
@@ -1293,17 +1293,17 @@ namespace AgOpenGPS
             {
                 writer.WriteLine("$Headland");
 
-                if (bnd.bndList[0].hdLine.Count > 0)
+                if (bnd.bndList[0].hdLine.Points.Count > 0)
                 {
                     for (int i = 0; i < bnd.bndList.Count; i++)
                     {
-                        writer.WriteLine(bnd.bndList[i].hdLine.Count.ToString(CultureInfo.InvariantCulture));
-                        if (bnd.bndList[0].hdLine.Count > 0)
+                        writer.WriteLine(bnd.bndList[i].hdLine.Points.Count.ToString(CultureInfo.InvariantCulture));
+                        if (bnd.bndList[0].hdLine.Points.Count > 0)
                         {
-                            for (int j = 0; j < bnd.bndList[i].hdLine.Count; j++)
-                                writer.WriteLine(Math.Round(bnd.bndList[i].hdLine[j].easting, 3).ToString(CultureInfo.InvariantCulture) + "," +
-                                                 Math.Round(bnd.bndList[i].hdLine[j].northing, 3).ToString(CultureInfo.InvariantCulture) + "," +
-                                                 Math.Round(bnd.bndList[i].hdLine[j].heading, 3).ToString(CultureInfo.InvariantCulture));
+                            for (int j = 0; j < bnd.bndList[i].hdLine.Points.Count; j++)
+                                writer.WriteLine(Math.Round(bnd.bndList[i].hdLine.Points[j].easting, 3).ToString(CultureInfo.InvariantCulture) + "," +
+                                                 Math.Round(bnd.bndList[i].hdLine.Points[j].northing, 3).ToString(CultureInfo.InvariantCulture) + "," +
+                                                 Math.Round(bnd.bndList[i].hdLine.Points[j].heading, 3).ToString(CultureInfo.InvariantCulture));
                         }
                     }
                 }
@@ -1703,7 +1703,7 @@ namespace AgOpenGPS
                 //coords
                 kml.WriteStartElement("coordinates");
                 string bndPts = "";
-                if (bnd.bndList[i].fenceLine.Count > 3)
+                if (bnd.bndList[i].fenceLine.Points.Count > 3)
                     bndPts = GetBoundaryPointsLatLon(i);
                 kml.WriteRaw(bndPts);
                 kml.WriteEndElement(); // <coordinates>
@@ -1947,12 +1947,12 @@ namespace AgOpenGPS
         {
             StringBuilder sb = new StringBuilder();
 
-            for (int i = 0; i < bnd.bndList[bndNum].fenceLine.Count; i++)
+            for (int i = 0; i < bnd.bndList[bndNum].fenceLine.Points.Count; i++)
             {
                 double lat = 0;
                 double lon = 0;
 
-                pn.ConvertLocalToWGS84(bnd.bndList[bndNum].fenceLine[i].northing, bnd.bndList[bndNum].fenceLine[i].easting, out lat, out lon);
+                pn.ConvertLocalToWGS84(bnd.bndList[bndNum].fenceLine.Points[i].northing, bnd.bndList[bndNum].fenceLine.Points[i].easting, out lat, out lon);
 
                 sb.Append(lon.ToString("N7", CultureInfo.InvariantCulture) + ',' + lat.ToString("N7", CultureInfo.InvariantCulture) + ",0 ");
             }

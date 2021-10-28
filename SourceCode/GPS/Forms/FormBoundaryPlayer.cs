@@ -33,7 +33,7 @@ namespace AgOpenGPS
 
                 for (int i = 0; i < mf.bnd.bndBeingMadePts.Count; i++)
                 {
-                    New.fenceLine.Add(mf.bnd.bndBeingMadePts[i]);
+                    New.fenceLine.Points.Add(mf.bnd.bndBeingMadePts[i]);
                 }
 
                 New.CalculateFenceArea(mf.bnd.bndList.Count);
