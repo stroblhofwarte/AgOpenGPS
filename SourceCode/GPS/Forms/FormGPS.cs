@@ -1180,12 +1180,16 @@ namespace AgOpenGPS
                         section[j].sectionOverlapTimer = (int)(fixUpdateHz * mapFactor * sped + (fixUpdateHz * tool.turnOffDelay) + 1);
                     }
 
-                    if (section[j].mappingOnTimer < 1) section[j].mappingOnTimer = (int)Math.Max(HzTime * (tool.lookAheadOnSetting - 0.05), 1);//tool.mappingOnDelay
-
-                    section[j].mappingOffTimer = (int)Math.Max(HzTime * (tool.lookAheadOffSetting + 0.1), 1);//tool.mappingOffDelay
+                    if (section[j].mappingOnTimer == 0) section[j].mappingOnTimer = (int)Math.Max(HzTime * tool.lookAheadOnSetting - 0.5, 1);//tool.mappingOnDelay
+                    section[j].mappingOffTimer = (int)(HzTime * tool.lookAheadOffSetting + 2);//tool.mappingOffDelay
                 }
-                else if (section[j].isSectionOn && --section[j].sectionOverlapTimer == 0)
-                    section[j].isSectionOn = false;
+                else if (section[j].sectionOverlapTimer > 0)
+                {
+                    section[j].mappingOffTimer = (int)(HzTime * tool.lookAheadOffSetting + 2);//tool.mappingOffDelay
+                    section[j].sectionOverlapTimer--;
+                    if (section[j].isSectionOn && section[j].sectionOverlapTimer == 0)
+                        section[j].isSectionOn = false;
+                }
 
                 //MAPPING -
                 if (tool.isSuperSectionAllowedOn)
@@ -1196,10 +1200,26 @@ namespace AgOpenGPS
                         section[j].mappingOnTimer = 1;
                     }
                 }
-                else if (section[j].isSectionOn && !section[j].isMappingOn && ((mode == 0) || --section[j].mappingOnTimer == 0))
-                        section[j].TurnMappingOn(j);
-                else if (!section[j].isSectionOn && section[j].isMappingOn && ((mode == 0) || --section[j].mappingOffTimer == 0))
-                        section[j].TurnMappingOff();
+                else
+                {
+                    if (section[j].mappingOnTimer > 0)
+                    {
+                        section[j].mappingOnTimer--;
+                        if (!section[j].isMappingOn && section[j].mappingOnTimer == 0)
+                            section[j].TurnMappingOn(j);
+                    }
+
+                    if (section[j].mappingOffTimer > 0)
+                    {
+                        section[j].mappingOffTimer--;
+                        if (section[j].mappingOffTimer == 0)
+                        {
+                            section[j].mappingOnTimer = 0;
+                            if (section[j].isMappingOn)
+                                section[j].TurnMappingOff();
+                        }
+                    }
+                }
             }
 
             if (tool.isSuperSectionAllowedOn && !section[tool.numOfSections].isMappingOn)

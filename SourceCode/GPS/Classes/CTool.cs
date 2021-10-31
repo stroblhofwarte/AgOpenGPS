@@ -246,35 +246,32 @@ namespace AgOpenGPS
             {
                 for (int j = 0; j < numOfSections; j++)
                 {
-                    //Both On
-                    if ((mf.section[j].sectionOnRequest || mf.section[numOfSections].sectionOnRequest) && (mf.section[j].isMappingOn || mf.section[numOfSections].isMappingOn))
+                    if (mf.section[j].sectionOnRequest || mf.section[numOfSections].sectionOnRequest)
                     {
-                        if (mf.section[j].manBtnState == btnStates.Auto)
-                            GL.Color3(0.0f, 0.9f, 0.0f);
-                        else
-                            GL.Color3(0.97f, 0.97f, 0f);
+                        if (mf.section[j].isMappingOn || mf.section[numOfSections].isMappingOn)
+                        {
+                            //Both On
+                            if (mf.section[j].manBtnState == btnStates.Auto)
+                                GL.Color3(0.0f, 0.9f, 0.0f);
+                            else
+                                GL.Color3(0.97f, 0.97f, 0f);
+                        }
+                        else //Section wants to turn mapping on
+                            GL.Color3(0.5f, 0.0f, 1.0f);//violet
                     }
-                    //Section wants to turn mapping on
-                    else if ((mf.section[j].sectionOnRequest || mf.section[numOfSections].sectionOnRequest) && !mf.section[j].isMappingOn && !mf.section[numOfSections].isMappingOn)
-                    {
+                    else if (mf.section[j].isSectionOn || mf.section[numOfSections].isSectionOn)
+                        //Section wants to turn off
                         GL.Color3(1.0f, 0.647f, 0.0f);//orange
-                    }
-                    //Section wants to turn off
-                    else if ((mf.section[j].isSectionOn || mf.section[numOfSections].isSectionOn) && !mf.section[j].sectionOnRequest && !mf.section[numOfSections].sectionOnRequest)
-                    {
+                    else if (mf.section[j].isMappingOn || mf.section[numOfSections].isMappingOn)
+                        //Section wants to turn mapping off
                         GL.Color3(0.5f, 0.5f, 0.5f);//gray
-                    }
-                    //Section wants to turn mapping off
-                    else if (!mf.section[j].isSectionOn && !mf.section[numOfSections].isSectionOn && !mf.section[j].sectionOnRequest && !mf.section[numOfSections].sectionOnRequest && (mf.section[j].isMappingOn || mf.section[numOfSections].isMappingOn))
+                    else if (mf.section[j].mappingOnTimer > 1 && mf.section[j].mappingOffTimer > mf.section[j].mappingOnTimer)
                     {
-
                         GL.Color3(0.5f, 0.0f, 1.0f);//violet
                     }
                     else
-                    {
+                        //Both Off
                         GL.Color3(0.97f, 0.0f, 0.0f);//red
-                    }
-
                     /*
                     //if section is on, green, if off, red color
                     if (mf.section[j].isSectionOn || mf.section[numOfSections].isSectionOn)
