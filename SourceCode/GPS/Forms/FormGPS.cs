@@ -1028,7 +1028,6 @@ namespace AgOpenGPS
             //turn section buttons all OFF
             for (int j = 0; j < MAXSECTIONS; j++)
             {
-                section[j].isAllowedOn = false;
                 section[j].manBtnState = btnStates.On;
             }
 
@@ -1162,184 +1161,103 @@ namespace AgOpenGPS
         //Does the logic to process section on off requests
         private void ProcessSectionOnOffRequests()
         {
-            if (mode == 1)
+            double mapFactor = 1 + ((100 - tool.minCoverage) * 0.01);
+            for (int j = 0; j < tool.numOfSections; j++)
             {
-                for (int j = 0; j < tool.numOfSections; j++)
+                //SECTIONS - 
+                if (section[j].sectionOnRequest)
                 {
-                    //SECTIONS - 
-                    if (section[j].sectionOnRequest)
-                    {
-                        if (!section[j].isSectionOn)
-                        {
-                            section[j].isSectionOn = true;
-                        }
-                        section[j].sectionOverlapTimer = (int)(HzTime * tool.turnOffDelay + 1);
+                    section[j].isSectionOn = true;
 
-                        if (section[j].mappingOnTimer == 0) section[j].mappingOnTimer = (int)(HzTime * tool.mappingOnDelay + 1);
-                    }
+                    if (mode == 1)
+                        section[j].sectionOverlapTimer = (int)Math.Max(HzTime * tool.turnOffDelay, 1);
                     else
                     {
-                        if (section[j].sectionOverlapTimer > 0) section[j].sectionOverlapTimer--;
-                        if (section[j].isSectionOn && section[j].sectionOverlapTimer == 0)
-                        {
-                            section[j].isSectionOn = false;
-                        }
+                        double sped = 1 / ((pn.speed + 3) * 0.5);
+                        if (sped < 0.3) sped = 0.3;
+
+                        //keep setting the timer so full when ready to turn off
+                        section[j].sectionOverlapTimer = (int)(fixUpdateHz * mapFactor * sped + (fixUpdateHz * tool.turnOffDelay) + 1);
                     }
 
-                    //MAPPING -
-                    if (tool.isSuperSectionAllowedOn)
-                    {
-                        if (section[j].isMappingOn)
-                        {
-                            section[j].TurnMappingOff();
-                            section[j].mappingOnTimer = 1;
-                        }
-                    }
-                    else
-                    {
-                        if (!section[j].isMappingOn && section[j].mappingOnTimer > 0)
-                        {
-                            if (section[j].mappingOnTimer > 0) section[j].mappingOnTimer--;
-                            if (section[j].mappingOnTimer == 0)
-                            {
-                                section[j].TurnMappingOn(j);
-                            }
-                        }
+                    if (section[j].mappingOnTimer < 1) section[j].mappingOnTimer = (int)Math.Max(HzTime * (tool.lookAheadOnSetting - 0.05), 1);//tool.mappingOnDelay
 
-                        if (section[j].isSectionOn)
-                        {
-                            section[j].mappingOffTimer = (int)(tool.mappingOffDelay * HzTime + 1);
-                        }
-                        else
-                        {
-                            if (section[j].mappingOffTimer > 0) section[j].mappingOffTimer--;
-                            if (section[j].mappingOffTimer == 0)
-                            {
-                                if (section[j].isMappingOn)
-                                {
-                                    section[j].TurnMappingOff();
-                                    section[j].mappingOnTimer = 0;
-                                }
-                            }
-                        }
-                    }
+                    section[j].mappingOffTimer = (int)Math.Max(HzTime * (tool.lookAheadOffSetting + 0.1), 1);//tool.mappingOffDelay
                 }
+                else if (section[j].isSectionOn && --section[j].sectionOverlapTimer == 0)
+                    section[j].isSectionOn = false;
 
+                //MAPPING -
                 if (tool.isSuperSectionAllowedOn)
                 {
-                    if (!section[tool.numOfSections].isMappingOn)
+                    if (section[j].isMappingOn)
                     {
-                        section[tool.numOfSections].TurnMappingOn(tool.numOfSections);
+                        section[j].TurnMappingOff();
+                        section[j].mappingOnTimer = 1;
                     }
                 }
-                else if (tool.numOfSections > 0)
-                {
-                    if (section[tool.numOfSections].isMappingOn)
-                    {
-                        section[tool.numOfSections].TurnMappingOff();
-                    }
-                }
-
+                else if (section[j].isSectionOn && !section[j].isMappingOn && ((mode == 0) || --section[j].mappingOnTimer == 0))
+                        section[j].TurnMappingOn(j);
+                else if (!section[j].isSectionOn && section[j].isMappingOn && ((mode == 0) || --section[j].mappingOffTimer == 0))
+                        section[j].TurnMappingOff();
             }
-            else
-            {
-                double mapFactor = 1 + ((100 - tool.minCoverage) * 0.01);
-                for (int j = 0; j < tool.numOfSections + 1; j++)
-                {
-                    //SECTIONS - 
 
+            if (tool.isSuperSectionAllowedOn && !section[tool.numOfSections].isMappingOn)
+                section[tool.numOfSections].TurnMappingOn(tool.numOfSections);
+            else if (!tool.isSuperSectionAllowedOn && section[tool.numOfSections].isMappingOn)
+                section[tool.numOfSections].TurnMappingOff();
 
-                    if (section[j].sectionOnRequest)
-                        section[j].isSectionOn = true;
+            #region notes
+            //Turn ON
+            //if requested to be on, set the timer to Max 10 (1 seconds) = 10 frames per second
+            //if (section[j].sectionOnRequest && !section[j].sectionOnOffCycle)
+            //{
+            //    section[j].sectionOnTimer = (int)(pn.speed * section[j].lookAheadOn) + 1;
+            //    if (section[j].sectionOnTimer > fixUpdateHz + 3) section[j].sectionOnTimer = fixUpdateHz + 3;
+            //    section[j].sectionOnOffCycle = true;
+            //}
 
-                    if (!section[j].sectionOffRequest) section[j].sectionOffTimer = (int)(fixUpdateHz * tool.turnOffDelay);
+            ////reset the ON request
+            //section[j].sectionOnRequest = false;
 
-                    if (section[j].sectionOffTimer > 0) section[j].sectionOffTimer--;
+            ////decrement the timer if not zero
+            //if (section[j].sectionOnTimer > 0)
+            //{
+            //    //turn the section ON if not and decrement timer
+            //    section[j].sectionOnTimer--;
+            //    if (!section[j].isSectionOn) section[j].isSectionOn = true;
 
-                    if (section[j].sectionOffRequest & section[j].sectionOffTimer == 0)
-                    {
-                        if (section[j].isSectionOn) section[j].isSectionOn = false;
-                    }
+            //    //keep resetting the section OFF timer while the ON is active
+            //    //section[j].sectionOffTimer = (int)(fixUpdateHz * tool.toolTurnOffDelay);
+            //}
+            //if (!section[j].sectionOffRequest) 
+            //    section[j].sectionOffTimer = (int)(fixUpdateHz * tool.turnOffDelay);
 
-                    //MAPPING - 
+            ////decrement the off timer
+            //if (section[j].sectionOffTimer > 0 && section[j].sectionOnTimer == 0) section[j].sectionOffTimer--;
 
-                    //easy just turn it on
-                    if (section[j].mappingOnRequest)
-                    {
-                        if (!section[j].isMappingOn && isMapping) section[j].TurnMappingOn(j); //**************************************** un comment to enable mappping again
-                    }
+            ////Turn OFF
+            ////if Off section timer is zero, turn off the section
+            //if (section[j].sectionOffTimer == 0 && section[j].sectionOnTimer == 0 && section[j].sectionOffRequest)
+            //{
+            //    if (section[j].isSectionOn) section[j].isSectionOn = false;
+            //    //section[j].sectionOnOffCycle = false;
+            //    section[j].sectionOffRequest = false;
+            //    //}
+            //}
+            //Turn ON
+            //if requested to be on, set the timer to Max 10 (1 seconds) = 10 frames per second
+            //if (section[j].mappingOnRequest && !section[j].mappingOnOffCycle)
+            //{
+            //    section[j].mappingOnTimer = (int)(fixUpdateHz * 1) + 1;
+            //    section[j].mappingOnOffCycle = true;
+            //}
 
-                    //turn off
-                    double sped = 1 / ((pn.speed + 3) * 0.5);
-                    if (sped < 0.3) sped = 0.3;
+            ////reset the ON request
+            //section[j].mappingOnRequest = false;
 
-                    //keep setting the timer so full when ready to turn off
-                    if (!section[j].mappingOffRequest)
-                        section[j].mappingOffTimer = (int)(fixUpdateHz * mapFactor * sped + (fixUpdateHz * tool.turnOffDelay));
-
-                    //decrement the off timer
-                    if (section[j].mappingOffTimer > 0) section[j].mappingOffTimer--;
-
-                    //if Off mapping timer is zero, turn off the section, reset everything
-                    if (section[j].mappingOffTimer == 0 && section[j].mappingOffRequest)
-                    {
-                        if (section[j].isMappingOn) section[j].TurnMappingOff();
-                        section[j].mappingOffRequest = false;
-                    }
-
-                    #region notes
-                    //Turn ON
-                    //if requested to be on, set the timer to Max 10 (1 seconds) = 10 frames per second
-                    //if (section[j].sectionOnRequest && !section[j].sectionOnOffCycle)
-                    //{
-                    //    section[j].sectionOnTimer = (int)(pn.speed * section[j].lookAheadOn) + 1;
-                    //    if (section[j].sectionOnTimer > fixUpdateHz + 3) section[j].sectionOnTimer = fixUpdateHz + 3;
-                    //    section[j].sectionOnOffCycle = true;
-                    //}
-
-                    ////reset the ON request
-                    //section[j].sectionOnRequest = false;
-
-                    ////decrement the timer if not zero
-                    //if (section[j].sectionOnTimer > 0)
-                    //{
-                    //    //turn the section ON if not and decrement timer
-                    //    section[j].sectionOnTimer--;
-                    //    if (!section[j].isSectionOn) section[j].isSectionOn = true;
-
-                    //    //keep resetting the section OFF timer while the ON is active
-                    //    //section[j].sectionOffTimer = (int)(fixUpdateHz * tool.toolTurnOffDelay);
-                    //}
-                    //if (!section[j].sectionOffRequest) 
-                    //    section[j].sectionOffTimer = (int)(fixUpdateHz * tool.turnOffDelay);
-
-                    ////decrement the off timer
-                    //if (section[j].sectionOffTimer > 0 && section[j].sectionOnTimer == 0) section[j].sectionOffTimer--;
-
-                    ////Turn OFF
-                    ////if Off section timer is zero, turn off the section
-                    //if (section[j].sectionOffTimer == 0 && section[j].sectionOnTimer == 0 && section[j].sectionOffRequest)
-                    //{
-                    //    if (section[j].isSectionOn) section[j].isSectionOn = false;
-                    //    //section[j].sectionOnOffCycle = false;
-                    //    section[j].sectionOffRequest = false;
-                    //    //}
-                    //}
-                    //Turn ON
-                    //if requested to be on, set the timer to Max 10 (1 seconds) = 10 frames per second
-                    //if (section[j].mappingOnRequest && !section[j].mappingOnOffCycle)
-                    //{
-                    //    section[j].mappingOnTimer = (int)(fixUpdateHz * 1) + 1;
-                    //    section[j].mappingOnOffCycle = true;
-                    //}
-
-                    ////reset the ON request
-                    //section[j].mappingOnRequest = false;
-
-                    //decrement the timer if not zero
-                    #endregion notes
-                }
-            }
+            //decrement the timer if not zero
+            #endregion notes
         }
 
         //take the distance from object and convert to camera data
@@ -1375,8 +1293,6 @@ namespace AgOpenGPS
             for (int j = 0; j < tool.numOfSections + 1; j++)
             {
                 if (section[j].isMappingOn) section[j].TurnMappingOff();
-                section[j].sectionOnOffCycle = false;
-                section[j].sectionOffRequest = false;
             }
 
             //FileSaveHeadland();

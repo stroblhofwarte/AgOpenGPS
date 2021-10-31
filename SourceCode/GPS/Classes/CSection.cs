@@ -23,27 +23,14 @@ namespace AgOpenGPS
         //is this section on or off
         public bool isSectionOn = false;
 
-        public bool isAllowedOn = false;
-        public bool isSectionRequiredOn = false;
-
         public bool sectionOnRequest = false;
-        public bool sectionOffRequest = false;
-        public bool sectionOnOffCycle = false;
-
-        public int sectionOnTimer = 0;
-        public int sectionOffTimer = 0;
-
-        //mapping
-        public bool isMappingOn = false;
 
         public int sectionOverlapTimer = 0;
-        public bool isMappingRequiredOn = false;
 
-        public bool mappingOnRequest = false;
-        public bool mappingOffRequest = false;
-
-        public int mappingOnTimer = 0;
+        //mapping
         public int mappingOffTimer = 0;
+        public int mappingOnTimer = 0;
+        public bool isMappingOn = false;
 
         public double speedPixels = 0;
 

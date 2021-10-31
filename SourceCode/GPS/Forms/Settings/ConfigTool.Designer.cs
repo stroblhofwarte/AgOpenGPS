@@ -220,6 +220,9 @@ namespace AgOpenGPS
             Properties.Vehicle.Default.setVehicle_toolLookAheadOff = mf.tool.lookAheadOffSetting;
             Properties.Vehicle.Default.setVehicle_toolOffDelay = mf.tool.turnOffDelay;
 
+            mf.tool.mappingOffDelay = mf.tool.lookAheadOffSetting + 0.05;
+            mf.tool.mappingOnDelay = mf.tool.lookAheadOnSetting - 0.05;
+
             //line up manual buttons based on # of sections
             mf.LineUpManualBtns();
 
@@ -311,7 +314,6 @@ namespace AgOpenGPS
             //turn section buttons all OFF
             for (int j = 0; j < FormGPS.MAXSECTIONS; j++)
             {
-                mf.section[j].isAllowedOn = false;
                 mf.section[j].manBtnState = btnStates.On;
             }
 

@@ -5,9 +5,9 @@ namespace AgOpenGPS
     public partial class CBoundary
     {
         public bool isHeadlandOn;
-        public bool isToolInHeadland, isToolOuterPointsInHeadland;
+        public bool isToolOuterPointsInHeadland;
 
-        public void SetHydPosition()
+        public void SetHydPosition(bool isToolInHeadland)
         {
             if (mf.vehicle.isHydLiftOn && mf.pn.speed > 0.2 && mf.autoBtnState == btnStates.Auto)
             {

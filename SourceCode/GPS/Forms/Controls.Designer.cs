@@ -259,7 +259,6 @@ namespace AgOpenGPS
                     //turn all the sections allowed and update to ON!! Auto changes to ON
                     for (int j = 0; j < tool.numOfSections; j++)
                     {
-                        section[j].isAllowedOn = true;
                         section[j].manBtnState = btnStates.Auto;
                     }
 
@@ -273,7 +272,6 @@ namespace AgOpenGPS
                     //turn section buttons all OFF or Auto if SectionAuto was on or off
                     for (int j = 0; j < tool.numOfSections; j++)
                     {
-                        section[j].isAllowedOn = false;
                         section[j].manBtnState = btnStates.On;
                     }
 
@@ -300,7 +298,6 @@ namespace AgOpenGPS
                     //turn all the sections allowed and update to ON!! Auto changes to ON
                     for (int j = 0; j < tool.numOfSections; j++)
                     {
-                        section[j].isAllowedOn = true;
                         section[j].manBtnState = btnStates.Off;
                     }
 
@@ -315,7 +312,6 @@ namespace AgOpenGPS
                     //turn section buttons all OFF or Auto if SectionAuto was on or off
                     for (int j = 0; j < tool.numOfSections; j++)
                     {
-                        section[j].isAllowedOn = false;
                         section[j].manBtnState = btnStates.On;
                     }
 
@@ -1564,7 +1560,6 @@ namespace AgOpenGPS
                         //turn section buttons all OFF and zero square meters
                         for (int j = 0; j < MAXSECTIONS; j++)
                         {
-                            section[j].isAllowedOn = false;
                             section[j].manBtnState = btnStates.On;
                         }
 
