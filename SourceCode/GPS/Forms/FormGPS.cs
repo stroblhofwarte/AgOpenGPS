@@ -1079,11 +1079,10 @@ namespace AgOpenGPS
             btnSection15Man.BackColor = Color.Silver;
             btnSection16Man.BackColor = Color.Silver;
 
+            tool.patchList.Clear();
             //clear the section lists
             for (int j = 0; j < MAXSECTIONS; j++)
             {
-                //clean out the lists
-                section[j].patchList?.Clear();
                 section[j].triangleList?.Clear();
             }
 
@@ -1196,7 +1195,7 @@ namespace AgOpenGPS
                 {
                     if (section[j].isMappingOn)
                     {
-                        section[j].TurnMappingOff();
+                        section[j].TurnMappingOff(j);
                         section[j].mappingOnTimer = 1;
                     }
                 }
@@ -1216,7 +1215,7 @@ namespace AgOpenGPS
                         {
                             section[j].mappingOnTimer = 0;
                             if (section[j].isMappingOn)
-                                section[j].TurnMappingOff();
+                                section[j].TurnMappingOff(j);
                         }
                     }
                 }
@@ -1225,7 +1224,7 @@ namespace AgOpenGPS
             if (tool.isSuperSectionAllowedOn && !section[tool.numOfSections].isMappingOn)
                 section[tool.numOfSections].TurnMappingOn(tool.numOfSections);
             else if (!tool.isSuperSectionAllowedOn && section[tool.numOfSections].isMappingOn)
-                section[tool.numOfSections].TurnMappingOff();
+                section[tool.numOfSections].TurnMappingOff(tool.numOfSections);
 
             #region notes
             //Turn ON
@@ -1312,7 +1311,7 @@ namespace AgOpenGPS
             //turn off all the sections
             for (int j = 0; j < tool.numOfSections + 1; j++)
             {
-                if (section[j].isMappingOn) section[j].TurnMappingOff();
+                if (section[j].isMappingOn) section[j].TurnMappingOff(j);
             }
 
             //FileSaveHeadland();

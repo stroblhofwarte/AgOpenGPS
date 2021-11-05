@@ -1578,11 +1578,10 @@ namespace AgOpenGPS
                         ct.ResetContour();
                         fd.workedAreaTotal = 0;
 
+                        tool.patchList?.Clear();
                         //clear the section lists
                         for (int j = 0; j < MAXSECTIONS; j++)
                         {
-                            //clean out the lists
-                            section[j].patchList?.Clear();
                             section[j].triangleList?.Clear();
                         }
                         patchSaveList?.Clear();

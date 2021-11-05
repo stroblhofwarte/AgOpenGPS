@@ -1,5 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 
@@ -54,6 +55,9 @@ namespace AgOpenGPS
         public int rpWidth;
 
         public Color[] secColors = new Color[16];
+
+        //list of the list of patch data individual triangles for that entire section activity
+        public List<List<vec3>> patchList = new List<List<vec3>>();
 
         //Constructor called by FormGPS
         public CTool(FormGPS _f)

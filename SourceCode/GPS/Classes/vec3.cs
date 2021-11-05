@@ -80,6 +80,16 @@ namespace AgOpenGPS
             return new vec3(lhs.easting - rhs.easting, lhs.northing - rhs.northing, lhs.heading - rhs.heading);
         }
 
+        public static vec3 operator +(vec3 lhs, vec3 rhs)
+        {
+            return new vec3(lhs.easting + rhs.easting, lhs.northing + rhs.northing, lhs.heading + rhs.heading);
+        }
+
+        public static vec3 operator *(vec3 lhs, double factor)
+        {
+            return new vec3(lhs.easting * factor, lhs.northing * factor, lhs.heading * factor);
+        }
+
         //public static bool operator ==(vec3 lhs, vec3 rhs)
         //{
         //    return (lhs.x == rhs.x && lhs.z == rhs.z && lhs.h == rhs.h);

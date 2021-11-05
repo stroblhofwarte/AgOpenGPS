@@ -458,7 +458,6 @@ namespace AgOpenGPS
             }
             else
             {
-                bool isv3 = false;
                 using (StreamReader reader = new StreamReader(fileAndDirectory))
                 {
                     try
@@ -473,16 +472,11 @@ namespace AgOpenGPS
                             line = reader.ReadLine();
                             if (line.Contains("ect"))
                             {
-                                isv3 = true;
                                 break;
                             }
                             int verts = int.Parse(line);
 
-                            section[0].triangleList = new List<vec3>();
-                            section[0].triangleList.Capacity = verts + 1;
-
-                            section[0].patchList.Add(section[0].triangleList);
-
+                            List<vec3> triangleList = new List<vec3>(verts + 1);
 
                             for (int v = 0; v < verts; v++)
                             {
@@ -491,7 +485,7 @@ namespace AgOpenGPS
                                 vecFix.easting = double.Parse(words[0], CultureInfo.InvariantCulture);
                                 vecFix.northing = double.Parse(words[1], CultureInfo.InvariantCulture);
                                 vecFix.heading = double.Parse(words[2], CultureInfo.InvariantCulture);
-                                section[0].triangleList.Add(vecFix);
+                                triangleList.Add(vecFix);
                             }
 
                             //calculate area of this patch - AbsoluteValue of (Ax(By-Cy) + Bx(Cy-Ay) + Cx(Ay-By)/2)
@@ -501,12 +495,13 @@ namespace AgOpenGPS
                                 for (int j = 1; j < verts; j++)
                                 {
                                     double temp = 0;
-                                    temp = section[0].triangleList[j].easting * (section[0].triangleList[j + 1].northing - section[0].triangleList[j + 2].northing) +
-                                              section[0].triangleList[j + 1].easting * (section[0].triangleList[j + 2].northing - section[0].triangleList[j].northing) +
-                                                  section[0].triangleList[j + 2].easting * (section[0].triangleList[j].northing - section[0].triangleList[j + 1].northing);
+                                    temp = triangleList[j].easting * (triangleList[j + 1].northing - triangleList[j + 2].northing) +
+                                              triangleList[j + 1].easting * (triangleList[j + 2].northing - triangleList[j].northing) +
+                                                  triangleList[j + 2].easting * (triangleList[j].northing - triangleList[j + 1].northing);
 
                                     fd.workedAreaTotal += Math.Abs((temp * 0.5));
                                 }
+                                tool.patchList.Add(triangleList);
                             }
                         }
                     }
@@ -517,16 +512,6 @@ namespace AgOpenGPS
                         var form = new FormTimedMessage(2000, "Section File is Corrupt", gStr.gsButFieldIsLoaded);
                         form.Show(this);
                     }
-
-                }
-
-                //was old version prior to v4
-                if (isv3)
-                {
-                        //Append the current list to the field file
-                        using (StreamWriter writer = new StreamWriter((fieldsDirectory + currentFieldDirectory + "\\Sections.txt"), false))
-                        {
-                        }
                 }
             }
 
@@ -755,6 +740,8 @@ namespace AgOpenGPS
                     }
                 }
             }
+
+            fd.UpdateFieldBoundaryGUIAreas();
 
             // Headland  -------------------------------------------------------------------------------------------------
             fileAndDirectory = fieldsDirectory + currentFieldDirectory + "\\Headland.txt";
@@ -1866,65 +1853,57 @@ namespace AgOpenGPS
             string secPts = "";
             int cntr = 0;
 
-            for (int j = 0; j < tool.numSuperSection; j++)
+            //for every new chunk of patch
+            foreach (var triList in tool.patchList)
             {
-                int patches = section[j].patchList.Count;
-
-                if (patches > 0)
+                if (triList.Count > 0)
                 {
-                    //for every new chunk of patch
-                    foreach (var triList in section[j].patchList)
+                    kml.WriteStartElement("Placemark");
+                    kml.WriteElementString("name", "Sections_" + cntr.ToString());
+                    cntr++;
+
+                    string collor = "F0" + ((byte)(triList[0].heading)).ToString("X2") +
+                        ((byte)(triList[0].northing)).ToString("X2") + ((byte)(triList[0].easting)).ToString("X2");
+
+                    //lineStyle
+                    kml.WriteStartElement("Style");
+
+                    kml.WriteStartElement("LineStyle");
+                    kml.WriteElementString("color", collor);
+                    //kml.WriteElementString("width", "6");
+                    kml.WriteEndElement(); // <LineStyle>
+
+                    kml.WriteStartElement("PolyStyle");
+                    kml.WriteElementString("color", collor);
+                    kml.WriteEndElement(); // <PloyStyle>
+                    kml.WriteEndElement(); //Style
+
+                    kml.WriteStartElement("Polygon");
+                    kml.WriteElementString("tessellate", "1");
+                    kml.WriteStartElement("outerBoundaryIs");
+                    kml.WriteStartElement("LinearRing");
+
+                    //coords
+                    kml.WriteStartElement("coordinates");
+                    secPts = "";
+                    for (int i = 1; i < triList.Count; i += 2)
                     {
-                        if (triList.Count > 0)
-                        {
-                            kml.WriteStartElement("Placemark");
-                            kml.WriteElementString("name", "Sections_" + cntr.ToString());
-                            cntr++;
-
-                            string collor = "F0" + ((byte)(triList[0].heading)).ToString("X2") +
-                                ((byte)(triList[0].northing)).ToString("X2") + ((byte)(triList[0].easting)).ToString("X2");
-
-                            //lineStyle
-                            kml.WriteStartElement("Style");
-
-                            kml.WriteStartElement("LineStyle");
-                            kml.WriteElementString("color", collor);
-                            //kml.WriteElementString("width", "6");
-                            kml.WriteEndElement(); // <LineStyle>
-                            
-                            kml.WriteStartElement("PolyStyle");
-                            kml.WriteElementString("color", collor);
-                            kml.WriteEndElement(); // <PloyStyle>
-                            kml.WriteEndElement(); //Style
-
-                            kml.WriteStartElement("Polygon");
-                            kml.WriteElementString("tessellate", "1");
-                            kml.WriteStartElement("outerBoundaryIs");
-                            kml.WriteStartElement("LinearRing");
-                            
-                            //coords
-                            kml.WriteStartElement("coordinates");
-                            secPts = "";
-                            for (int i = 1; i < triList.Count; i += 2)
-                            {
-                                secPts += pn.GetLocalToWSG84_KML(triList[i].easting, triList[i].northing);
-                            }
-                            for (int i = triList.Count - 1; i > 1; i -= 2)
-                            {
-                                secPts += pn.GetLocalToWSG84_KML(triList[i].easting, triList[i].northing);
-                            }
-                            secPts += pn.GetLocalToWSG84_KML(triList[1].easting, triList[1].northing);
-
-                            kml.WriteRaw(secPts);
-                            kml.WriteEndElement(); // <coordinates>
-
-                            kml.WriteEndElement(); // <LinearRing>
-                            kml.WriteEndElement(); // <outerBoundaryIs>
-                            kml.WriteEndElement(); // <Polygon>
-
-                            kml.WriteEndElement(); // <Placemark>
-                        }
+                        secPts += pn.GetLocalToWSG84_KML(triList[i].easting, triList[i].northing);
                     }
+                    for (int i = triList.Count - 1; i > 1; i -= 2)
+                    {
+                        secPts += pn.GetLocalToWSG84_KML(triList[i].easting, triList[i].northing);
+                    }
+                    secPts += pn.GetLocalToWSG84_KML(triList[1].easting, triList[1].northing);
+
+                    kml.WriteRaw(secPts);
+                    kml.WriteEndElement(); // <coordinates>
+
+                    kml.WriteEndElement(); // <LinearRing>
+                    kml.WriteEndElement(); // <outerBoundaryIs>
+                    kml.WriteEndElement(); // <Polygon>
+
+                    kml.WriteEndElement(); // <Placemark>
                 }
             }
             kml.WriteEndElement(); // <Folder>
