@@ -218,10 +218,10 @@ namespace AgOpenGPS
         /// </summary>
         public CFieldData fd;
 
-        /// <summary>
-        /// Sound for approaching boundary
-        /// </summary>
-        public SoundPlayer sndBoundaryAlarm;
+        ///// <summary>
+        ///// Sound
+        ///// </summary>
+        public CSound sounds;
 
         /// <summary>
         /// The font class
@@ -345,6 +345,9 @@ namespace AgOpenGPS
 
             //the new steer algorithms
             gyd = new CGuidance(this);
+
+            //sounds class
+            sounds = new CSound();
         }
 
         //Initialize items before the form Loads or is visible
@@ -582,9 +585,9 @@ namespace AgOpenGPS
                 Properties.Resources.z_Turn,Properties.Resources.z_TurnCancel,Properties.Resources.z_TurnManual,
                 Properties.Resources.z_Compass,Properties.Resources.z_Speedo,Properties.Resources.z_SpeedoNeedle,
                 Properties.Resources.z_Lift,Properties.Resources.z_SkyNight,Properties.Resources.z_SteerPointer,
-                Properties.Resources.z_SteerDot,GetTractorBrand(Settings.Default.TBrand),Properties.Resources.z_QuestionMark,
-                Properties.Resources.z_FrontWheels,Get4WDBrandFront(Settings.Default.WDBrand), Get4WDBrandRear(Settings.Default.WDBrand),
-                GetHarvesterBrand(Settings.Default.HBrand), Properties.Resources.z_LateralManual
+                Properties.Resources.z_SteerDot,GetTractorBrand(Settings.Default.setBrand_TBrand),Properties.Resources.z_QuestionMark,
+                Properties.Resources.z_FrontWheels,Get4WDBrandFront(Settings.Default.setBrand_WDBrand), Get4WDBrandRear(Settings.Default.setBrand_WDBrand),
+                GetHarvesterBrand(Settings.Default.setBrand_HBrand), Properties.Resources.z_LateralManual
             };
 
             texture = new uint[oglTextures.Length];

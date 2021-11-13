@@ -5,7 +5,7 @@ namespace AgOpenGPS
     public partial class CBoundary
     {
         public bool isHeadlandOn;
-        public bool isToolOuterPointsInHeadland;
+        public bool isToolOuterPointsInHeadland, isSectionControlledByHeadland;
 
         public void SetHydPosition(bool isToolInHeadland)
         {
@@ -14,10 +14,20 @@ namespace AgOpenGPS
                 if (isToolInHeadland)
                 {
                     mf.p_239.pgn[mf.p_239.hydLift] = 2;
+                    if (mf.sounds.isHydLiftChange != isToolInHeadland)
+                    {
+                        if (mf.sounds.isHydLiftSoundOn) CSound.sndHydLiftUp.Play();
+                        mf.sounds.isHydLiftChange = isToolInHeadland;
+                    }
                 }
                 else
                 {
                     mf.p_239.pgn[mf.p_239.hydLift] = 1;
+                    if (mf.sounds.isHydLiftChange != isToolInHeadland)
+                    {
+                        if (mf.sounds.isHydLiftSoundOn) CSound.sndHydLiftDn.Play();
+                        mf.sounds.isHydLiftChange = isToolInHeadland;
+                    }
                 }
             }
         }

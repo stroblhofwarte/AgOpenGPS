@@ -1280,7 +1280,7 @@ namespace AgOpenGPS
             {
                 writer.WriteLine("$Headland");
 
-                if (bnd.bndList[0].hdLine.Points.Count > 0)
+                if (bnd.bndList.Count > 0 && bnd.bndList[0].hdLine.Points.Count > 0)
                 {
                     for (int i = 0; i < bnd.bndList.Count; i++)
                     {

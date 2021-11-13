@@ -872,6 +872,36 @@ namespace AgOpenGPS.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ConF_HydLiftSound {
+            get {
+                object obj = ResourceManager.GetObject("ConF_HydLiftSound", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ConF_SteerSound {
+            get {
+                object obj = ResourceManager.GetObject("ConF_SteerSound", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ConF_TurnSound {
+            get {
+                object obj = ResourceManager.GetObject("ConF_TurnSound", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ConMa_LiftLowerTime {
             get {
                 object obj = ResourceManager.GetObject("ConMa_LiftLowerTime", resourceCulture);
@@ -2334,6 +2364,24 @@ namespace AgOpenGPS.Properties {
             get {
                 object obj = ResourceManager.GetObject("SteerDriveOn", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream SteerOff {
+            get {
+                return ResourceManager.GetStream("SteerOff", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream SteerOn {
+            get {
+                return ResourceManager.GetStream("SteerOn", resourceCulture);
             }
         }
         

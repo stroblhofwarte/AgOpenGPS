@@ -398,10 +398,15 @@ namespace AgOpenGPS
             Properties.Settings.Default.setAS_uTurnSmoothing = mf.yt.uTurnSmoothing;
             Properties.Vehicle.Default.set_youTurnExtensionLength = mf.yt.youTurnStartOffset;
 
+            if (Properties.Vehicle.Default.set_youTurnDistanceFromBoundary != mf.yt.uturnDistanceFromBoundary)
+            {
+                Properties.Vehicle.Default.set_youTurnDistanceFromBoundary = mf.yt.uturnDistanceFromBoundary;
+                mf.bnd.BuildTurnLines();
+            }
+
             Properties.Settings.Default.Save();
             Properties.Vehicle.Default.Save();
 
-            mf.bnd.BuildTurnLines();
             mf.yt.ResetCreatedYouTurn();
         }
 
@@ -425,21 +430,7 @@ namespace AgOpenGPS
             if (mf.KeypadToNUD((NumericUpDown)sender, this))
             {
                 mf.yt.uturnDistanceFromBoundary = (double)nudTurnDistanceFromBoundary.Value * mf.ftOrMtoM;
-                Properties.Vehicle.Default.set_youTurnDistanceFromBoundary = mf.yt.uturnDistanceFromBoundary;
             }
-        }
-
-        private void btnTriggerDistanceDn_Click(object sender, EventArgs e)
-        {
-            mf.yt.uturnDistanceFromBoundary--;
-            if (mf.yt.uturnDistanceFromBoundary < 0.1) mf.yt.uturnDistanceFromBoundary = 0.1;
-            UpdateUturnText();
-        }
-
-        private void btnTriggerDistanceUp_Click(object sender, EventArgs e)
-        {
-            if (mf.yt.uturnDistanceFromBoundary++ > 50) mf.yt.uturnDistanceFromBoundary = 50;
-            UpdateUturnText();
         }
 
         private void btnDistanceDn_Click(object sender, EventArgs e)
