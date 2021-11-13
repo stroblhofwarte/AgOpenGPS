@@ -322,7 +322,7 @@ namespace AgOpenGPS
         }
         private void btnAutoSteer_Click(object sender, EventArgs e)
         {
-            System.Media.SystemSounds.Question.Play();
+            //System.Media.SystemSounds.Question.Play();
 
             //new direction so reset where to put turn diagnostic
             yt.ResetCreatedYouTurn();
@@ -332,6 +332,7 @@ namespace AgOpenGPS
                 isAutoSteerBtnOn = false;
                 btnAutoSteer.Image = Properties.Resources.AutoSteerOff;
                 if (yt.isYouTurnBtnOn) btnAutoYouTurn.PerformClick();
+                if (sounds.isSteerSoundOn) CSound.sndAutoSteerOff.Play();
             }
             else
             {
@@ -339,6 +340,7 @@ namespace AgOpenGPS
                 {
                     isAutoSteerBtnOn = true;
                     btnAutoSteer.Image = Properties.Resources.AutoSteerOn;
+                    if (sounds.isSteerSoundOn) CSound.sndAutoSteerOn.Play();
                 }
                 else
                 {
@@ -665,6 +667,7 @@ namespace AgOpenGPS
             Properties.Vehicle.Default.setVehicle_isStanleyUsed = isStanleyUsed;
             Properties.Vehicle.Default.Save();
         }
+
         private void btnFlag_Click(object sender, EventArgs e)
         {
             int nextflag = flagPts.Count + 1;
@@ -1039,6 +1042,7 @@ namespace AgOpenGPS
             {
                 form.ShowDialog(this);
             }
+            SettingsIO.ExportAll(vehiclesDirectory + vehicleFileName + ".XML");
         }
 
         private void colorsSectionToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1047,6 +1051,7 @@ namespace AgOpenGPS
             {
                 form.ShowDialog(this);
             }
+            SettingsIO.ExportAll(vehiclesDirectory + vehicleFileName + ".XML");
         }
 
         //Languages

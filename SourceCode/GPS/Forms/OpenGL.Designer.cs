@@ -303,7 +303,7 @@ namespace AgOpenGPS
                     recPath.DrawRecordedLine();
                     recPath.DrawDubins();
 
-                    if (bnd.bndList.Count > 0)
+                    if (bnd.bndList.Count > 0 || bnd.isBndBeingMade == true)
                     {
                         //draw Boundaries
                         bnd.DrawFenceLines();
@@ -316,7 +316,8 @@ namespace AgOpenGPS
                             GL.Color3(0.3555f, 0.6232f, 0.20f);
                             for (int i = 0; i < bnd.bndList.Count; i++)
                             {
-                                bnd.bndList[i].turnLine.DrawPolygon();
+                                if (!bnd.bndList[i].isDriveThru)
+                                    bnd.bndList[i].turnLine.DrawPolygon();
                             }
                         }
 
@@ -605,14 +606,14 @@ namespace AgOpenGPS
                     }
 
 
-                    //draw 250 green for the headland
-                    if (bnd.isHeadlandOn)
-                    {
-                        GL.LineWidth(3);
-                        GL.Color3((byte)0, (byte)250, (byte)0);
+                //draw 250 green for the headland
+                if (bnd.isHeadlandOn && bnd.isSectionControlledByHeadland)
+                {
+                    GL.LineWidth(3);
+                    GL.Color3((byte)0, (byte)250, (byte)0);
                         bnd.bndList[0].hdLine.Points.DrawPolygon();
-                    }
                 }
+            }
 
                 //finish it up - we need to read the ram of video card
                 GL.Flush();
@@ -635,7 +636,7 @@ namespace AgOpenGPS
                 //10 % min is required for overlap, otherwise it never would be on.
                 int pixLimit = (int)((double)(section[0].rpSectionWidth * rpOnHeight) / (double)(5.0));
                 int rpHeight = 2;
-                if ((rpOnHeight < rpToolHeight && bnd.isHeadlandOn)) rpHeight = (int)rpToolHeight + 2;
+                if ((rpOnHeight < rpToolHeight && bnd.isHeadlandOn && bnd.isSectionControlledByHeadland)) rpHeight = (int)rpToolHeight + 2;
                 else rpHeight = (int)rpOnHeight + 2;
 
                 if (rpHeight > 290) rpHeight = 290;
@@ -699,7 +700,7 @@ namespace AgOpenGPS
                 }
 
 
-                if (bnd.isHeadlandOn) bnd.WhereAreToolLookOnPoints();
+                if (bnd.isHeadlandOn && bnd.isSectionControlledByHeadland) bnd.WhereAreToolLookOnPoints();
 
                 ///////////////////////////////////////////   Section control        ssssssssssssssssssssss
                 
@@ -762,7 +763,7 @@ namespace AgOpenGPS
 
                             if ((tagged * 100) / totalPixel > (100 - tool.minCoverage))
                             {
-                                if (bnd.isHeadlandOn)
+                                if (bnd.isHeadlandOn && bnd.isSectionControlledByHeadland)
                                 {
                                     //determine if look ahead points are completely in headland
                                     if (section[j].isLookOnInHeadland && !isHeadlandInLookOn)
@@ -791,7 +792,7 @@ namespace AgOpenGPS
             }
             else
             {
-                bool isToolInHeadland = vehicle.isHydLiftOn;
+                bool isToolInHeadland = vehicle.isHydLiftOn && bnd.isSectionControlledByHeadland;
                 int taggedHead = 0;
                 int totalHead = 0;
                 bool isSuperSectionAllowedOn = !tool.isMultiColoredSections;
@@ -819,7 +820,7 @@ namespace AgOpenGPS
 
                 GL.End();
 
-                if (bnd.isHeadlandOn && bnd.bndList.Count > 0 && bnd.bndList[0].hdLine.Points.Count > 0)
+                if (bnd.isHeadlandOn && bnd.isSectionControlledByHeadland && bnd.bndList.Count > 0 && bnd.bndList[0].hdLine.Points.Count > 0)
                 {
                     GL.Color3((byte)0, (byte)249, (byte)0);
                     bnd.bndList[0].fenceLine.DrawPolygon(true);
@@ -835,7 +836,7 @@ namespace AgOpenGPS
 
                 for (int k = 1; k < bnd.bndList.Count; k++)
                 {
-                    if (bnd.isHeadlandOn && bnd.bndList[k].hdLine.Points.Count > 0)
+                    if (bnd.isHeadlandOn && bnd.isSectionControlledByHeadland && bnd.bndList[k].hdLine.Points.Count > 0)
                     {
                         GL.Color3((byte)0, (byte)248, (byte)0);
                         bnd.bndList[k].hdLine.DrawPolygon(true);
@@ -1102,20 +1103,20 @@ namespace AgOpenGPS
                                 {
                                     if (a > 0 && a < grnPixelsLength)
                                     {
-                                        double tt4 = grnPixels[a];
+                                        int Procent5 = grnPixels[a] % 5;
                                         if (a >= StartHeight && a < StopHeight)
                                         {
                                             totalPixs++;
                                             if (bnd.bndList.Count == 0 ? grnPixels[a] == 252 : (grnPixels[a] == 250 || grnPixels[a] == 245 || grnPixels[a] == 240 || grnPixels[a] == 235))
                                                 ++tagged;
-                                            else if (grnPixels[a] == 252)
+                                            else if (Procent5 == 2 || Procent5 == 1)//when outside fence dont wait for sectionOverlapTimer
                                                 ++tagged2;
                                         }
                                         if (isToolInHeadland)
                                         {
                                             totalHead++;
-                                            if (grnPixels[a] % 5 == 4 || grnPixels[a] == 252)// || grnPixels[a] % 5 == 3 when inner should also lift
-                                                 ++taggedHead;
+                                            if (Procent5 != 0)//when inner should also lift if (grnPixels[a] % 5 == 2 || grnPixels[a] % 5 == 4) outside only
+                                                ++taggedHead;
                                         }
                                     }
                                 }

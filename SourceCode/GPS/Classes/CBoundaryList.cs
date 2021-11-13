@@ -32,7 +32,7 @@ namespace AgOpenGPS
         {
             if (Points.Count > 0)
             {
-                if (Triangles && BufferIndex == int.MinValue || ResetIndexer)
+                if (Triangles && BufferIndex == int.MinValue || ResetIndexer || ResetPoints)
                 {
                     double area = 0;
                     int j = Points.Count - 1;

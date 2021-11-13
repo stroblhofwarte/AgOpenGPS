@@ -113,6 +113,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\CColorExtensions.cs" />
     <Compile Include="Classes\CFence.cs">
       <DependentUpon>CBoundary.cs</DependentUpon>
     </Compile>
@@ -123,6 +124,7 @@
     <Compile Include="Classes\CGuidance.cs" />
     <Compile Include="Classes\CRecordedPath.cs" />
     <Compile Include="Classes\CSettings.cs" />
+    <Compile Include="Classes\CSound.cs" />
     <Compile Include="Classes\CSunTimes.cs" />
     <Compile Include="Classes\CFieldData.cs" />
     <Compile Include="Classes\CBoundaryList.cs" />
@@ -752,6 +754,11 @@
   <ItemGroup>
     <Content Include="AOG.ico" />
     <Content Include="aChangeLog.txt" />
+    <None Include="btnImages\Config\ConF_HydLiftSound.png" />
+    <None Include="btnImages\Config\ConF_TurnSound.png" />
+    <None Include="btnImages\Config\ConF_SteerSound.png" />
+    <None Include="Resources\SteerOn.wav" />
+    <None Include="Resources\SteerOff.wav" />
     <None Include="btnImages\Trash.png" />
     <None Include="btnImages\Images\z_LateralManual.png" />
     <None Include="btnImages\Config\ConV_GuidanceLookAhead.png" />
