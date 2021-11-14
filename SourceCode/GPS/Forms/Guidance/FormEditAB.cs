@@ -95,7 +95,7 @@ namespace AgOpenGPS
             }
 
             mf.FileSaveABLines();
-            mf.ABLine.moveDistance = 0;
+            mf.gyd.moveDistance = 0;
 
             mf.panelRight.Enabled = true;
             mf.ABLine.isABValid = false;
@@ -113,7 +113,7 @@ namespace AgOpenGPS
             mf.ABLine.SetABLineByHeading();
             mf.ABLine.isABLineSet = true;
             mf.ABLine.isABLineLoaded = true;
-            mf.ABLine.moveDistance = 0;
+            mf.gyd.moveDistance = 0;
 
             mf.panelRight.Enabled = true;
             mf.ABLine.isABValid = false;
@@ -130,8 +130,6 @@ namespace AgOpenGPS
             mf.ABLine.refABLineP2.easting = mf.ABLine.refPoint1.easting + (Math.Sin(mf.ABLine.abHeading) * mf.ABLine.abLength);
             mf.ABLine.refABLineP2.northing = mf.ABLine.refPoint1.northing + (Math.Cos(mf.ABLine.abHeading) * mf.ABLine.abLength);
 
-            mf.ABLine.refPoint2.easting = mf.ABLine.refABLineP2.easting;
-            mf.ABLine.refPoint2.northing = mf.ABLine.refABLineP2.northing;
             tboxHeading.Text = Math.Round(glm.toDegrees(mf.ABLine.abHeading), 5).ToString();
             mf.ABLine.isABValid = false;
         }
@@ -140,7 +138,7 @@ namespace AgOpenGPS
         {
             if (mf.ABLine.isABLineSet)
             {
-                mf.ABLine.MoveABLine(mf.ABLine.distanceFromCurrentLinePivot);
+                mf.ABLine.MoveABLine(mf.gyd.distanceFromCurrentLinePivot);
             }
         }
 

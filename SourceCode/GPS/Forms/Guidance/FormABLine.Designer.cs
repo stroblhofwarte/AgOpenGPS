@@ -547,7 +547,6 @@
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "AB Line";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormABLine_FormClosing);
             this.Load += new System.EventHandler(this.FormABLine_Load);
             this.panelAPlus.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.nudHeading)).EndInit();

@@ -28,7 +28,7 @@ namespace AgOpenGPS
 
             else
             {
-                if (ABLine.isBtnABLineOn | curve.isBtnCurveOn)
+                if (ABLine.isBtnABLineOn || curve.isBtnCurveOn)
                 {
                     EnableYouTurnButtons();
                     ABLine.isABValid = false;
@@ -173,7 +173,7 @@ namespace AgOpenGPS
         {
             if (ct.isContourBtnOn)
             {
-                ct.SetLockToLine();
+                if (ct.ctList.Count > 5) ct.isLocked = !ct.isLocked;
                 return;
             }
 
@@ -185,7 +185,7 @@ namespace AgOpenGPS
 
             if (ABLine.isBtnABLineOn && ABLine.numABLines > 0)
             {
-                ABLine.moveDistance = 0;
+                gyd.moveDistance = 0;
 
                 ABLine.numABLineSelected++;
                 if (ABLine.numABLineSelected > ABLine.numABLines) ABLine.numABLineSelected = 1;
@@ -200,7 +200,7 @@ namespace AgOpenGPS
             }
             else if (curve.isBtnCurveOn && curve.numCurveLines > 0)
             {
-                curve.moveDistance = 0;
+                gyd.moveDistance = 0;
 
                 curve.numCurveLineSelected++;
                 if (curve.numCurveLineSelected > curve.numCurveLines) curve.numCurveLineSelected = 1;
@@ -1325,11 +1325,11 @@ namespace AgOpenGPS
         {
             if (ABLine.isBtnABLineOn)
             {
-                ABLine.MoveABLine(ABLine.distanceFromCurrentLinePivot);
+                ABLine.MoveABLine(gyd.distanceFromCurrentLinePivot);
             }
             else if (curve.isBtnCurveOn)
             {
-                curve.MoveABCurve(curve.distanceFromCurrentLinePivot);
+                curve.MoveABCurve(gyd.distanceFromCurrentLinePivot);
             }
             else
             {
@@ -1427,8 +1427,7 @@ namespace AgOpenGPS
             using (var form = new FormABDraw(this))
             {
                 form.ShowDialog(this);
-                ABLine.moveDistance = 0;
-                curve.moveDistance = 0;
+                gyd.moveDistance = 0;
             }
         }
         private void btnYouSkipEnable_Click(object sender, EventArgs e)
@@ -1523,10 +1522,12 @@ namespace AgOpenGPS
         {
             if (isJobStarted && curve.isBtnCurveOn)
             {
+                curve.isSmoothWindowOpen = true;
                 using (var form = new FormSmoothAB(this))
                 {
                     form.ShowDialog(this);
                 }
+                curve.isSmoothWindowOpen = false;
             }
             else
             {
@@ -1534,14 +1535,14 @@ namespace AgOpenGPS
                 else TimedMessageBox(2000, gStr.gsCurveNotOn, gStr.gsTurnABCurveOn);
             }
         }
-         private void deleteContourPathsToolStripMenuItem_Click(object sender, EventArgs e)
+
+        private void deleteContourPathsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //FileCreateContour();
-            ct.stripList?.Clear();
-            ct.ptList?.Clear();
-            ct.ctList?.Clear();
+            ct.ResetContour();
             contourSaveList?.Clear();
         }
+
         private void toolStripAreYouSure_Click(object sender, EventArgs e)
         {
             if (isJobStarted)
@@ -1579,7 +1580,7 @@ namespace AgOpenGPS
                         LineUpManualBtns();
 
                         //clear out the contour Lists
-                        ct.StopContourLine(pivotAxlePos);
+                        ct.StopContourLine();
                         ct.ResetContour();
                         fd.workedAreaTotal = 0;
 

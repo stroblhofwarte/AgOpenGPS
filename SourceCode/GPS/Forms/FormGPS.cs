@@ -1309,7 +1309,8 @@ namespace AgOpenGPS
         private void FileSaveEverythingBeforeClosingField()
         {
             //turn off contour line if on
-            if (ct.isContourOn) ct.StopContourLine(pivotAxlePos);
+            if (ct.isContourOn)
+                ct.StopContourLine();
 
             //turn off all the sections
             for (int j = 0; j < tool.numOfSections + 1; j++)

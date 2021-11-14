@@ -454,25 +454,16 @@ namespace AgOpenGPS
             //    GL.End();
             //}
 
-            if (mf.curve.isBtnCurveOn && !mf.ct.isContourBtnOn)
+            if ((mf.ABLine.isBtnABLineOn || mf.curve.isBtnCurveOn) && !mf.ct.isContourBtnOn)
             {
                 GL.Color4(1.269, 1.25, 1.2510, 0.87);
 
-                if (mf.curve.howManyPathsAway == 0)
+                if (mf.gyd.howManyPathsAway == 0)
                     mf.font.DrawTextVehicle(0, wheelbase + 1, "0", 1);
-                else if (mf.curve.howManyPathsAway > 0) mf.font.DrawTextVehicle(0, wheelbase + 1, mf.curve.howManyPathsAway.ToString() + "R", 1);
-                else mf.font.DrawTextVehicle(0, wheelbase + 1, mf.curve.howManyPathsAway.ToString() + "L", 1);
-            }
-            else if (mf.ABLine.isBtnABLineOn && !mf.ct.isContourBtnOn)
-            {
-                GL.Color4(1.26, 1.25, 1.2510, 0.87);
-
-                if (mf.ABLine.howManyPathsAway == 0)
-                    mf.font.DrawTextVehicle(0, wheelbase + 1, "0", 1);
-                else if (mf.ABLine.howManyPathsAway > 0)
-                    mf.font.DrawTextVehicle(0, wheelbase + 1, mf.ABLine.howManyPathsAway.ToString() + "R", 1);
+                else if (mf.gyd.howManyPathsAway > 0)
+                    mf.font.DrawTextVehicle(0, wheelbase + 1, mf.gyd.howManyPathsAway.ToString() + "R", 1);
                 else
-                    mf.font.DrawTextVehicle(0, wheelbase + 1, mf.ABLine.howManyPathsAway.ToString() + "L", 1);
+                    mf.font.DrawTextVehicle(0, wheelbase + 1, mf.gyd.howManyPathsAway.ToString() + "L", 1);
             }
             GL.LineWidth(1);
 

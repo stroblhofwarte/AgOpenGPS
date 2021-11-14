@@ -75,7 +75,7 @@ namespace AgOpenGPS
 
             mf.FileSaveABLines();
 
-            mf.ABLine.moveDistance = 0;
+            mf.gyd.moveDistance = 0;
             mf.panelRight.Enabled = true;
             mf.panelDrag.Visible = false;
             mf.offX = 0;
@@ -143,9 +143,6 @@ namespace AgOpenGPS
 
             mf.ABLine.refABLineP2.easting = mf.ABLine.refPoint1.easting + (Math.Sin(mf.ABLine.abHeading) * mf.ABLine.abLength);
             mf.ABLine.refABLineP2.northing = mf.ABLine.refPoint1.northing + (Math.Cos(mf.ABLine.abHeading) * mf.ABLine.abLength);
-
-            mf.ABLine.refPoint2.easting = mf.ABLine.refABLineP2.easting;
-            mf.ABLine.refPoint2.northing = mf.ABLine.refABLineP2.northing;
 
             mf.ABLine.BuildTram();
         }

@@ -529,7 +529,6 @@ namespace AgOpenGPS
             if (mf.KeypadToNUD((NumericUpDown)sender, this))
             {
                 Properties.Settings.Default.setAS_snapDistance = ((double)nudSnapDistance.Value * mf.inOrCm2Cm);
-                mf.ABLine.snapDistance = Properties.Settings.Default.setAS_snapDistance;
             }
         }
 

@@ -205,7 +205,7 @@ namespace AgOpenGPS
         {
 
             mf.curve.isCurveValid = false;
-            mf.curve.moveDistance = 0;
+            mf.gyd.moveDistance = 0;
             mf.curve.isOkToAddDesPoints = false;
             mf.curve.isCurveSet = false;
             mf.curve.refList?.Clear();
@@ -288,7 +288,7 @@ namespace AgOpenGPS
 
         private void btnListDelete_Click(object sender, EventArgs e)
         {
-            mf.curve.moveDistance = 0;
+            mf.gyd.moveDistance = 0;
 
             if (lvLines.SelectedItems.Count > 0)
             {
@@ -319,14 +319,12 @@ namespace AgOpenGPS
         {
             //reset to generate new reference
             mf.curve.isCurveValid = false;
-            mf.curve.moveDistance = 0;
+            mf.gyd.moveDistance = 0;
 
             if (lvLines.SelectedItems.Count > 0)
             {
-
                 int idx = lvLines.SelectedIndices[0];
                 mf.curve.numCurveLineSelected = idx + 1;
-
 
                 mf.curve.aveLineHeading = mf.curve.curveArr[idx].aveHeading;
                 mf.curve.refList?.Clear();
@@ -336,12 +334,9 @@ namespace AgOpenGPS
                 }
                 mf.curve.isCurveSet = true;
                 mf.yt.ResetYouTurn();
-
-                Close();
             }
             else
             {
-                mf.curve.moveDistance = 0;
                 mf.curve.isOkToAddDesPoints = false;
                 mf.curve.isCurveSet = false;
                 mf.curve.refList?.Clear();
@@ -353,8 +348,8 @@ namespace AgOpenGPS
                 if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
 
                 mf.curve.numCurveLineSelected = 0;
-                Close();
             }
+            Close();
         }
 
         public void SmoothAB(int smPts)

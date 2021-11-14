@@ -24,7 +24,6 @@ namespace AgOpenGPS
 
         private void bntOK_Click(object sender, EventArgs e)
         {
-            mf.curve.isSmoothWindowOpen = false;
             mf.curve.SaveSmoothAsRefList();
             mf.curve.smooList?.Clear();
             Close();
@@ -32,14 +31,12 @@ namespace AgOpenGPS
 
         private void FormSmoothAB_Load(object sender, EventArgs e)
         {
-            mf.curve.isSmoothWindowOpen = true;
             smoothCount = 20;
             lblSmooth.Text = "**";
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            mf.curve.isSmoothWindowOpen = false;
             mf.curve.smooList?.Clear();
             Close();
         }
@@ -61,7 +58,6 @@ namespace AgOpenGPS
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            mf.curve.isSmoothWindowOpen = false;
             mf.curve.SaveSmoothAsRefList();
             mf.curve.smooList?.Clear();
 
@@ -83,13 +79,8 @@ namespace AgOpenGPS
 
                 //save entire list
                 mf.FileSaveCurveLines();
-                mf.curve.moveDistance = 0;
-
-                //mf.layoutPanelRight.Enabled = true;
-                //Close();
+                mf.gyd.moveDistance = 0;
             }
-
-            //mf.FileSaveCurveLines();
             Close();
         }
     }

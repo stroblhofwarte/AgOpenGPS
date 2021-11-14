@@ -293,7 +293,7 @@ namespace AgOpenGPS
             dx = recList[B].easting - recList[A].easting;
             dz = recList[B].northing - recList[A].northing;
 
-            if (Math.Abs(dx) < Double.Epsilon && Math.Abs(dz) < Double.Epsilon) return;
+            if (Math.Abs(dx) < double.Epsilon && Math.Abs(dz) < double.Epsilon) return;
 
             //abHeading = Math.Atan2(dz, dx);
 

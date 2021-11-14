@@ -7,7 +7,6 @@ using System.Windows.Forms;
 using AgOpenGPS.Properties;
 using System.Globalization;
 using System.IO;
-using System.Media;
 
 //C:\Program Files(x86)\Arduino\hardware\tools\avr / bin / avrdude - CC:\Program Files(x86)\Arduino\hardware\tools\avr / etc / avrdude.conf 
 //- v - patmega328p - carduino - PCOM3 - b57600 - D - Uflash:w: C: \Users\FarmPC\AppData\Local\Temp\arduino_build_448484 / Autosteer_UDP_20.ino.hex:i
@@ -216,36 +215,11 @@ namespace AgOpenGPS
                 minuteCounter++;
                 tenMinuteCounter++;
 
-                if (isStanleyUsed)
-                {
-                    if (curve.isBtnCurveOn || ABLine.isBtnABLineOn)
-                    {
-                        lblInty.Text = gyd.inty.ToString("N3");
-                    }
-                }
-                else
-                {
-                    if (curve.isBtnCurveOn)
-                    {
-                        lblInty.Text = curve.inty.ToString("N3");
-                    }
+                if (curve.isBtnCurveOn || ABLine.isBtnABLineOn || ct.isContourBtnOn)
+                    lblInty.Text = gyd.inty.ToString("N3");
 
-                    else if (ABLine.isBtnABLineOn && !ct.isContourBtnOn)
-                    {
-                        lblInty.Text = ABLine.inty.ToString("N3");
-                    }
-
-                    else if (ct.isContourBtnOn) lblInty.Text = ct.inty.ToString("N3");
-                }
-
-                if (ABLine.isBtnABLineOn && !ct.isContourBtnOn)
-                {
-                    btnEditAB.Text = ((int)(ABLine.moveDistance * 100)).ToString();
-                }
-                if (curve.isBtnCurveOn && !ct.isContourBtnOn)
-                {
-                    btnEditAB.Text = ((int)(curve.moveDistance * 100)).ToString();
-                }
+                if ((ABLine.isBtnABLineOn || curve.isBtnCurveOn) && !ct.isContourBtnOn)
+                    btnEditAB.Text = ((int)(gyd.moveDistance * 100)).ToString();
 
                 //the main formgps window
                 if (isMetric)  //metric or imperial
@@ -262,18 +236,10 @@ namespace AgOpenGPS
                 }
 
                 //statusbar flash red undefined headland
-                if (mc.isOutOfBounds && panelSim.BackColor == Color.Transparent
-                    || !mc.isOutOfBounds && panelSim.BackColor == Color.Tomato)
-                {
-                    if (!mc.isOutOfBounds)
-                    {
-                        panelSim.BackColor = Color.Transparent;
-                    }
-                    else
-                    {
-                        panelSim.BackColor = Color.Tomato;
-                    }
-                }
+                if (mc.isOutOfBounds && panelSim.BackColor == Color.Transparent)
+                    panelSim.BackColor = Color.Tomato;
+                else if (!mc.isOutOfBounds && panelSim.BackColor == Color.Tomato)
+                    panelSim.BackColor = Color.Transparent;
             }
 
             //every half of a second update all status  ////////////////    0.5  0.5   0.5    0.5    /////////////////
@@ -289,18 +255,14 @@ namespace AgOpenGPS
                     (ABLine.isBtnABLineOn || ct.isContourBtnOn || curve.isBtnCurveOn))
                 {
                     if (mc.steerSwitchValue == 0)
-                    {
                         if (!isAutoSteerBtnOn) btnAutoSteer.PerformClick();
-                    }
                     else
-                    {
                         if (isAutoSteerBtnOn) btnAutoSteer.PerformClick();
-                    }
                 }
 
                 //Make sure it is off when it should
-                if ((!ABLine.isBtnABLineOn && !ct.isContourBtnOn && !curve.isBtnCurveOn && isAutoSteerBtnOn)
-                    ) btnAutoSteer.PerformClick();
+                if ((!ABLine.isBtnABLineOn && !ct.isContourBtnOn && !curve.isBtnCurveOn && isAutoSteerBtnOn))
+                    btnAutoSteer.PerformClick();
 
                 //the main formgps window
                 if (isMetric)  //metric or imperial

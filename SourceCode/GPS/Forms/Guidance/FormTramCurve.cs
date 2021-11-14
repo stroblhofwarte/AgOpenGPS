@@ -87,7 +87,7 @@ namespace AgOpenGPS
 
                 //save entire list
                 mf.FileSaveCurveLines();
-                mf.curve.moveDistance = 0;
+                mf.gyd.moveDistance = 0;
             }
 
             mf.FileSaveTram();

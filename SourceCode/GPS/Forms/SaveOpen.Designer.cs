@@ -21,7 +21,7 @@ namespace AgOpenGPS
 
         public void FileSaveCurveLines()
         {
-            curve.moveDistance = 0;
+            gyd.moveDistance = 0;
 
             string dirField = fieldsDirectory + currentFieldDirectory + "\\";
             string directoryName = Path.GetDirectoryName(dirField).ToString(CultureInfo.InvariantCulture);
@@ -83,7 +83,7 @@ namespace AgOpenGPS
 
         public void FileLoadCurveLines()
         {
-            curve.moveDistance = 0;
+            gyd.moveDistance = 0;
 
             curve.curveArr?.Clear();
             curve.numCurveLines = 0;
@@ -176,7 +176,7 @@ namespace AgOpenGPS
 
         public void FileSaveABLines()
         {
-            ABLine.moveDistance = 0;
+            gyd.moveDistance = 0;
 
             //make sure at least a global blank AB Line file exists
             string dirField = fieldsDirectory + currentFieldDirectory + "\\";
@@ -213,7 +213,7 @@ namespace AgOpenGPS
 
         public void FileLoadABLines()
         {
-            ABLine.moveDistance = 0;
+            gyd.moveDistance = 0;
 
             //make sure at least a global blank AB Line file exists
             string dirField = fieldsDirectory + currentFieldDirectory + "\\";
@@ -414,7 +414,6 @@ namespace AgOpenGPS
             {
                 ABLine.numABLineSelected = 1;
                 ABLine.refPoint1 = ABLine.lineArr[ABLine.numABLineSelected - 1].origin;
-                //ABLine.refPoint2 = ABLine.lineArr[ABLine.numABLineSelected - 1].ref2;
                 ABLine.abHeading = ABLine.lineArr[ABLine.numABLineSelected - 1].heading;
                 ABLine.SetABLineByHeading();
                 ABLine.isABLineSet = false;
@@ -543,9 +542,7 @@ namespace AgOpenGPS
 
                             vec3 vecFix = new vec3(0, 0, 0);
 
-                            ct.ptList = new List<vec3>();
-                            ct.ptList.Capacity = verts + 1;
-                            ct.stripList.Add(ct.ptList);
+                            List<vec3> ptList = new List<vec3>(verts + 1);
 
                             for (int v = 0; v < verts; v++)
                             {
@@ -554,8 +551,9 @@ namespace AgOpenGPS
                                 vecFix.easting = double.Parse(words[0], CultureInfo.InvariantCulture);
                                 vecFix.northing = double.Parse(words[1], CultureInfo.InvariantCulture);
                                 vecFix.heading = double.Parse(words[2], CultureInfo.InvariantCulture);
-                                ct.ptList.Add(vecFix);
+                                ptList.Add(vecFix);
                             }
+                            ct.stripList.Add(ptList);
                         }
                     }
                     catch (Exception e)
@@ -704,6 +702,7 @@ namespace AgOpenGPS
                                 }
 
                                 New.CalculateFenceArea(k);
+                                New.CalculateFenceLineHeadings();
 
                                 double delta = 0;
                                 New.fenceLineEar?.Clear();

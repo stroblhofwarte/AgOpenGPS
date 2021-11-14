@@ -9,6 +9,7 @@ namespace AgOpenGPS
         private readonly FormGPS mf = null;
 
         private bool isAB = true;
+        private double desHeading = 0;
 
         public FormEnterAB(Form callingForm)
         {
@@ -121,24 +122,24 @@ namespace AgOpenGPS
                 mf.ABLine.desPoint2.northing = nort;
 
                 // heading based on AB points
-                mf.ABLine.desHeading = Math.Atan2(mf.ABLine.desPoint2.easting - mf.ABLine.desPoint1.easting,
+                desHeading = Math.Atan2(mf.ABLine.desPoint2.easting - mf.ABLine.desPoint1.easting,
                     mf.ABLine.desPoint2.northing - mf.ABLine.desPoint1.northing);
-                if (mf.ABLine.desHeading < 0) mf.ABLine.desHeading += glm.twoPI;
+                if (desHeading < 0) desHeading += glm.twoPI;
 
-                nudHeading.Value = (decimal)(glm.toDegrees(mf.ABLine.desHeading));
+                nudHeading.Value = (decimal)(glm.toDegrees(desHeading));
             }
             else
             {
                 mf.pn.ConvertWGS84ToLocal((double)nudLatitude.Value, (double)nudLongitude.Value, out nort, out east);
 
-                mf.ABLine.desHeading = glm.toRadians((double)nudHeading.Value);
+                desHeading = glm.toRadians((double)nudHeading.Value);
                 mf.ABLine.desPoint1.easting = east;
                 mf.ABLine.desPoint1.northing = nort;
             }
 
             textBox1.Text = "Manual AB " +
-                (Math.Round(glm.toDegrees(mf.ABLine.desHeading), 1)).ToString(CultureInfo.InvariantCulture) +
-                "\u00B0 " + mf.FindDirection(mf.ABLine.desHeading);
+                (Math.Round(glm.toDegrees(desHeading), 1)).ToString(CultureInfo.InvariantCulture) +
+                "\u00B0 " + mf.FindDirection(desHeading);
             if (textBox1.Text != "Create A New Line") btnEnterManual.Enabled = true;
         }
 

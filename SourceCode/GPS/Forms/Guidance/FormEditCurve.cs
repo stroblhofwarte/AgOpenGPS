@@ -84,7 +84,7 @@ namespace AgOpenGPS
 
                 //save entire list
                 mf.FileSaveCurveLines();
-                mf.curve.moveDistance = 0;
+                mf.gyd.moveDistance = 0;
                 mf.curve.isCurveValid = false;
 
                 Close();
@@ -116,7 +116,7 @@ namespace AgOpenGPS
         private void btnSwapAB_Click(object sender, EventArgs e)
         {
             mf.curve.isCurveValid = false;
-            mf.curve.lastSecond = 0;
+            mf.gyd.lastSecond = 0;
             int cnt = mf.curve.refList.Count;
             if (cnt > 0)
             {
@@ -145,23 +145,17 @@ namespace AgOpenGPS
         private void btnContourPriority_Click(object sender, EventArgs e)
         {
             if (mf.curve.isBtnCurveOn)
-                mf.curve.MoveABCurve(mf.isStanleyUsed ? mf.gyd.distanceFromCurrentLinePivot : mf.curve.distanceFromCurrentLinePivot);
+                mf.curve.MoveABCurve(mf.gyd.distanceFromCurrentLinePivot);
         }
 
         private void btnRightHalfWidth_Click(object sender, EventArgs e)
         {
-            double dist = mf.tool.toolWidth;
-
-            mf.curve.MoveABCurve(dist * 0.5);
-
+            mf.curve.MoveABCurve(mf.tool.toolWidth * 0.5);
         }
 
         private void btnLeftHalfWidth_Click(object sender, EventArgs e)
         {
-            double dist = mf.tool.toolWidth;
-
-            mf.curve.MoveABCurve(-dist * 0.5);
-
+            mf.curve.MoveABCurve(mf.tool.toolWidth * -0.5);
         }
 
         private void btnNosave_Click(object sender, EventArgs e)
