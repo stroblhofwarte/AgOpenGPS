@@ -1102,7 +1102,6 @@ namespace AgOpenGPS
             btnCurve.Enabled = false;
             btnCurve.Image = Properties.Resources.CurveOff;
             curve.isBtnCurveOn = false;
-            curve.isCurveSet = false;
             curve.ResetCurveLine();
             curve.curveArr.Clear();
             curve.numCurveLineSelected = 0;

@@ -573,15 +573,8 @@ namespace AgOpenGPS
             {
                 ct.GetCurrentContourLine(pivotAxlePos, steerAxlePos);
             }
-            else if (curve.isCurveSet && curve.isBtnCurveOn)
-            {
-                //do the calcs for AB Curve
-                curve.GetCurrentCurveLine(pivotAxlePos, steerAxlePos);
-            }
-            else if (ABLine.isABLineSet && ABLine.isBtnABLineOn)
-            {
-                ABLine.GetCurrentABLine(pivotAxlePos, steerAxlePos);
-            }
+            else
+                gyd.GetCurrentLine(pivotAxlePos, steerAxlePos, ABLine.isBtnABLineOn);
 
             // autosteer at full speed of updates
 
@@ -725,18 +718,12 @@ namespace AgOpenGPS
                             if (yt.youTurnPhase != 3)
                             {
                                 if (crossTrackError > 500)
-                                {
                                     yt.ResetCreatedYouTurn();
-                                }
+                                else if (ABLine.isBtnABLineOn)
+                                    yt.BuildABLineDubinsYouTurn(yt.isYouTurnRight);
                                 else
-                                {
-                                    if (ABLine.isABLineSet)
-                                    {
-                                        yt.BuildABLineDubinsYouTurn(yt.isYouTurnRight);
-                                    }
-                                    else yt.BuildCurveDubinsYouTurn(yt.isYouTurnRight, pivotAxlePos);
-                                }
-
+                                    yt.BuildCurveDubinsYouTurn(yt.isYouTurnRight, pivotAxlePos);
+                                
                                 if (yt.youTurnPhase == 3) yt.SmoothYouTurn(yt.uTurnSmoothing);
                             }
                             else //wait to trigger the actual turn since its made and waiting
@@ -1036,23 +1023,16 @@ namespace AgOpenGPS
                     sectionCounter++;
                 }
             }
-            if ((ABLine.isBtnABLineOn && !ct.isContourBtnOn && ABLine.isABLineSet && isAutoSteerBtnOn) ||
-                        (!ct.isContourBtnOn && curve.isBtnCurveOn && curve.isCurveSet && isAutoSteerBtnOn))
+            if (isAutoSteerBtnOn && !ct.isContourBtnOn && (ABLine.isBtnABLineOn || curve.isBtnCurveOn))
             {
                 //no contour recorded
                 if (ct.isContourOn)
                     ct.StopContourLine();
             }
-            else
-            {
-                //Contour Base Track.... At least One section on, turn on if not
-                if (sectionCounter != 0)
-                    //keep the line going, everything is on for recording path
-                    ct.AddPoint(pivotAxlePos);
-                //All sections OFF so if on, turn off
-                else if (ct.isContourOn)
-                    ct.StopContourLine();
-            }
+            else if (sectionCounter != 0)//keep the line going, everything is on for recording path
+                ct.AddPoint(pivotAxlePos);
+            else if (ct.isContourOn)//All sections OFF so if on, turn off
+                ct.StopContourLine();
         }
 
         //calculate the extreme tool left, right velocities, each section lookahead, and whether or not its going backwards

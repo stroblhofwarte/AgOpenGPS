@@ -74,7 +74,7 @@ namespace AgOpenGPS
             int Count = mf.gyd.isHeadingSameWay ? 1 : -1;
             int turnNum = 99;
 
-            for (int j = mf.curve.currentLocationIndex; j > 0 && j < mf.curve.curList.Count; j += Count)
+            for (int j = mf.gyd.currentLocationIndex; j > 0 && j < mf.curve.curList.Count; j += Count)
             {
                 int idx = mf.bnd.IsPointInsideTurnArea(mf.curve.curList[j]);
                 if (idx != 0)
@@ -863,8 +863,7 @@ namespace AgOpenGPS
             mf.guidanceLookPos.northing = ytList[ytList.Count - 1].northing;
 
             mf.gyd.isLateralTriggered = true;
-            mf.ABLine.isABValid = false;
-            mf.curve.isCurveValid = false;
+            mf.gyd.isValid = false;
         }
 
         //Normal copmpletion of youturn
@@ -903,9 +902,9 @@ namespace AgOpenGPS
         {
             double head;
             //point on AB line closest to pivot axle point from ABLine PurePursuit
-            if (mf.ABLine.isABLineSet && mf.ABLine.refList.Count > 1)
+            if (mf.ABLine.isBtnABLineOn && mf.ABLine.refList.Count > 1)
                 head = Math.Atan2(mf.ABLine.refList[1].easting - mf.ABLine.refList[0].easting, mf.ABLine.refList[1].northing - mf.ABLine.refList[0].northing);
-            else if (mf.curve.isCurveSet)
+            else if (mf.curve.isBtnCurveOn && mf.curve.curList.Count > 1)
                 head = mf.gyd.manualUturnHeading;
             else return;
 
@@ -934,8 +933,7 @@ namespace AgOpenGPS
                 mf.guidanceLookPos.northing = rNorthYT - (Math.Sin(-head) * turnOffset);
             }
 
-            mf.ABLine.isABValid = false;
-            mf.curve.isCurveValid = false;
+            mf.gyd.isValid = false;
         }
 
         //build the points and path of youturn to be scaled and transformed
@@ -945,9 +943,9 @@ namespace AgOpenGPS
 
             double head;
             //point on AB line closest to pivot axle point from ABLine PurePursuit
-            if (mf.ABLine.isABLineSet && mf.ABLine.refList.Count > 1)
+            if (mf.ABLine.isBtnABLineOn && mf.ABLine.refList.Count > 1)
                 head = Math.Atan2(mf.ABLine.refList[1].easting - mf.ABLine.refList[0].easting, mf.ABLine.refList[1].northing - mf.ABLine.refList[0].northing);
-            else if (mf.curve.isCurveSet)
+            else if (mf.curve.isBtnCurveOn && mf.curve.curList.Count > 1)
                 head = mf.gyd.manualUturnHeading;
             else return;
 
@@ -1018,9 +1016,7 @@ namespace AgOpenGPS
             //    ytList.Add(pt);
             //}
 
-
-            mf.ABLine.isABValid = false;
-            mf.curve.isCurveValid = false;
+            mf.gyd.isValid = false;
         }
 
         public int onA;

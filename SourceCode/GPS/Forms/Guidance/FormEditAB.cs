@@ -56,7 +56,7 @@ namespace AgOpenGPS
                 }
             }
 
-            mf.ABLine.isABValid = false;
+            mf.gyd.isValid = false;
             btnCancel.Focus();
         }
 
@@ -99,7 +99,7 @@ namespace AgOpenGPS
             mf.gyd.moveDistance = 0;
 
             mf.panelRight.Enabled = true;
-            mf.ABLine.isABValid = false;
+            mf.gyd.isValid = false;
             Close();
         }
 
@@ -107,20 +107,20 @@ namespace AgOpenGPS
         {
             int last = mf.ABLine.numABLineSelected;
             mf.FileLoadABLines();
-
-            mf.ABLine.numABLineSelected = last;
-
-            mf.ABLine.refList.Clear();
-            for (int i = 0; i < mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].curvePts.Count; i++)
+            if (mf.ABLine.lineArr.Count > 0 && mf.ABLine.lineArr.Count >= last)
             {
-                mf.ABLine.refList.Add(mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].curvePts[i]);
-            }
-            mf.ABLine.isABLineSet = true;
-            mf.ABLine.isABLineLoaded = true;
-            mf.gyd.moveDistance = 0;
+                mf.ABLine.numABLineSelected = last;
 
-            mf.panelRight.Enabled = true;
-            mf.ABLine.isABValid = false;
+                mf.ABLine.refList.Clear();
+                for (int i = 0; i < mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].curvePts.Count; i++)
+                {
+                    mf.ABLine.refList.Add(mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].curvePts[i]);
+                }
+                mf.gyd.moveDistance = 0;
+
+                mf.panelRight.Enabled = true;
+            }
+            mf.gyd.isValid = false;
             Close();
         }
 
@@ -133,34 +133,27 @@ namespace AgOpenGPS
 
                 tboxHeading.Text = Math.Round(glm.toDegrees(heading), 5).ToString();
             }
-            mf.ABLine.isABValid = false;
+            mf.gyd.isValid = false;
         }
 
         private void btnContourPriority_Click(object sender, EventArgs e)
         {
-            if (mf.ABLine.isABLineSet)
-            {
-                mf.ABLine.MoveABLine(mf.gyd.distanceFromCurrentLinePivot);
-            }
+            mf.ABLine.MoveABLine(mf.gyd.distanceFromCurrentLinePivot);
         }
 
         private void btnRightHalfWidth_Click(object sender, EventArgs e)
         {
-            double dist = mf.tool.toolWidth;
-
-            mf.ABLine.MoveABLine(dist * 0.5);
+            mf.ABLine.MoveABLine(mf.tool.toolWidth * 0.5);
         }
 
         private void btnLeftHalfWidth_Click(object sender, EventArgs e)
         {
-            double dist = mf.tool.toolWidth;
-
-            mf.ABLine.MoveABLine(-dist * 0.5);
+            mf.ABLine.MoveABLine(mf.tool.toolWidth * -0.5);
         }
 
         private void btnNoSave_Click(object sender, EventArgs e)
         {
-            mf.ABLine.isABValid = false;
+            mf.gyd.isValid = false;
             Close();
         }
 

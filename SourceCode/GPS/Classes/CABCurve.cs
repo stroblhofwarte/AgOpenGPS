@@ -10,9 +10,7 @@ namespace AgOpenGPS
         private readonly FormGPS mf;
 
         //flag for starting stop adding points
-        public bool isBtnCurveOn, isCurveSet, isOkToAddDesPoints;
-
-        public int currentLocationIndex;
+        public bool isBtnCurveOn, isOkToAddDesPoints;
 
         //the list of points of the ref line.
         public List<vec3> refList = new List<vec3>();
@@ -24,9 +22,6 @@ namespace AgOpenGPS
 
         public List<CCurveLines> curveArr = new List<CCurveLines>();
         public int numCurveLines, numCurveLineSelected;
-
-        public bool isCurveValid;
-
 
         public List<vec3> desList = new List<vec3>();
         public string desName = "**";
@@ -123,7 +118,7 @@ namespace AgOpenGPS
             else mf.gyd.howManyPathsAway = (int)(RefDist + 0.5);
 
             //build current list
-            isCurveValid = true;
+            mf.gyd.isValid = true;
 
             //build the current line
             curList.Clear();
@@ -292,199 +287,6 @@ namespace AgOpenGPS
             mf.gyd.lastSecond = mf.secondsSinceStart;
         }
 
-        public void GetCurrentCurveLine(vec3 pivot, vec3 steer)
-        {
-            if (refList == null || refList.Count < 5) return;
-
-            //build new current ref line if required
-            if (!isCurveValid || ((mf.secondsSinceStart - mf.gyd.lastSecond) > 0.66 
-                && (!mf.isAutoSteerBtnOn || mf.mc.steerSwitchValue != 0)))
-                BuildCurrentCurveList(pivot);
-
-            double dist, dx, dz;
-            double minDistA = double.MaxValue, minDistB = double.MaxValue;
-            int ptCount = curList.Count;
-
-            if (ptCount > 0)
-            {
-                if (mf.yt.isYouTurnTriggered && mf.yt.DistanceFromYouTurnLine())//do the pure pursuit from youTurn
-                {
-                }
-                else if (mf.isStanleyUsed)//Stanley
-                {
-                    mf.gyd.StanleyGuidance(pivot, steer, ref curList, false);
-                }
-                else// Pure Pursuit ------------------------------------------
-                {
-                    //find the closest 2 points to current fix
-                    for (int t = 0; t < ptCount; t++)
-                    {
-                        dist = glm.DistanceSquared(pivot, curList[t]);
-
-                        if (dist < minDistA)
-                        {
-                            minDistB = minDistA;
-                            mf.gyd.pB = mf.gyd.pA;
-                            minDistA = dist;
-                            mf.gyd.pA = t;
-                        }
-                        else if (dist < minDistB)
-                        {
-                            minDistB = dist;
-                            mf.gyd.pB = t;
-                        }
-                    }
-
-                    //just need to make sure the points continue ascending or heading switches all over the place
-                    if (mf.gyd.pA > mf.gyd.pB) { int C = mf.gyd.pA; mf.gyd.pA = mf.gyd.pB; mf.gyd.pB = C; }
-
-                    currentLocationIndex = mf.gyd.pA;
-
-                    //get the distance from currently active AB line
-                    dx = curList[mf.gyd.pB].easting - curList[mf.gyd.pA].easting;
-                    dz = curList[mf.gyd.pB].northing - curList[mf.gyd.pA].northing;
-
-                    if (Math.Abs(dx) < double.Epsilon && Math.Abs(dz) < double.Epsilon) return;
-
-                    //abHeading = Math.Atan2(dz, dx);
-
-                    //how far from current AB Line is fix
-                    mf.gyd.distanceFromCurrentLinePivot = ((dz * pivot.easting) - (dx * pivot.northing) + (curList[mf.gyd.pB].easting
-                                * curList[mf.gyd.pA].northing) - (curList[mf.gyd.pB].northing * curList[mf.gyd.pA].easting))
-                                    / Math.Sqrt((dz * dz) + (dx * dx));
-
-                    //integral slider is set to 0
-                    if (mf.vehicle.purePursuitIntegralGain != 0 && !mf.isReverse)
-                    {
-                        mf.gyd.pivotDistanceError = mf.gyd.distanceFromCurrentLinePivot * 0.2 + mf.gyd.pivotDistanceError * 0.8;
-
-                        if (mf.gyd.counter2++ > 4)
-                        {
-                            mf.gyd.pivotDerivative = mf.gyd.pivotDistanceError - mf.gyd.pivotDistanceErrorLast;
-                            mf.gyd.pivotDistanceErrorLast = mf.gyd.pivotDistanceError;
-                            mf.gyd.counter2 = 0;
-                            mf.gyd.pivotDerivative *= 2;
-
-                            //limit the derivative
-                            //if (pivotDerivative > 0.03) pivotDerivative = 0.03;
-                            //if (pivotDerivative < -0.03) pivotDerivative = -0.03;
-                            //if (Math.Abs(pivotDerivative) < 0.01) pivotDerivative = 0;
-                        }
-
-                        //pivotErrorTotal = pivotDistanceError + pivotDerivative;
-
-                        if (mf.isAutoSteerBtnOn && mf.avgSpeed > 2.5 && Math.Abs(mf.gyd.pivotDerivative) < 0.1)
-                        {
-                            //if over the line heading wrong way, rapidly decrease integral
-                            if ((mf.gyd.inty < 0 && mf.gyd.distanceFromCurrentLinePivot < 0) || (mf.gyd.inty > 0 && mf.gyd.distanceFromCurrentLinePivot > 0))
-                            {
-                                mf.gyd.inty += mf.gyd.pivotDistanceError * mf.vehicle.purePursuitIntegralGain * -0.04;
-                            }
-                            else
-                            {
-                                if (Math.Abs(mf.gyd.distanceFromCurrentLinePivot) > 0.02)
-                                {
-                                    mf.gyd.inty += mf.gyd.pivotDistanceError * mf.vehicle.purePursuitIntegralGain * -0.02;
-                                    if (mf.gyd.inty > 0.2) mf.gyd.inty = 0.2;
-                                    else if (mf.gyd.inty < -0.2) mf.gyd.inty = -0.2;
-                                }
-                            }
-                        }
-                        else mf.gyd.inty *= 0.95;
-                    }
-                    else mf.gyd.inty = 0;
-
-                    // ** Pure pursuit ** - calc point on ABLine closest to current position
-                    double U = (((pivot.easting - curList[mf.gyd.pA].easting) * dx)
-                                + ((pivot.northing - curList[mf.gyd.pA].northing) * dz))
-                                / ((dx * dx) + (dz * dz));
-
-                    mf.gyd.rEast = curList[mf.gyd.pA].easting + (U * dx);
-                    mf.gyd.rNorth = curList[mf.gyd.pA].northing + (U * dz);
-                    mf.gyd.manualUturnHeading = curList[mf.gyd.pA].heading;
-                    //double minx, maxx, miny, maxy;
-
-                    //update base on autosteer settings and distance from line
-                    double goalPointDistance = mf.vehicle.UpdateGoalPointDistance();
-
-                    bool ReverseHeading = mf.isReverse ? !mf.gyd.isHeadingSameWay : mf.gyd.isHeadingSameWay;
-
-                    int count = ReverseHeading ? 1 : -1;
-                    vec3 start = new vec3(mf.gyd.rEast, mf.gyd.rNorth, 0);
-                    double distSoFar = 0;
-
-                    for (int i = ReverseHeading ? mf.gyd.pB : mf.gyd.pA; i < ptCount && i >= 0; i += count)
-                    {
-                        // used for calculating the length squared of next segment.
-                        double tempDist = glm.Distance(start, curList[i]);
-
-                        //will we go too far?
-                        if ((tempDist + distSoFar) > goalPointDistance)
-                        {
-                            double j = (goalPointDistance - distSoFar) / tempDist; // the remainder to yet travel
-
-                            mf.gyd.goalPoint.easting = (((1 - j) * start.easting) + (j * curList[i].easting));
-                            mf.gyd.goalPoint.northing = (((1 - j) * start.northing) + (j * curList[i].northing));
-                            break;
-                        }
-                        else distSoFar += tempDist;
-                        start = curList[i];
-                    }
-
-                    //calc "D" the distance from pivot axle to lookahead point
-                    double goalPointDistanceSquared = glm.DistanceSquared(mf.gyd.goalPoint.northing, mf.gyd.goalPoint.easting, pivot.northing, pivot.easting);
-
-                    //calculate the the delta x in local coordinates and steering angle degrees based on wheelbase
-                    //double localHeading = glm.twoPI - mf.fixHeading;
-
-                    double localHeading;
-                    if (ReverseHeading) localHeading = glm.twoPI - mf.fixHeading + mf.gyd.inty;
-                    else localHeading = glm.twoPI - mf.fixHeading - mf.gyd.inty;
-
-                    mf.gyd.ppRadius = goalPointDistanceSquared / (2 * (((mf.gyd.goalPoint.easting - pivot.easting) * Math.Cos(localHeading)) + ((mf.gyd.goalPoint.northing - pivot.northing) * Math.Sin(localHeading))));
-
-                    mf.gyd.steerAngle = glm.toDegrees(Math.Atan(2 * (((mf.gyd.goalPoint.easting - pivot.easting) * Math.Cos(localHeading))
-                        + ((mf.gyd.goalPoint.northing - pivot.northing) * Math.Sin(localHeading))) * mf.vehicle.wheelbase / goalPointDistanceSquared));
-
-                    if (mf.ahrs.imuRoll != 88888)
-                        mf.gyd.steerAngle += mf.ahrs.imuRoll * -mf.gyd.sideHillCompFactor;
-
-                    if (mf.gyd.steerAngle < -mf.vehicle.maxSteerAngle) mf.gyd.steerAngle = -mf.vehicle.maxSteerAngle;
-                    if (mf.gyd.steerAngle > mf.vehicle.maxSteerAngle) mf.gyd.steerAngle = mf.vehicle.maxSteerAngle;
-
-                    if (mf.gyd.ppRadius < -500) mf.gyd.ppRadius = -500;
-                    if (mf.gyd.ppRadius > 500) mf.gyd.ppRadius = 500;
-
-                    mf.gyd.radiusPoint.easting = pivot.easting + (mf.gyd.ppRadius * Math.Cos(localHeading));
-                    mf.gyd.radiusPoint.northing = pivot.northing + (mf.gyd.ppRadius * Math.Sin(localHeading));
-
-                    //angular velocity in rads/sec  = 2PI * m/sec * radians/meters
-                    double angVel = glm.twoPI * 0.277777 * mf.pn.speed * (Math.Tan(glm.toRadians(mf.gyd.steerAngle))) / mf.vehicle.wheelbase;
-
-                    //clamp the steering angle to not exceed safe angular velocity
-                    if (Math.Abs(angVel) > mf.vehicle.maxAngularVelocity)
-                    {
-                        mf.gyd.steerAngle = glm.toDegrees(mf.gyd.steerAngle > 0 ?
-                                (Math.Atan((mf.vehicle.wheelbase * mf.vehicle.maxAngularVelocity) / (glm.twoPI * mf.avgSpeed * 0.277777)))
-                            : (Math.Atan((mf.vehicle.wheelbase * -mf.vehicle.maxAngularVelocity) / (glm.twoPI * mf.avgSpeed * 0.277777))));
-                    }
-
-                    if (!mf.gyd.isHeadingSameWay)
-                        mf.gyd.distanceFromCurrentLinePivot *= -1.0;
-
-                    //Convert to centimeters
-                    mf.guidanceLineDistanceOff = (short)Math.Round(mf.gyd.distanceFromCurrentLinePivot * 1000.0, MidpointRounding.AwayFromZero);
-                    mf.guidanceLineSteerAngle = (short)(mf.gyd.steerAngle * 100);
-                }
-            }
-            else
-            {
-                //invalid distance so tell AS module
-                mf.gyd.distanceFromCurrentLinePivot = 32000;
-                mf.guidanceLineDistanceOff = 32000;
-            }
-        }
-
         public void DrawCurve()
         {
             if (desList.Count > 0)
@@ -492,106 +294,94 @@ namespace AgOpenGPS
                 GL.Color3(0.95f, 0.42f, 0.750f);
                 GL.Begin(PrimitiveType.LineStrip);
                 for (int h = 0; h < desList.Count; h++) GL.Vertex3(desList[h].easting, desList[h].northing, 0);
+                if (isOkToAddDesPoints)
+                    GL.Vertex3(mf.pivotAxlePos.easting, mf.pivotAxlePos.northing, 0);
                 GL.End();
             }
 
-
-            int ptCount = refList.Count;
-            if (refList.Count == 0) return;
-
-            GL.LineWidth(mf.ABLine.lineWidth);
-            GL.Color3(0.96, 0.2f, 0.2f);
-            GL.Begin(PrimitiveType.Lines);
-            for (int h = 0; h < ptCount; h++) GL.Vertex3(refList[h].easting, refList[h].northing, 0);
-            if (!mf.curve.isCurveSet)
+            if (refList.Count > 1)
             {
-                GL.Color3(0.930f, 0.0692f, 0.260f);
-                ptCount--;
-                GL.Vertex3(refList[ptCount].easting, refList[ptCount].northing, 0);
-                GL.Vertex3(mf.pivotAxlePos.easting, mf.pivotAxlePos.northing, 0);
-            }
-            GL.End();
+                GL.LineWidth(mf.ABLine.lineWidth);
+                GL.Color3(0.96, 0.2f, 0.2f);
+                GL.Begin(PrimitiveType.Lines);
+                for (int h = 0; h < refList.Count; h++) GL.Vertex3(refList[h].easting, refList[h].northing, 0);
+                GL.End();
 
-            //GL.PointSize(8.0f);
-            //GL.Begin(PrimitiveType.Points);
-            //GL.Color3(1.0f, 1.0f, 0.0f);
-            ////GL.Vertex3(goalPointAB.easting, goalPointAB.northing, 0.0);
-            //GL.Vertex3(mf.gyd.rEastSteer, mf.gyd.rNorthSteer, 0.0);
-            //GL.Color3(1.0f, 0.0f, 1.0f);
-            //GL.Vertex3(mf.gyd.rEastPivot, mf.gyd.rNorthPivot, 0.0);
-            //GL.End();
-            //GL.PointSize(1.0f);
+                //GL.PointSize(8.0f);
+                //GL.Begin(PrimitiveType.Points);
+                //GL.Color3(1.0f, 1.0f, 0.0f);
+                ////GL.Vertex3(goalPointAB.easting, goalPointAB.northing, 0.0);
+                //GL.Vertex3(mf.gyd.rEastSteer, mf.gyd.rNorthSteer, 0.0);
+                //GL.Color3(1.0f, 0.0f, 1.0f);
+                //GL.Vertex3(mf.gyd.rEastPivot, mf.gyd.rNorthPivot, 0.0);
+                //GL.End();
+                //GL.PointSize(1.0f);
 
-
-
-
-            if (mf.font.isFontOn && refList.Count > 410)
-            {
-                GL.Color3(0.40f, 0.90f, 0.95f);
-                mf.font.DrawText3D(refList[201].easting, refList[201].northing, "&A");
-                mf.font.DrawText3D(refList[refList.Count - 200].easting, refList[refList.Count - 200].northing, "&B");
+                if (mf.font.isFontOn && refList.Count > 410)
+                {
+                    GL.Color3(0.40f, 0.90f, 0.95f);
+                    mf.font.DrawText3D(refList[201].easting, refList[201].northing, "&A");
+                    mf.font.DrawText3D(refList[refList.Count - 200].easting, refList[refList.Count - 200].northing, "&B");
+                }
             }
 
             //just draw ref and smoothed line if smoothing window is open
             if (isSmoothWindowOpen)
             {
-                ptCount = smooList.Count;
-                if (smooList.Count == 0) return;
-
-                GL.LineWidth(mf.ABLine.lineWidth);
-                GL.Color3(0.930f, 0.92f, 0.260f);
-                GL.Begin(PrimitiveType.Lines);
-                for (int h = 0; h < ptCount; h++) GL.Vertex3(smooList[h].easting, smooList[h].northing, 0);
-                GL.End();
-            }
-            else //normal. Smoothing window is not open.
-            {
-                ptCount = curList.Count;
-                if (ptCount > 0 && isCurveSet)
+                if (smooList.Count > 1)
                 {
-                    GL.PointSize(2);
-
-                    GL.Color3(0.95f, 0.2f, 0.95f);
-                    GL.Begin(PrimitiveType.LineStrip);
-                    for (int h = 0; h < ptCount; h++) GL.Vertex3(curList[h].easting, curList[h].northing, 0);
+                    GL.LineWidth(mf.ABLine.lineWidth);
+                    GL.Color3(0.930f, 0.92f, 0.260f);
+                    GL.Begin(PrimitiveType.Lines);
+                    for (int h = 0; h < smooList.Count; h++) GL.Vertex3(smooList[h].easting, smooList[h].northing, 0);
                     GL.End();
+                }
+            }
+            else if (curList.Count > 0)
+            {
+                GL.PointSize(2);
 
-                    if (mf.isPureDisplayOn && !mf.isStanleyUsed)
+                GL.Color3(0.95f, 0.2f, 0.95f);
+                GL.Begin(PrimitiveType.LineStrip);
+                for (int h = 0; h < curList.Count; h++) GL.Vertex3(curList[h].easting, curList[h].northing, 0);
+                GL.End();
+
+                if (mf.isPureDisplayOn && !mf.isStanleyUsed)
+                {
+                    if (mf.gyd.ppRadius < 200 && mf.gyd.ppRadius > -200)
                     {
-                        if (mf.gyd.ppRadius < 200 && mf.gyd.ppRadius > -200)
+                        const int numSegments = 100;
+                        double theta = glm.twoPI / numSegments;
+                        double c = Math.Cos(theta);//precalculate the sine and cosine
+                        double s = Math.Sin(theta);
+                        double x = mf.gyd.ppRadius;//we start at angle = 0
+                        double y = 0;
+
+                        GL.LineWidth(1);
+                        GL.Color3(0.53f, 0.530f, 0.950f);
+                        GL.Begin(PrimitiveType.LineLoop);
+                        for (int ii = 0; ii < numSegments; ii++)
                         {
-                            const int numSegments = 100;
-                            double theta = glm.twoPI / numSegments;
-                            double c = Math.Cos(theta);//precalculate the sine and cosine
-                            double s = Math.Sin(theta);
-                            double x = mf.gyd.ppRadius;//we start at angle = 0
-                            double y = 0;
-
-                            GL.LineWidth(1);
-                            GL.Color3(0.53f, 0.530f, 0.950f);
-                            GL.Begin(PrimitiveType.LineLoop);
-                            for (int ii = 0; ii < numSegments; ii++)
-                            {
-                                //glVertex2f(x + cx, y + cy);//output vertex
-                                GL.Vertex3(x + mf.gyd.radiusPoint.easting, y + mf.gyd.radiusPoint.northing, 0);//output vertex
-                                double t = x;//apply the rotation matrix
-                                x = (c * x) - (s * y);
-                                y = (s * t) + (c * y);
-                            }
-                            GL.End();
+                            //glVertex2f(x + cx, y + cy);//output vertex
+                            GL.Vertex3(x + mf.gyd.radiusPoint.easting, y + mf.gyd.radiusPoint.northing, 0);//output vertex
+                            double t = x;//apply the rotation matrix
+                            x = (c * x) - (s * y);
+                            y = (s * t) + (c * y);
                         }
-
-                        //Draw lookahead Point
-                        GL.PointSize(8.0f);
-                        GL.Begin(PrimitiveType.Points);
-                        GL.Color3(1.0f, 0.95f, 0.195f);
-                        GL.Vertex3(mf.gyd.goalPoint.easting, mf.gyd.goalPoint.northing, 0.0);
                         GL.End();
                     }
 
-                    mf.yt.DrawYouTurn();
+                    //Draw lookahead Point
+                    GL.PointSize(8.0f);
+                    GL.Begin(PrimitiveType.Points);
+                    GL.Color3(1.0f, 0.95f, 0.195f);
+                    GL.Vertex3(mf.gyd.goalPoint.easting, mf.gyd.goalPoint.northing, 0.0);
+                    GL.End();
                 }
+
+                mf.yt.DrawYouTurn();
             }
+            
             GL.PointSize(1.0f);
 
 
@@ -616,29 +406,6 @@ namespace AgOpenGPS
             //        GL.End();
             //    }
 
-
-            //if (mf.camera.camSetDistance > -200)
-            //{
-            //    double toolWidth2 = mf.tool.toolWidth - mf.tool.toolOverlap;
-            //    double cosHeading2 = Math.Cos(-mf.curve.aveLineHeading);
-            //    double sinHeading2 = Math.Sin(-mf.curve.aveLineHeading);
-
-            //    GL.Color3(0.8f, 0.3f, 0.2f);
-            //    GL.PointSize(2);
-            //    GL.Begin(PrimitiveType.Points);
-
-            //    ptCount = refList.Count;
-            //    for (int i = 1; i <= 6; i++)
-            //    {
-            //        for (int h = 0; h < ptCount; h++)
-            //            GL.Vertex3((cosHeading2 * toolWidth2) + mf.curve.refList[h].easting,
-            //                          (sinHeading2 * toolWidth2) + mf.curve.refList[h].northing, 0);
-            //        toolWidth2 = toolWidth2 + mf.tool.toolWidth - mf.tool.toolOverlap;
-            //    }
-
-            //    GL.End();
-            //}
-            //}
         }
 
         public void BuildTram()
@@ -753,7 +520,7 @@ namespace AgOpenGPS
             int cnt = refList.Count;
 
             //just go back if not very long
-            if (!isCurveSet || cnt < 400) return;
+            if (cnt < 400) return;
 
             //the temp array
             vec3[] arr = new vec3[cnt];
@@ -794,28 +561,6 @@ namespace AgOpenGPS
             }
         }
 
-        public void CalculateTurnHeadings()
-        {
-            //to calc heading based on next and previous points to give an average heading.
-            int cnt = refList.Count;
-            if (cnt > 0)
-            {
-                vec3[] arr = new vec3[cnt];
-                cnt--;
-                refList.CopyTo(arr);
-                refList.Clear();
-
-                //middle points
-                for (int i = 1; i < cnt; i++)
-                {
-                    vec3 pt3 = arr[i];
-                    pt3.heading = Math.Atan2(arr[i + 1].easting - arr[i - 1].easting, arr[i + 1].northing - arr[i - 1].northing);
-                    if (pt3.heading < 0) pt3.heading += glm.twoPI;
-                    refList.Add(pt3);
-                }
-            }
-        }
-
         //turning the visual line into the real reference line to use
         public void SaveSmoothAsRefList()
         {
@@ -841,7 +586,7 @@ namespace AgOpenGPS
 
         public void MoveABCurve(double dist)
         {
-            isCurveValid = false;
+            mf.gyd.isValid = false;
             mf.gyd.lastSecond = 0;
 
             int cnt = refList.Count;
@@ -883,34 +628,12 @@ namespace AgOpenGPS
             return _ = r.northing >= minx && r.northing <= maxx && (r.easting >= miny && r.easting <= maxy);
         }
 
-        //add extensons
-        public void AddFirstLastPoints()
-        {
-            int ptCnt = refList.Count - 1;
-            for (int i = 1; i < 200; i++)
-            {
-                vec3 pt = new vec3(refList[ptCnt]);
-                pt.easting += (Math.Sin(pt.heading) * i);
-                pt.northing += (Math.Cos(pt.heading) * i);
-                refList.Add(pt);
-            }
-
-            //and the beginning
-            vec3 start = new vec3(refList[0]);
-            for (int i = 1; i < 200; i++)
-            {
-                vec3 pt = new vec3(start);
-                pt.easting -= (Math.Sin(pt.heading) * i);
-                pt.northing -= (Math.Cos(pt.heading) * i);
-                refList.Insert(0, pt);
-            }
-        }
-
         public void ResetCurveLine()
         {
+            mf.gyd.moveDistance = 0;
+
             curList.Clear();
             refList.Clear();
-            isCurveSet = false;
         }
     }
 

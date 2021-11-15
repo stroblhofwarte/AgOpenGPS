@@ -200,13 +200,10 @@ namespace AgOpenGPS
 
         private void btnCancelMain_Click(object sender, EventArgs e)
         {
-
-            mf.curve.isCurveValid = false;
+            mf.gyd.isValid = false;
             mf.gyd.moveDistance = 0;
             mf.curve.isOkToAddDesPoints = false;
-            mf.curve.isCurveSet = false;
             mf.curve.refList.Clear();
-            mf.curve.isCurveSet = false;
             mf.DisableYouTurnButtons();
             //mf.btnContourPriority.Enabled = false;
             //mf.curve.ResetCurveLine();
@@ -294,6 +291,9 @@ namespace AgOpenGPS
 
                 //everything changed, so make sure its right
                 mf.curve.numCurveLines = mf.curve.curveArr.Count;
+
+                if (mf.curve.numCurveLineSelected == num + 1) mf.curve.numCurveLineSelected = 0;
+                else if (mf.curve.numCurveLineSelected > num) mf.curve.numCurveLineSelected--;
                 if (mf.curve.numCurveLineSelected > mf.curve.numCurveLines) mf.curve.numCurveLineSelected = mf.curve.numCurveLines;
 
                 //if there are no saved oned, empty out current curve line and turn off
@@ -314,28 +314,24 @@ namespace AgOpenGPS
         private void btnListUse_Click(object sender, EventArgs e)
         {
             //reset to generate new reference
-            mf.curve.isCurveValid = false;
+            mf.gyd.isValid = false;
             mf.gyd.moveDistance = 0;
 
+            mf.curve.refList.Clear();
             if (lvLines.SelectedItems.Count > 0)
             {
                 int idx = lvLines.SelectedIndices[0];
                 mf.curve.numCurveLineSelected = idx + 1;
 
-                mf.curve.refList.Clear();
                 for (int i = 0; i < mf.curve.curveArr[idx].curvePts.Count; i++)
                 {
                     mf.curve.refList.Add(mf.curve.curveArr[idx].curvePts[i]);
                 }
-                mf.curve.isCurveSet = true;
                 mf.yt.ResetYouTurn();
             }
             else
             {
                 mf.curve.isOkToAddDesPoints = false;
-                mf.curve.isCurveSet = false;
-                mf.curve.refList.Clear();
-                mf.curve.isCurveSet = false;
                 mf.DisableYouTurnButtons();
                 mf.curve.isBtnCurveOn = false;
                 mf.btnCurve.Image = Properties.Resources.CurveOff;

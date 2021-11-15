@@ -196,6 +196,7 @@ namespace AgOpenGPS
             this.Size = new System.Drawing.Size(270, 360);
 
         }
+
         private void btnEditName_Click(object sender, EventArgs e)
         {
             if (lvLines.SelectedItems.Count > 0)
@@ -294,7 +295,7 @@ namespace AgOpenGPS
         {
             mf.gyd.moveDistance = 0;
             //reset to generate new reference
-            mf.ABLine.isABValid = false;
+            mf.gyd.isValid = false;
 
             if (lvLines.SelectedItems.Count > 0)
             {
@@ -302,9 +303,9 @@ namespace AgOpenGPS
                 mf.ABLine.numABLineSelected = idx + 1;
 
                 mf.ABLine.refList.Clear();
-                for (int i = 0; i < mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].curvePts.Count; i++)
+                for (int i = 0; i < mf.ABLine.lineArr[idx].curvePts.Count; i++)
                 {
-                    mf.ABLine.refList.Add(mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].curvePts[i]);
+                    mf.ABLine.refList.Add(mf.ABLine.lineArr[idx].curvePts[i]);
                 }
 
                 mf.EnableYouTurnButtons();
@@ -318,8 +319,6 @@ namespace AgOpenGPS
             {
                 mf.btnABLine.Image = Properties.Resources.ABLineOff;
                 mf.ABLine.isBtnABLineOn = false;
-                mf.ABLine.isABLineSet = false;
-                mf.ABLine.isABLineLoaded = false;
                 mf.ABLine.numABLineSelected = 0;
                 mf.DisableYouTurnButtons();
                 if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
@@ -332,7 +331,7 @@ namespace AgOpenGPS
         {
             if (lvLines.SelectedItems.Count > 0)
             {
-                mf.ABLine.isABValid = false;
+                mf.gyd.isValid = false;
                 int idx = lvLines.SelectedIndices[0];
 
                 if (mf.ABLine.lineArr[idx].curvePts.Count > 1)
@@ -366,6 +365,8 @@ namespace AgOpenGPS
                 lvLines.SelectedItems[0].Remove();
 
                 mf.ABLine.numABLines = mf.ABLine.lineArr.Count;
+                if (mf.ABLine.numABLineSelected == num+1) mf.ABLine.numABLineSelected = 0;
+                else if (mf.ABLine.numABLineSelected > num) mf.ABLine.numABLineSelected--;
                 if (mf.ABLine.numABLineSelected > mf.ABLine.numABLines) mf.ABLine.numABLineSelected = mf.ABLine.numABLines;
 
                 if (mf.ABLine.numABLines == 0)
@@ -389,14 +390,12 @@ namespace AgOpenGPS
         {
             mf.btnABLine.Image = Properties.Resources.ABLineOff;
             mf.ABLine.isBtnABLineOn = false;
-            mf.ABLine.isABLineSet = false;
-            mf.ABLine.isABLineLoaded = false;
             mf.ABLine.numABLineSelected = 0;
             mf.DisableYouTurnButtons();
             if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
             if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
             Close();
-            mf.ABLine.isABValid = false;
+            mf.gyd.isValid = false;
         }
 
         private void textBox2_Enter(object sender, EventArgs e)

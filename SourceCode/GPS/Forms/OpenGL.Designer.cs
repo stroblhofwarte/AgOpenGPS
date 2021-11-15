@@ -291,14 +291,11 @@ namespace AgOpenGPS
 
                     //draw contour line if button on 
                     if (ct.isContourBtnOn)
-                    {
                         ct.DrawContourLine();
-                    }
-                    else// draw the current and reference AB Lines or CurveAB Ref and line
-                    {
-                        if (ABLine.isABLineSet | ABLine.isABLineBeingSet) ABLine.DrawABLines();
-                        if (curve.isBtnCurveOn) curve.DrawCurve();
-                    }
+                    else if (ABLine.isBtnABLineOn)
+                        ABLine.DrawABLines();
+                    else if (curve.isBtnCurveOn)
+                        curve.DrawCurve();
 
                     recPath.DrawRecordedLine();
                     recPath.DrawDubins();
@@ -1395,7 +1392,7 @@ namespace AgOpenGPS
                     }
 
                     //draw the ABLine
-                    if ((ABLine.isABLineSet | ABLine.isABLineBeingSet) && ABLine.isBtnABLineOn)
+                    if (ABLine.isBtnABLineOn)
                     {
                         //Draw reference AB line
                         GL.LineWidth(1);
@@ -1424,7 +1421,7 @@ namespace AgOpenGPS
                     }
 
                     //draw curve if there is one
-                    if (curve.isCurveSet && curve.isBtnCurveOn)
+                    if (curve.isBtnCurveOn)
                     {
                         int ptC = curve.curList.Count;
                         if (ptC > 1)
