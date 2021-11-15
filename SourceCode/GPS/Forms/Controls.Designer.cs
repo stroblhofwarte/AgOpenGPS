@@ -168,7 +168,6 @@ namespace AgOpenGPS
                 form.Show(this);
         }
 
-        public bool isABCyled = false;
         private void btnCycleLines_Click(object sender, EventArgs e)
         {
             if (ct.isContourBtnOn)
@@ -183,31 +182,30 @@ namespace AgOpenGPS
             ABLine.isABValid = false;
             curve.isCurveValid = false;
 
+            gyd.moveDistance = 0;
+
             if (ABLine.isBtnABLineOn && ABLine.numABLines > 0)
             {
-                gyd.moveDistance = 0;
-
                 ABLine.numABLineSelected++;
                 if (ABLine.numABLineSelected > ABLine.numABLines) ABLine.numABLineSelected = 1;
-                ABLine.refPoint1 = ABLine.lineArr[ABLine.numABLineSelected - 1].origin;
-                //ABLine.refPoint2 = ABLine.lineArr[ABLine.numABLineSelected - 1].ref2;
-                ABLine.abHeading = ABLine.lineArr[ABLine.numABLineSelected - 1].heading;
-                ABLine.SetABLineByHeading();
-                ABLine.isABLineSet = true;
-                ABLine.isABLineLoaded = true;
+
+                int idx = ABLine.numABLineSelected - 1;
+
+                ABLine.refList.Clear();
+                for (int i = 0; i < ABLine.lineArr[idx].curvePts.Count; i++)
+                {
+                    ABLine.refList.Add(ABLine.lineArr[idx].curvePts[i]);
+                }
                 yt.ResetYouTurn();
-                lblCurveLineName.Text = ABLine.lineArr[ABLine.numABLineSelected - 1].Name;
+                lblCurveLineName.Text = ABLine.lineArr[idx].Name;
             }
             else if (curve.isBtnCurveOn && curve.numCurveLines > 0)
             {
-                gyd.moveDistance = 0;
-
                 curve.numCurveLineSelected++;
                 if (curve.numCurveLineSelected > curve.numCurveLines) curve.numCurveLineSelected = 1;
 
                 int idx = curve.numCurveLineSelected - 1;
-                curve.aveLineHeading = curve.curveArr[idx].aveHeading;
-                curve.refList?.Clear();
+                curve.refList.Clear();
                 for (int i = 0; i < curve.curveArr[idx].curvePts.Count; i++)
                 {
                     curve.refList.Add(curve.curveArr[idx].curvePts[i]);
@@ -216,29 +214,6 @@ namespace AgOpenGPS
                 yt.ResetYouTurn();
                 lblCurveLineName.Text = curve.curveArr[idx].Name;
             }
-        }
-
-        private void SetABLine(int num)
-        {
-                ABLine.refPoint1 = ABLine.lineArr[ABLine.numABLineSelected - 1].origin;
-                //ABLine.refPoint2 = ABLine.lineArr[ABLine.numABLineSelected - 1].ref2;
-                ABLine.abHeading = ABLine.lineArr[ABLine.numABLineSelected - 1].heading;
-                ABLine.SetABLineByHeading();
-                ABLine.isABLineSet = true;
-                ABLine.isABLineLoaded = true;
-                yt.ResetYouTurn();
-        }
-        private void SetCurveLine(int num)
-        {
-                int idx = curve.numCurveLineSelected - 1;
-                curve.aveLineHeading = curve.curveArr[idx].aveHeading;
-                curve.refList?.Clear();
-                for (int i = 0; i < curve.curveArr[idx].curvePts.Count; i++)
-                {
-                    curve.refList.Add(curve.curveArr[idx].curvePts[i]);
-                }
-                curve.isCurveSet = true;
-                yt.ResetYouTurn();
         }
 
         //Section Manual and Auto
@@ -1540,7 +1515,7 @@ namespace AgOpenGPS
         {
             //FileCreateContour();
             ct.ResetContour();
-            contourSaveList?.Clear();
+            contourSaveList.Clear();
         }
 
         private void toolStripAreYouSure_Click(object sender, EventArgs e)
@@ -1584,13 +1559,13 @@ namespace AgOpenGPS
                         ct.ResetContour();
                         fd.workedAreaTotal = 0;
 
-                        tool.patchList?.Clear();
+                        tool.patchList.Clear();
                         //clear the section lists
                         for (int j = 0; j < MAXSECTIONS; j++)
                         {
-                            section[j].triangleList?.Clear();
+                            section[j].triangleList.Clear();
                         }
-                        patchSaveList?.Clear();
+                        patchSaveList.Clear();
 
                         FileCreateContour();
                         FileCreateSections();

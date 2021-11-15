@@ -73,7 +73,6 @@ namespace AgOpenGPS
 
                 if (idx >= 0)
                 {
-                    mf.curve.curveArr[idx].aveHeading = mf.curve.aveLineHeading;
                     mf.curve.curveArr[idx].curvePts.Clear();
                     //write out the Curve Points
                     foreach (vec3 item in mf.curve.refList)
@@ -99,9 +98,8 @@ namespace AgOpenGPS
             {
                 mf.curve.numCurveLineSelected = last;
                 int idx = mf.curve.numCurveLineSelected - 1;
-                mf.curve.aveLineHeading = mf.curve.curveArr[idx].aveHeading;
 
-                mf.curve.refList?.Clear();
+                mf.curve.refList.Clear();
                 for (int i = 0; i < mf.curve.curveArr[idx].curvePts.Count; i++)
                 {
                     mf.curve.refList.Add(mf.curve.curveArr[idx].curvePts[i]);
@@ -126,10 +124,6 @@ namespace AgOpenGPS
                 cnt--;
                 mf.curve.refList.CopyTo(arr);
                 mf.curve.refList.Clear();
-
-                mf.curve.aveLineHeading += Math.PI;
-                if (mf.curve.aveLineHeading < 0) mf.curve.aveLineHeading += glm.twoPI;
-                if (mf.curve.aveLineHeading > glm.twoPI) mf.curve.aveLineHeading -= glm.twoPI;
 
                 for (int i = 1; i < cnt; i++)
                 {

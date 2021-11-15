@@ -122,80 +122,6 @@ namespace AgOpenGPS
         /// <param name="pivot"></param>
         /// <param name="steer"></param>
         /// <param name="isValid"></param>
-        public void StanleyGuidanceABLine(vec3 curPtA, vec3 curPtB, vec3 pivot, vec3 steer)
-        {
-            //get the pivot distance from currently active AB segment   ///////////  Pivot  ////////////
-            double dx = curPtB.easting - curPtA.easting;
-            double dy = curPtB.northing - curPtA.northing;
-            if (Math.Abs(dx) < double.Epsilon && Math.Abs(dy) < double.Epsilon) return;
-
-            //how far from current AB Line is fix
-            distanceFromCurrentLinePivot = ((dy * pivot.easting) - (dx * pivot.northing) + (curPtB.easting
-                        * curPtA.northing) - (curPtB.northing * curPtA.easting))
-                            / Math.Sqrt((dy * dy) + (dx * dx));
-
-            if (!isHeadingSameWay)
-                distanceFromCurrentLinePivot *= -1.0;
-
-            double U = (((pivot.easting - curPtA.easting) * dx)
-                            + ((pivot.northing - curPtA.northing) * dy))
-                            / ((dx * dx) + (dy * dy));
-
-            rEastPivot = curPtA.easting + (U * dx);
-            rNorthPivot = curPtA.northing + (U * dy);
-
-            rEast = rEastPivot;
-            rNorth = rNorthPivot;
-
-            //get the distance from currently active AB segment of steer axle //////// steer /////////////
-            vec3 steerA = new vec3(curPtA);
-            vec3 steerB = new vec3(curPtB);
-
-
-            //create the AB segment to offset
-            steerA.easting += (Math.Sin(steerA.heading + glm.PIBy2) * (inty));
-            steerA.northing += (Math.Cos(steerA.heading + glm.PIBy2) * (inty));
-
-            steerB.easting += (Math.Sin(steerB.heading + glm.PIBy2) * (inty));
-            steerB.northing += (Math.Cos(steerB.heading + glm.PIBy2) * (inty));
-
-            dx = steerB.easting - steerA.easting;
-            dy = steerB.northing - steerA.northing;
-
-            if (Math.Abs(dx) <double.Epsilon && Math.Abs(dy) < double.Epsilon) return;
-
-            //how far from current AB Line is fix
-            distanceFromCurrentLineSteer = ((dy * steer.easting) - (dx * steer.northing) + (steerB.easting
-                        * steerA.northing) - (steerB.northing * steerA.easting))
-                            / Math.Sqrt((dy * dy) + (dx * dx));
-
-            if (!isHeadingSameWay)
-                distanceFromCurrentLineSteer *= -1.0;
-
-            // calc point on ABLine closest to current position - for display only
-            U = (((steer.easting - steerA.easting) * dx)
-                            + ((steer.northing - steerA.northing) * dy))
-                            / ((dx * dx) + (dy * dy));
-
-            rEastSteer = steerA.easting + (U * dx);
-            rNorthSteer = steerA.northing + (U * dy);
-
-            double steerErr = Math.Atan2(rEastSteer - rEastPivot, rNorthSteer - rNorthPivot);
-            steerHeadingError = (steer.heading - steerErr);
-            //Fix the circular error
-            if (steerHeadingError > Math.PI)
-                steerHeadingError -= Math.PI;
-            else if (steerHeadingError < -Math.PI)
-                steerHeadingError += Math.PI;
-
-            if (steerHeadingError > glm.PIBy2)
-                steerHeadingError -= Math.PI;
-            else if (steerHeadingError < -glm.PIBy2)
-                steerHeadingError += Math.PI;
-
-            DoSteerAngleCalc();
-        }
-
 
         /// <summary>
         /// Find the steer angle for a curve list, curvature and integral
@@ -203,16 +129,14 @@ namespace AgOpenGPS
         /// <param name="pivot">Pivot position vector</param>
         /// <param name="steer">Steer position vector</param>
         /// <param name="curList">the current list of guidance points</param>
-        public void StanleyGuidanceCurve(vec3 pivot, vec3 steer, ref List<vec3> curList)
-        {            //calculate required steer angle
-
-
+        public void StanleyGuidance(vec3 pivot, vec3 steer, ref List<vec3> curList, bool ab)
+        {
             //find the closest point roughly
             int cc = 0, dd;
             int ptCount = curList.Count;
-            if (ptCount > 5)
+            if (ptCount > 1)
             {
-                double minDistA = 1000000, minDistB;
+                double minDistA = double.MaxValue, minDistB;
 
                 for (int j = 0; j < ptCount; j += 10)
                 {
@@ -225,8 +149,8 @@ namespace AgOpenGPS
                     }
                 }
 
-                minDistA = minDistB = 1000000;
-                dd = cc + 7; if (dd > ptCount - 1) dd = ptCount;
+                minDistA = minDistB = double.MaxValue;
+                dd = cc + 7; if (dd > ptCount) dd = ptCount;
                 cc -= 7; if (cc < 0) cc = 0;
 
                 //find the closest 2 points to current close call
@@ -248,34 +172,18 @@ namespace AgOpenGPS
                     }
                 }
 
-                ////too far from guidance line? Lost? Fresh delete of ref?
-                //if (minDistA < (1.5 * (mf.tool.toolWidth * mf.tool.toolWidth)))
-                //{
-                //    if (minDistA == 100000000)
-                //        return;
-                //}
-                //else
-                //{
-                //    curList.Clear();
-                //    return;
-                //}
-
                 //just need to make sure the points continue ascending or heading switches all over the place
                 if (sA > sB) { int C = sA; sA = sB; sB = C; }
 
                 //currentLocationIndex = sA;
                 if (sA > ptCount - 1 || sB > ptCount - 1) return;
 
-                minDistA = minDistB = 1000000;
+                minDistA = minDistB = double.MaxValue;
 
                 if (isHeadingSameWay)
-                {
-                    dd = sB; cc = dd - 12; if (cc < 0) cc = 0;
-                }
+                    dd = sB + 1; cc = dd - 12; if (cc < 0) cc = 0;
                 else
-                {
-                    cc = sA; dd = sA + 12; if (dd >= ptCount) dd = ptCount - 1;
-                }
+                    cc = sA; dd = sA + 12; if (dd > ptCount) dd = ptCount;
 
                 //find the closest 2 points of pivot back from steer
                 for (int j = cc; j < dd; j++)
@@ -391,11 +299,13 @@ namespace AgOpenGPS
                 rEastSteer = steerA.easting + (U * dx);
                 rNorthSteer = steerA.northing + (U * dz);
 
-                //double segHeading = Math.Atan2(rEastSteer - rEastPivot, rNorthSteer - rNorthPivot);
-
-                //steerHeadingError = Math.PI - Math.Abs(Math.Abs(pivot.heading - segHeading) - Math.PI);
-                steerHeadingError = steer.heading - steerB.heading;
-
+                if (ab)
+                {
+                    double steerErr = Math.Atan2(rEastSteer - rEastPivot, rNorthSteer - rNorthPivot);
+                    steerHeadingError = (steer.heading - steerErr);
+                }
+                else
+                    steerHeadingError = steer.heading - steerB.heading;
 
                 //Fix the circular error
                 if (steerHeadingError > Math.PI) steerHeadingError -= Math.PI;
@@ -413,8 +323,6 @@ namespace AgOpenGPS
                 mf.guidanceLineDistanceOff = 32000;
             }
         }
-
         #endregion
-
     }
 }

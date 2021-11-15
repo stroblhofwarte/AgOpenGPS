@@ -25,7 +25,7 @@ namespace AgOpenGPS
         private void bntOK_Click(object sender, EventArgs e)
         {
             mf.curve.SaveSmoothAsRefList();
-            mf.curve.smooList?.Clear();
+            mf.curve.smooList.Clear();
             Close();
         }
 
@@ -37,7 +37,7 @@ namespace AgOpenGPS
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            mf.curve.smooList?.Clear();
+            mf.curve.smooList.Clear();
             Close();
         }
 
@@ -59,7 +59,7 @@ namespace AgOpenGPS
         private void btnSave_Click(object sender, EventArgs e)
         {
             mf.curve.SaveSmoothAsRefList();
-            mf.curve.smooList?.Clear();
+            mf.curve.smooList.Clear();
 
             if (mf.curve.refList.Count > 0)
             {
@@ -68,7 +68,6 @@ namespace AgOpenGPS
 
                 if (idx >= 0)
                 {
-                    mf.curve.curveArr[idx].aveHeading = mf.curve.aveLineHeading;
                     mf.curve.curveArr[idx].curvePts.Clear();
                     //write out the Curve Points
                     foreach (vec3 item in mf.curve.refList)

@@ -76,7 +76,6 @@ namespace AgOpenGPS
                 //mf.curve.curveArr[idx].Name = textBox1.Text.Trim();
                 if (idx >= 0)
                 {
-                    mf.curve.curveArr[idx].aveHeading = mf.curve.aveLineHeading;
                     mf.curve.curveArr[idx].curvePts.Clear();
                     //write out the Curve Points
                     foreach (vec3 item in mf.curve.refList)
@@ -149,10 +148,6 @@ namespace AgOpenGPS
                 mf.curve.refList.CopyTo(arr);
                 mf.curve.refList.Clear();
 
-                mf.curve.aveLineHeading += Math.PI;
-                if (mf.curve.aveLineHeading < 0) mf.curve.aveLineHeading += glm.twoPI;
-                if (mf.curve.aveLineHeading > glm.twoPI) mf.curve.aveLineHeading -= glm.twoPI;
-
                 for (int i = 1; i < cnt; i++)
                 {
                     vec3 pt3 = arr[i];
@@ -179,10 +174,9 @@ namespace AgOpenGPS
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            mf.tram.tramArr?.Clear();
-            mf.tram.tramList?.Clear();
-            mf.tram.tramBndOuterArr?.Clear();
-            mf.tram.tramBndInnerArr?.Clear();
+            mf.tram.tramList.Clear();
+            mf.tram.tramBndOuterArr.Clear();
+            mf.tram.tramBndInnerArr.Clear();
 
             mf.panelRight.Enabled = true;
             mf.panelDrag.Visible = false;

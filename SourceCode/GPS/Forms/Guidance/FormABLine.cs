@@ -111,9 +111,6 @@ namespace AgOpenGPS
             mf.ABLine.desPoint1.northing = fix.northing - Math.Sin(fix.heading) * mf.tool.toolOffset;
             desHeading = fix.heading;
 
-            mf.ABLine.desPoint2.easting = 99999;
-            mf.ABLine.desPoint2.northing = 99999;
-
             nudHeading.Enabled = true;
             nudHeading.Value = (decimal)glm.toDegrees(desHeading);
 
@@ -136,13 +133,11 @@ namespace AgOpenGPS
             mf.ABLine.desPoint2.northing = fix.northing - Math.Sin(fix.heading) * mf.tool.toolOffset;
 
             // heading based on AB points
-            desHeading = Math.Atan2(mf.ABLine.desPoint2.easting - mf.ABLine.desPoint1.easting,
-                mf.ABLine.desPoint2.northing - mf.ABLine.desPoint1.northing);
+            desHeading = Math.Atan2(fix.easting + Math.Cos(fix.heading) * mf.tool.toolOffset - mf.ABLine.desPoint1.easting,
+                fix.northing - Math.Sin(fix.heading) * mf.tool.toolOffset - mf.ABLine.desPoint1.northing);
             if (desHeading < 0) desHeading += glm.twoPI;
 
             nudHeading.Value = (decimal)(glm.toDegrees(desHeading));
-
-            BuildDesLine();
         }
 
         private void nudHeading_Click(object sender, EventArgs e)
@@ -157,11 +152,8 @@ namespace AgOpenGPS
         {
             desHeading = glm.toRadians((double)nudHeading.Value);
 
-            //sin x cos z for endpoints, opposite for additional lines
-            mf.ABLine.desP1.easting = mf.ABLine.desPoint1.easting - (Math.Sin(desHeading) * mf.ABLine.abLength);
-            mf.ABLine.desP1.northing = mf.ABLine.desPoint1.northing - (Math.Cos(desHeading) * mf.ABLine.abLength);
-            mf.ABLine.desP2.easting = mf.ABLine.desPoint1.easting + (Math.Sin(desHeading) * mf.ABLine.abLength);
-            mf.ABLine.desP2.northing = mf.ABLine.desPoint1.northing + (Math.Cos(desHeading) * mf.ABLine.abLength);
+            mf.ABLine.desPoint2.easting = mf.ABLine.desPoint1.easting + Math.Sin(desHeading);
+            mf.ABLine.desPoint2.northing = mf.ABLine.desPoint1.northing + Math.Cos(desHeading);
         }
 
         private void textBox1_Enter(object sender, EventArgs e)
@@ -237,26 +229,23 @@ namespace AgOpenGPS
             UpdateLineList();
             lvLines.Focus();
             mf.ABLine.isABLineBeingSet = false;
-
         }
+
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            mf.ABLine.lineArr.Add(new CABLines());
-            mf.ABLine.numABLines = mf.ABLine.lineArr.Count;
-            mf.ABLine.numABLineSelected = mf.ABLine.numABLines;
+            CABLines New = new CABLines();
 
-            //index to last one. 
-            int idx = mf.ABLine.lineArr.Count - 1;
-
-            mf.ABLine.lineArr[idx].heading = desHeading;
-            //calculate the new points for the reference line and points
-            mf.ABLine.lineArr[idx].origin.easting = mf.ABLine.desPoint1.easting;
-            mf.ABLine.lineArr[idx].origin.northing = mf.ABLine.desPoint1.northing;
+            New.curvePts.Add(new vec3(mf.ABLine.desPoint1.easting, mf.ABLine.desPoint1.northing, desHeading));
+            New.curvePts.Add(new vec3(mf.ABLine.desPoint1.easting + Math.Sin(desHeading), mf.ABLine.desPoint1.northing + Math.Cos(desHeading), desHeading));
 
             //name
             if (textBox2.Text.Trim() == "") textBox2.Text = "No Name " + DateTime.Now.ToString("hh:mm:ss", CultureInfo.InvariantCulture);
 
-            mf.ABLine.lineArr[idx].Name = textBox1.Text.Trim();
+            New.Name = textBox1.Text.Trim();
+
+            mf.ABLine.lineArr.Add(New);
+            mf.ABLine.numABLines = mf.ABLine.lineArr.Count;
+            mf.ABLine.numABLineSelected = mf.ABLine.numABLines;
 
             mf.FileSaveABLines();
 
@@ -287,11 +276,14 @@ namespace AgOpenGPS
                 panelAPlus.Visible = false;
                 panelName.Visible = true;
 
-                desHeading = mf.ABLine.lineArr[idx].heading;
+                if (mf.ABLine.lineArr[idx].curvePts.Count > 1)
+                {
+                    desHeading = Math.Atan2(mf.ABLine.lineArr[idx].curvePts[1].easting - mf.ABLine.lineArr[idx].curvePts[0].easting, mf.ABLine.lineArr[idx].curvePts[1].northing - mf.ABLine.lineArr[idx].curvePts[0].northing);
 
-                //calculate the new points for the reference line and points                
-                mf.ABLine.desPoint1.easting = mf.ABLine.lineArr[idx].origin.easting;
-                mf.ABLine.desPoint1.northing = mf.ABLine.lineArr[idx].origin.northing;
+                    //calculate the new points for the reference line and points                
+                    mf.ABLine.desPoint1.easting = mf.ABLine.lineArr[idx].curvePts[0].easting;
+                    mf.ABLine.desPoint1.northing = mf.ABLine.lineArr[idx].curvePts[0].northing;
+                }
 
                 textBox1.Text = mf.ABLine.lineArr[idx].Name + " Copy";
             }
@@ -309,10 +301,11 @@ namespace AgOpenGPS
                 int idx = lvLines.SelectedIndices[0];
                 mf.ABLine.numABLineSelected = idx + 1;
 
-                mf.ABLine.abHeading = mf.ABLine.lineArr[idx].heading;
-                mf.ABLine.refPoint1 = mf.ABLine.lineArr[idx].origin;
-
-                mf.ABLine.SetABLineByHeading();
+                mf.ABLine.refList.Clear();
+                for (int i = 0; i < mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].curvePts.Count; i++)
+                {
+                    mf.ABLine.refList.Add(mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].curvePts[i]);
+                }
 
                 mf.EnableYouTurnButtons();
 
@@ -334,6 +327,7 @@ namespace AgOpenGPS
                 Close();
             }
         }
+
         private void btnSwapAB_Click(object sender, EventArgs e)
         {
             if (lvLines.SelectedItems.Count > 0)
@@ -341,12 +335,22 @@ namespace AgOpenGPS
                 mf.ABLine.isABValid = false;
                 int idx = lvLines.SelectedIndices[0];
 
+                if (mf.ABLine.lineArr[idx].curvePts.Count > 1)
+                {
+                    double heading = Math.Atan2(mf.ABLine.lineArr[idx].curvePts[1].easting - mf.ABLine.lineArr[idx].curvePts[0].easting, mf.ABLine.lineArr[idx].curvePts[1].northing - mf.ABLine.lineArr[idx].curvePts[0].northing) + Math.PI;
 
-                mf.ABLine.lineArr[idx].heading += Math.PI;
-                if (mf.ABLine.lineArr[idx].heading > glm.twoPI) mf.ABLine.lineArr[idx].heading -= glm.twoPI;
+                    if (heading > glm.twoPI) heading -= glm.twoPI;
 
+                    vec3 pos = mf.ABLine.lineArr[idx].curvePts[0];
 
-                mf.FileSaveABLines();
+                    mf.ABLine.lineArr[idx].curvePts.Clear();
+
+                    mf.ABLine.lineArr[idx].curvePts.Add(new vec3(pos.easting, pos.northing, heading));
+                    mf.ABLine.lineArr[idx].curvePts.Add(new vec3(pos.easting + Math.Sin(heading), pos.northing + Math.Cos(heading), heading));
+
+                    mf.FileSaveABLines();
+
+                }
 
                 UpdateLineList();
                 lvLines.Focus();
@@ -422,11 +426,8 @@ namespace AgOpenGPS
                         (Math.Round(glm.toDegrees(desHeading), 1)).ToString(CultureInfo.InvariantCulture) +
                         "\u00B0 " + mf.FindDirection(desHeading);
 
-                    //sin x cos z for endpoints, opposite for additional lines
-                    mf.ABLine.desP1.easting = mf.ABLine.desPoint1.easting - (Math.Sin(desHeading) * mf.ABLine.abLength);
-                    mf.ABLine.desP1.northing = mf.ABLine.desPoint1.northing - (Math.Cos(desHeading) * mf.ABLine.abLength);
-                    mf.ABLine.desP2.easting = mf.ABLine.desPoint1.easting + (Math.Sin(desHeading) * mf.ABLine.abLength);
-                    mf.ABLine.desP2.northing = mf.ABLine.desPoint1.northing + (Math.Cos(desHeading) * mf.ABLine.abLength);
+                    mf.ABLine.desPoint2.easting = mf.ABLine.desPoint1.easting + Math.Sin(desHeading);
+                    mf.ABLine.desPoint2.northing = mf.ABLine.desPoint1.northing + Math.Cos(desHeading);
                 }
                 else
                     btnCancel_APlus.PerformClick();

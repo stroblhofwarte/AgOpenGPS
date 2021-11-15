@@ -1399,29 +1399,35 @@ namespace AgOpenGPS
                     {
                         //Draw reference AB line
                         GL.LineWidth(1);
-                        GL.Enable(EnableCap.LineStipple);
-                        GL.LineStipple(1, 0x00F0);
 
-                        GL.Begin(PrimitiveType.Lines);
-                        GL.Color3(0.9f, 0.2f, 0.2f);
-                        GL.Vertex3(ABLine.refABLineP1.easting, ABLine.refABLineP1.northing, 0);
-                        GL.Vertex3(ABLine.refABLineP2.easting, ABLine.refABLineP2.northing, 0);
-                        GL.End();
-                        GL.Disable(EnableCap.LineStipple);
+                        if (ABLine.refList.Count > 1)
+                        {
+                            GL.Enable(EnableCap.LineStipple);
+                            GL.LineStipple(1, 0x00F0);
+                            GL.Begin(PrimitiveType.Lines);
+                            GL.Color3(0.9f, 0.2f, 0.2f);
+                            GL.Vertex3(ABLine.refList[0].easting, ABLine.refList[0].northing, 0);
+                            GL.Vertex3(ABLine.refList[1].easting, ABLine.refList[1].northing, 0);
+                            GL.End();
+                            GL.Disable(EnableCap.LineStipple);
+                        }
 
-                        //raw current AB Line
-                        GL.Begin(PrimitiveType.Lines);
-                        GL.Color3(0.9f, 0.20f, 0.90f);
-                        GL.Vertex3(ABLine.currentABLineP1.easting, ABLine.currentABLineP1.northing, 0.0);
-                        GL.Vertex3(ABLine.currentABLineP2.easting, ABLine.currentABLineP2.northing, 0.0);
-                        GL.End();
+                        if (ABLine.curList.Count > 1)
+                        {
+                            //raw current AB Line
+                            GL.Begin(PrimitiveType.Lines);
+                            GL.Color3(0.9f, 0.20f, 0.90f);
+                            GL.Vertex3(ABLine.curList[0].easting, ABLine.curList[0].northing, 0.0);
+                            GL.Vertex3(ABLine.curList[1].easting, ABLine.curList[1].northing, 0.0);
+                            GL.End();
+                        }
                     }
 
                     //draw curve if there is one
                     if (curve.isCurveSet && curve.isBtnCurveOn)
                     {
                         int ptC = curve.curList.Count;
-                        if (ptC > 0)
+                        if (ptC > 1)
                         {
                             GL.LineWidth(2);
                             GL.Color3(0.925f, 0.2f, 0.90f);

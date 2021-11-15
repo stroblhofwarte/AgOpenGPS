@@ -720,7 +720,7 @@ namespace AgOpenGPS
             Index = -1;
             isContourOn = false;
             stripList.Clear();
-            ctList?.Clear();
+            ctList.Clear();
         }
     }//class
 }//namespace

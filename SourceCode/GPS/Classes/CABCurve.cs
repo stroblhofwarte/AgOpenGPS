@@ -14,8 +14,6 @@ namespace AgOpenGPS
 
         public int currentLocationIndex;
 
-        public double aveLineHeading;
-
         //the list of points of the ref line.
         public List<vec3> refList = new List<vec3>();
         //the list of points of curve to drive on
@@ -52,7 +50,7 @@ namespace AgOpenGPS
             int refCount = refList.Count;
             if (refCount < 5)
             {
-                curList?.Clear();
+                curList.Clear();
                 return;
             }
 
@@ -128,7 +126,7 @@ namespace AgOpenGPS
             isCurveValid = true;
 
             //build the current line
-            curList?.Clear();
+            curList.Clear();
 
             double distAway = widthMinusOverlap * mf.gyd.howManyPathsAway + (mf.gyd.isHeadingSameWay ? -mf.tool.toolOffset : mf.tool.toolOffset);
 
@@ -314,7 +312,7 @@ namespace AgOpenGPS
                 }
                 else if (mf.isStanleyUsed)//Stanley
                 {
-                    mf.gyd.StanleyGuidanceCurve(pivot, steer, ref curList);
+                    mf.gyd.StanleyGuidance(pivot, steer, ref curList, false);
                 }
                 else// Pure Pursuit ------------------------------------------
                 {
@@ -646,8 +644,7 @@ namespace AgOpenGPS
         public void BuildTram()
         {
             mf.tram.BuildTramBnd();
-            mf.tram.tramList?.Clear();
-            mf.tram.tramArr?.Clear();
+            mf.tram.tramList.Clear();
 
             bool isBndExist = mf.bnd.bndList.Count != 0;
 
@@ -663,12 +660,8 @@ namespace AgOpenGPS
                 double distSqAway = (mf.tram.tramWidth * (i + 0.5) - mf.tram.halfWheelTrack + mf.tool.halfToolWidth)
                         * (mf.tram.tramWidth * (i + 0.5) - mf.tram.halfWheelTrack + mf.tool.halfToolWidth) * 0.999999;
 
-                mf.tram.tramArr = new List<vec2>
-                {
-                    Capacity = 128
-                };
+                List<vec2> tramArr = new List<vec2>(128);
 
-                mf.tram.tramList.Add(mf.tram.tramArr);
                 for (int j = 0; j < refCount; j += 1)
                 {
                     vec2 point = new vec2(
@@ -692,18 +685,19 @@ namespace AgOpenGPS
                     if (Add)
                     {
                         //a new point only every 2 meters
-                        double dist = mf.tram.tramArr.Count > 0 ? ((point.easting - mf.tram.tramArr[mf.tram.tramArr.Count - 1].easting) * (point.easting - mf.tram.tramArr[mf.tram.tramArr.Count - 1].easting))
-                            + ((point.northing - mf.tram.tramArr[mf.tram.tramArr.Count - 1].northing) * (point.northing - mf.tram.tramArr[mf.tram.tramArr.Count - 1].northing)) : 3.0;
+                        double dist = tramArr.Count > 0 ? ((point.easting - tramArr[tramArr.Count - 1].easting) * (point.easting - tramArr[tramArr.Count - 1].easting))
+                            + ((point.northing - tramArr[tramArr.Count - 1].northing) * (point.northing - tramArr[tramArr.Count - 1].northing)) : 3.0;
                         if (dist > 2)
                         {
                             //if inside the boundary, add
                             if (!isBndExist || mf.bnd.bndList[0].fenceLineEar.IsPointInPolygon(point))
                             {
-                                mf.tram.tramArr.Add(point);
+                                tramArr.Add(point);
                             }
                         }
                     }
                 }
+                mf.tram.tramList.Add(tramArr);
             }
 
             for (int i = cntr; i <= mf.tram.passes; i++)
@@ -711,12 +705,8 @@ namespace AgOpenGPS
                 double distSqAway = (mf.tram.tramWidth * (i + 0.5) + mf.tram.halfWheelTrack + mf.tool.halfToolWidth)
                         * (mf.tram.tramWidth * (i + 0.5) + mf.tram.halfWheelTrack + mf.tool.halfToolWidth) * 0.999999;
 
-                mf.tram.tramArr = new List<vec2>
-                {
-                    Capacity = 128
-                };
+                List<vec2> tramArr = new List<vec2>(128);
 
-                mf.tram.tramList.Add(mf.tram.tramArr);
                 for (int j = 0; j < refCount; j += 1)
                 {
                     vec2 point = new vec2(
@@ -740,18 +730,19 @@ namespace AgOpenGPS
                     if (Add)
                     {
                         //a new point only every 2 meters
-                        double dist = mf.tram.tramArr.Count > 0 ? ((point.easting - mf.tram.tramArr[mf.tram.tramArr.Count - 1].easting) * (point.easting - mf.tram.tramArr[mf.tram.tramArr.Count - 1].easting))
-                            + ((point.northing - mf.tram.tramArr[mf.tram.tramArr.Count - 1].northing) * (point.northing - mf.tram.tramArr[mf.tram.tramArr.Count - 1].northing)) : 3.0;
+                        double dist = tramArr.Count > 0 ? ((point.easting - tramArr[tramArr.Count - 1].easting) * (point.easting - tramArr[tramArr.Count - 1].easting))
+                            + ((point.northing - tramArr[tramArr.Count - 1].northing) * (point.northing - tramArr[tramArr.Count - 1].northing)) : 3.0;
                         if (dist > 2)
                         {
                             //if inside the boundary, add
                             if (!isBndExist || mf.bnd.bndList[0].fenceLineEar.IsPointInPolygon(point))
                             {
-                                mf.tram.tramArr.Add(point);
+                                tramArr.Add(point);
                             }
                         }
                     }
                 }
+                mf.tram.tramList.Add(tramArr);
             }
         }
 
@@ -796,7 +787,7 @@ namespace AgOpenGPS
             }
 
             //make a list to draw
-            smooList?.Clear();
+            smooList.Clear();
             for (int i = 0; i < cnt; i++)
             {
                 smooList.Add(arr[i]);
@@ -833,7 +824,7 @@ namespace AgOpenGPS
             if (cnt == 0) return;
 
             //eek
-            refList?.Clear();
+            refList.Clear();
 
             //copy to an array to calculate all the new headings
             vec3[] arr = new vec3[cnt];
@@ -917,8 +908,8 @@ namespace AgOpenGPS
 
         public void ResetCurveLine()
         {
-            curList?.Clear();
-            refList?.Clear();
+            curList.Clear();
+            refList.Clear();
             isCurveSet = false;
         }
     }
@@ -926,7 +917,6 @@ namespace AgOpenGPS
     public class CCurveLines
     {
         public List<vec3> curvePts = new List<vec3>();
-        public double aveHeading = 3;
         public string Name = "aa";
     }
 }

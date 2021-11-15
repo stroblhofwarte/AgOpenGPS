@@ -67,10 +67,11 @@ namespace AgOpenGPS
 
             if (idx >= 0)
             {
-                mf.ABLine.lineArr[idx].heading = mf.ABLine.abHeading;
-                //calculate the new points for the reference line and points
-                mf.ABLine.lineArr[idx].origin.easting = mf.ABLine.refPoint1.easting;
-                mf.ABLine.lineArr[idx].origin.northing = mf.ABLine.refPoint1.northing;
+                mf.ABLine.lineArr[idx].curvePts.Clear();
+                for (int i = 0; i < mf.ABLine.refList.Count; i++)
+                {
+                    mf.ABLine.lineArr[idx].curvePts.Add(mf.ABLine.refList[i]);
+                }
             }
 
             mf.FileSaveABLines();
@@ -135,14 +136,8 @@ namespace AgOpenGPS
 
         private void btnSwapAB_Click(object sender, EventArgs e)
         {
-            mf.ABLine.abHeading += Math.PI;
-            if (mf.ABLine.abHeading > glm.twoPI) mf.ABLine.abHeading -= glm.twoPI;
-
-            mf.ABLine.refABLineP1.easting = mf.ABLine.refPoint1.easting - (Math.Sin(mf.ABLine.abHeading) * mf.ABLine.abLength);
-            mf.ABLine.refABLineP1.northing = mf.ABLine.refPoint1.northing - (Math.Cos(mf.ABLine.abHeading) * mf.ABLine.abLength);
-
-            mf.ABLine.refABLineP2.easting = mf.ABLine.refPoint1.easting + (Math.Sin(mf.ABLine.abHeading) * mf.ABLine.abLength);
-            mf.ABLine.refABLineP2.northing = mf.ABLine.refPoint1.northing + (Math.Cos(mf.ABLine.abHeading) * mf.ABLine.abLength);
+            if (mf.ABLine.refList.Count > 1)
+                mf.ABLine.SetABLineByHeading(Math.Atan2(mf.ABLine.refList[0].easting - mf.ABLine.refList[1].easting, mf.ABLine.refList[0].northing - mf.ABLine.refList[1].northing));
 
             mf.ABLine.BuildTram();
         }
@@ -161,10 +156,9 @@ namespace AgOpenGPS
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            mf.tram.tramArr?.Clear();
-            mf.tram.tramList?.Clear();
-            mf.tram.tramBndOuterArr?.Clear();
-            mf.tram.tramBndInnerArr?.Clear();
+            mf.tram.tramList.Clear();
+            mf.tram.tramBndOuterArr.Clear();
+            mf.tram.tramBndInnerArr.Clear();
 
             //mf.ABLine.tramPassEvery = 0;
             //mf.ABLine.tramBasedOn = 0;

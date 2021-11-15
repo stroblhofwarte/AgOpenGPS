@@ -8,8 +8,6 @@ namespace AgOpenGPS
     {
         //access to the main GPS form and all its variables
         private readonly FormGPS mf;
-        private double aveLineHeading;
-        private int originalLine = 0;
 
         public FormABCurve(Form _mf)
         {
@@ -40,7 +38,7 @@ namespace AgOpenGPS
 
             this.Size = new System.Drawing.Size(470, 360);
 
-            originalLine = mf.curve.numCurveLineSelected;
+            int originalLine = mf.curve.numCurveLineSelected;
             mf.curve.isOkToAddDesPoints = false;
 
             UpdateLineList();
@@ -85,7 +83,7 @@ namespace AgOpenGPS
             btnAPoint.Enabled = true;
             btnBPoint.Enabled = false;
             btnPausePlay.Enabled = false;
-            mf.curve.desList?.Clear();
+            mf.curve.desList.Clear();
 
             this.Size = new System.Drawing.Size(270, 360);
         }
@@ -106,7 +104,6 @@ namespace AgOpenGPS
 
         private void btnBPoint_Click(object sender, System.EventArgs e)
         {
-            aveLineHeading = 0;
             mf.curve.isOkToAddDesPoints = false;
             panelAPlus.Visible = false;
             panelName.Visible = true;
@@ -141,7 +138,7 @@ namespace AgOpenGPS
                 }
                 x /= mf.curve.desList.Count;
                 y /= mf.curve.desList.Count;
-                aveLineHeading = Math.Atan2(y, x);
+                double aveLineHeading = Math.Atan2(y, x);
                 if (aveLineHeading < 0) aveLineHeading += glm.twoPI;
 
                 //build the tail extensions
@@ -161,7 +158,7 @@ namespace AgOpenGPS
             else
             {
                 mf.curve.isOkToAddDesPoints = false;
-                mf.curve.desList?.Clear();
+                mf.curve.desList.Clear();
 
                 panelPick.Visible = true;
                 panelAPlus.Visible = false;
@@ -208,7 +205,7 @@ namespace AgOpenGPS
             mf.gyd.moveDistance = 0;
             mf.curve.isOkToAddDesPoints = false;
             mf.curve.isCurveSet = false;
-            mf.curve.refList?.Clear();
+            mf.curve.refList.Clear();
             mf.curve.isCurveSet = false;
             mf.DisableYouTurnButtons();
             //mf.btnContourPriority.Enabled = false;
@@ -225,7 +222,7 @@ namespace AgOpenGPS
         private void btnCancelCurve_Click(object sender, EventArgs e)
         {
             mf.curve.isOkToAddDesPoints = false;
-            mf.curve.desList?.Clear();
+            mf.curve.desList.Clear();
 
             panelPick.Visible = true;
             panelAPlus.Visible = false;
@@ -260,7 +257,6 @@ namespace AgOpenGPS
                 int idx = mf.curve.curveArr.Count - 1;
 
                 mf.curve.curveArr[idx].Name = textBox1.Text.Trim();
-                mf.curve.curveArr[idx].aveHeading = aveLineHeading;
 
                 //write out the Curve Points
                 foreach (vec3 item in mf.curve.desList)
@@ -269,7 +265,7 @@ namespace AgOpenGPS
                 }
 
                 mf.FileSaveCurveLines();
-                mf.curve.desList?.Clear();
+                mf.curve.desList.Clear();
             }
 
             panelPick.Visible = true;
@@ -283,7 +279,7 @@ namespace AgOpenGPS
 
             UpdateLineList();
             lvLines.Focus();
-            mf.curve.desList?.Clear();
+            mf.curve.desList.Clear();
         }
 
         private void btnListDelete_Click(object sender, EventArgs e)
@@ -326,8 +322,7 @@ namespace AgOpenGPS
                 int idx = lvLines.SelectedIndices[0];
                 mf.curve.numCurveLineSelected = idx + 1;
 
-                mf.curve.aveLineHeading = mf.curve.curveArr[idx].aveHeading;
-                mf.curve.refList?.Clear();
+                mf.curve.refList.Clear();
                 for (int i = 0; i < mf.curve.curveArr[idx].curvePts.Count; i++)
                 {
                     mf.curve.refList.Add(mf.curve.curveArr[idx].curvePts[i]);
@@ -339,7 +334,7 @@ namespace AgOpenGPS
             {
                 mf.curve.isOkToAddDesPoints = false;
                 mf.curve.isCurveSet = false;
-                mf.curve.refList?.Clear();
+                mf.curve.refList.Clear();
                 mf.curve.isCurveSet = false;
                 mf.DisableYouTurnButtons();
                 mf.curve.isBtnCurveOn = false;
@@ -389,7 +384,7 @@ namespace AgOpenGPS
             }
 
             //make a list to draw
-            mf.curve.desList?.Clear();
+            mf.curve.desList.Clear();
             for (int i = 0; i < cnt; i++)
             {
                 mf.curve.desList.Add(arr[i]);
@@ -457,8 +452,7 @@ namespace AgOpenGPS
                 textBox1.Text = mf.curve.curveArr[idx].Name + " Copy";
                 mf.curve.desName = textBox1.Text;
 
-                aveLineHeading = mf.curve.curveArr[idx].aveHeading;
-                mf.curve.desList?.Clear();
+                mf.curve.desList.Clear();
 
                 for (int i = 0; i < mf.curve.curveArr[idx].curvePts.Count; i++)
                 {
@@ -500,7 +494,7 @@ namespace AgOpenGPS
             panelPick.Visible = true;
 
             mf.FileSaveCurveLines();
-            mf.curve.desList?.Clear();
+            mf.curve.desList.Clear();
 
             this.Size = new System.Drawing.Size(470, 360);
 
@@ -532,10 +526,6 @@ namespace AgOpenGPS
                     cnt--;
                     mf.curve.curveArr[idx].curvePts.CopyTo(arr);
                     mf.curve.curveArr[idx].curvePts.Clear();
-
-                    mf.curve.curveArr[idx].aveHeading += Math.PI;
-                    if (mf.curve.curveArr[idx].aveHeading < 0) mf.curve.curveArr[idx].aveHeading += glm.twoPI;
-                    if (mf.curve.curveArr[idx].aveHeading > glm.twoPI) mf.curve.curveArr[idx].aveHeading -= glm.twoPI;
 
                     for (int i = 1; i < cnt; i++)
                     {

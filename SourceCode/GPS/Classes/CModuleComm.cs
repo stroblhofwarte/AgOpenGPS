@@ -42,7 +42,7 @@
         //for the workswitch
         public bool isWorkSwitchActiveLow, isWorkSwitchEnabled, isWorkSwitchManual, isSteerControlsManual;
 
-        public int workSwitchValue, oldWorkSwitchValue, steerSwitchValue = 0;
+        public int workSwitchValue, oldWorkSwitchValue, steerSwitchValue = 0, oldsteerSwitchValue;
 
         //constructor
         public CModuleComm(FormGPS _f)
@@ -60,6 +60,19 @@
         public void CheckWorkSwitch()
         {
             if (isSteerControlsManual) workSwitchValue = steerSwitchValue;
+
+            //AutoSteerAuto button enable - Ray Bear inspired code - Thx Ray!
+            if (mf.ahrs.isAutoSteerAuto && steerSwitchValue != oldsteerSwitchValue)
+            {
+                oldsteerSwitchValue = steerSwitchValue;
+                if (steerSwitchValue == 0)
+                {
+                    if (!mf.isAutoSteerBtnOn)
+                        mf.btnAutoSteer.PerformClick();
+                }
+                else if (mf.isAutoSteerBtnOn)
+                    mf.btnAutoSteer.PerformClick();
+            }
 
             if (workSwitchValue != oldWorkSwitchValue)
             {

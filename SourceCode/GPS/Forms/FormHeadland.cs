@@ -567,7 +567,7 @@ namespace AgOpenGPS
 
         private void btnExit_Click(object sender, EventArgs e)
         {
-            mf.bnd.bndList[0].hdLine.Points?.Clear();
+            mf.bnd.bndList[0].hdLine.Points.Clear();
 
             //does headland control sections
             mf.bnd.isSectionControlledByHeadland = cboxIsSectionControlled.Checked;
@@ -609,7 +609,7 @@ namespace AgOpenGPS
 
         private void btnTurnOffHeadland_Click(object sender, EventArgs e)
         {
-            mf.bnd.bndList[0].hdLine.Points?.Clear();
+            mf.bnd.bndList[0].hdLine.Points.Clear();
 
             mf.FileSaveHeadland();
 

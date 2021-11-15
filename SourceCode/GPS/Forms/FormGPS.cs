@@ -954,8 +954,6 @@ namespace AgOpenGPS
             btnMakeLinesFromBoundary.Enabled = true;
             btnCycleLines.Image = Properties.Resources.ABLineCycle;
             btnCycleLines.Enabled = true;
-
-            ABLine.abHeading = 0.00;
             btnAutoSteer.Enabled = true;
 
             DisableYouTurnButtons();
@@ -1086,7 +1084,7 @@ namespace AgOpenGPS
             //clear the section lists
             for (int j = 0; j < MAXSECTIONS; j++)
             {
-                section[j].triangleList?.Clear();
+                section[j].triangleList.Clear();
             }
 
             //clear the flags
@@ -1097,9 +1095,8 @@ namespace AgOpenGPS
             btnABLine.Image = Properties.Resources.ABLineOff;
             ABLine.isBtnABLineOn = false;
             ABLine.DeleteAB();
-            ABLine.lineArr?.Clear();
+            ABLine.lineArr.Clear();
             ABLine.numABLineSelected = 0;
-            tram.tramList?.Clear();
 
             //curve line
             btnCurve.Enabled = false;
@@ -1107,13 +1104,14 @@ namespace AgOpenGPS
             curve.isBtnCurveOn = false;
             curve.isCurveSet = false;
             curve.ResetCurveLine();
-            curve.curveArr?.Clear();
+            curve.curveArr.Clear();
             curve.numCurveLineSelected = 0;
 
             //clean up tram
             tram.displayMode = 0;
-            tram.tramBndInnerArr?.Clear();
-            tram.tramBndOuterArr?.Clear();
+            tram.tramList.Clear();
+            tram.tramBndInnerArr.Clear();
+            tram.tramBndOuterArr.Clear();
 
             //clear out contour and Lists
             btnContour.Enabled = false;
@@ -1152,9 +1150,9 @@ namespace AgOpenGPS
             displayFieldName = gStr.gsNone;
             FixTramModeButton();
 
-            recPath.recList?.Clear();
-            recPath.shortestDubinsList?.Clear();
-            recPath.shuttleDubinsList?.Clear();
+            recPath.recList.Clear();
+            recPath.shortestDubinsList.Clear();
+            recPath.shuttleDubinsList.Clear();
 
             FixPanelsAndMenus(false);
             SetZoom();

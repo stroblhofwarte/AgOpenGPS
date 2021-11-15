@@ -37,23 +37,23 @@ namespace AgOpenGPS
             btnCancel.Focus();
             lblHalfSnapFtM.Text = mf.unitsFtM;
             lblHalfWidth.Text = (mf.tool.toolWidth * 0.5 * mf.m2FtOrM).ToString("N2");
-            tboxHeading.Text = Math.Round(glm.toDegrees(mf.ABLine.abHeading), 5).ToString();
+            if (mf.ABLine.refList.Count > 1)
+            {
+                double heading = Math.Atan2(mf.ABLine.refList[1].easting - mf.ABLine.refList[0].easting, mf.ABLine.refList[1].northing - mf.ABLine.refList[0].northing);
+
+                tboxHeading.Text = Math.Round(glm.toDegrees(heading), 5).ToString();
+            }
         }
 
         private void tboxHeading_Enter(object sender, EventArgs e)
         {
-            tboxHeading.Text = "";
-
-            using (FormNumeric form = new FormNumeric(0, 360, Math.Round(glm.toDegrees(mf.ABLine.abHeading), 5)))
+            using (FormNumeric form = new FormNumeric(0, 360, Math.Round(glm.toDegrees(Math.Atan2(mf.ABLine.refList[1].easting - mf.ABLine.refList[0].easting, mf.ABLine.refList[1].northing - mf.ABLine.refList[0].northing)), 5)))
             {
                 if (form.ShowDialog(this) == DialogResult.OK)
                 {
                     tboxHeading.Text = ((double)form.ReturnValue).ToString();
-                    mf.ABLine.abHeading = glm.toRadians((double)form.ReturnValue);
-                    mf.ABLine.SetABLineByHeading();
+                    mf.ABLine.SetABLineByHeading(glm.toRadians((double)form.ReturnValue));
                 }
-                else tboxHeading.Text = Math.Round(glm.toDegrees(mf.ABLine.abHeading), 5).ToString();
-
             }
 
             mf.ABLine.isABValid = false;
@@ -88,10 +88,11 @@ namespace AgOpenGPS
 
             if (idx >= 0)
             {
-                mf.ABLine.lineArr[idx].heading = mf.ABLine.abHeading;
-                //calculate the new points for the reference line and points
-                mf.ABLine.lineArr[idx].origin.easting = mf.ABLine.refPoint1.easting;
-                mf.ABLine.lineArr[idx].origin.northing = mf.ABLine.refPoint1.northing;
+                mf.ABLine.lineArr[idx].curvePts.Clear();
+                for (int i = 0; i < mf.ABLine.refList.Count; i++)
+                {
+                    mf.ABLine.lineArr[idx].curvePts.Add(mf.ABLine.refList[i]);
+                }
             }
 
             mf.FileSaveABLines();
@@ -108,9 +109,12 @@ namespace AgOpenGPS
             mf.FileLoadABLines();
 
             mf.ABLine.numABLineSelected = last;
-            mf.ABLine.refPoint1 = mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].origin;
-            mf.ABLine.abHeading = mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].heading;
-            mf.ABLine.SetABLineByHeading();
+
+            mf.ABLine.refList.Clear();
+            for (int i = 0; i < mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].curvePts.Count; i++)
+            {
+                mf.ABLine.refList.Add(mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].curvePts[i]);
+            }
             mf.ABLine.isABLineSet = true;
             mf.ABLine.isABLineLoaded = true;
             mf.gyd.moveDistance = 0;
@@ -122,15 +126,13 @@ namespace AgOpenGPS
 
         private void btnSwapAB_Click(object sender, EventArgs e)
         {
-            mf.ABLine.abHeading += Math.PI;
-            if (mf.ABLine.abHeading > glm.twoPI) mf.ABLine.abHeading -= glm.twoPI;
+            if (mf.ABLine.refList.Count > 1)
+            {
+                double heading = Math.Atan2(mf.ABLine.refList[0].easting - mf.ABLine.refList[1].easting, mf.ABLine.refList[0].northing - mf.ABLine.refList[1].northing);
+                mf.ABLine.SetABLineByHeading(heading);
 
-            mf.ABLine.refABLineP1.easting = mf.ABLine.refPoint1.easting - (Math.Sin(mf.ABLine.abHeading) * mf.ABLine.abLength);
-            mf.ABLine.refABLineP1.northing = mf.ABLine.refPoint1.northing - (Math.Cos(mf.ABLine.abHeading) * mf.ABLine.abLength);
-            mf.ABLine.refABLineP2.easting = mf.ABLine.refPoint1.easting + (Math.Sin(mf.ABLine.abHeading) * mf.ABLine.abLength);
-            mf.ABLine.refABLineP2.northing = mf.ABLine.refPoint1.northing + (Math.Cos(mf.ABLine.abHeading) * mf.ABLine.abLength);
-
-            tboxHeading.Text = Math.Round(glm.toDegrees(mf.ABLine.abHeading), 5).ToString();
+                tboxHeading.Text = Math.Round(glm.toDegrees(heading), 5).ToString();
+            }
             mf.ABLine.isABValid = false;
         }
 
@@ -164,9 +166,9 @@ namespace AgOpenGPS
 
         private void cboxDegrees_SelectedIndexChanged(object sender, EventArgs e)
         {
-            mf.ABLine.abHeading = glm.toRadians(double.Parse(cboxDegrees.SelectedItem.ToString()));
-            mf.ABLine.SetABLineByHeading();
-            tboxHeading.Text = Math.Round(glm.toDegrees(mf.ABLine.abHeading), 5).ToString();
+            double heading = glm.toRadians(double.Parse(cboxDegrees.SelectedItem.ToString()));
+            mf.ABLine.SetABLineByHeading(heading);
+            tboxHeading.Text = Math.Round(glm.toDegrees(heading), 5).ToString();
         }
     }
 }

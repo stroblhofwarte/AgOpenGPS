@@ -111,7 +111,7 @@ namespace AgOpenGPS
             CalculateFenceLineHeadings();
 
             double delta = 0;
-            fenceLineEar?.Clear();
+            fenceLineEar.Clear();
 
             for (int i = 0; i < fenceLine.Points.Count; i++)
             {

@@ -357,7 +357,7 @@ namespace AgOpenGPS
         private void btnMakeBoundaryCurve_Click(object sender, EventArgs e)
         {            //count the points from the boundary
             int ptCount = mf.bnd.bndList[0].fenceLine.Points.Count;
-            mf.curve.refList?.Clear();
+            mf.curve.refList.Clear();
 
             //outside point
             vec3 pt3 = new vec3();
@@ -430,15 +430,6 @@ namespace AgOpenGPS
 
                 mf.curve.isCurveSet = true;
 
-                mf.curve.aveLineHeading = 0;
-
-                //mf.curve.SmoothAB(4);
-                //mf.curve.CalculateTurnHeadings();
-
-                mf.curve.isCurveSet = true;
-
-                //double offset = ((double)nudDistance.Value) / 200.0;
-
                 mf.curve.curveArr.Add(new CCurveLines());
                 mf.curve.numCurveLines = mf.curve.curveArr.Count;
                 mf.curve.numCurveLineSelected = mf.curve.numCurveLines;
@@ -448,8 +439,6 @@ namespace AgOpenGPS
 
                 //create a name
                 mf.curve.curveArr[idx].Name = "Boundary Curve";
-
-                mf.curve.curveArr[idx].aveHeading = mf.curve.aveLineHeading;
 
                 //write out the Curve Points
                 foreach (vec3 item in mf.curve.refList)
@@ -471,7 +460,7 @@ namespace AgOpenGPS
             else
             {
                 mf.curve.isCurveSet = false;
-                mf.curve.refList?.Clear();
+                mf.curve.refList.Clear();
             }
             btnExit.Focus();
         }
@@ -483,7 +472,7 @@ namespace AgOpenGPS
             double moveDist = (double)nudDistance.Value * mf.inchOrCm2m;
             double distSq = (moveDist) * (moveDist) * 0.999;
 
-            mf.curve.refList?.Clear();
+            mf.curve.refList.Clear();
             vec3 pt3 = new vec3(arr[start]);
 
             for (int i = start; i < end; i++)
@@ -558,8 +547,8 @@ namespace AgOpenGPS
                 }
                 x /= mf.curve.refList.Count;
                 y /= mf.curve.refList.Count;
-                mf.curve.aveLineHeading = Math.Atan2(y, x);
-                if (mf.curve.aveLineHeading < 0) mf.curve.aveLineHeading += glm.twoPI;
+                double aveLineHeading = Math.Atan2(y, x);
+                if (aveLineHeading < 0) aveLineHeading += glm.twoPI;
 
                 //build the tail extensions
                 mf.curve.AddFirstLastPoints();
@@ -576,10 +565,8 @@ namespace AgOpenGPS
                 int idx = mf.curve.curveArr.Count - 1;
 
                 //create a name
-                mf.curve.curveArr[idx].Name = (Math.Round(glm.toDegrees(mf.curve.aveLineHeading), 1)).ToString(CultureInfo.InvariantCulture)
-                     + "\u00B0" + mf.FindDirection(mf.curve.aveLineHeading) + DateTime.Now.ToString("hh:mm:ss", CultureInfo.InvariantCulture);
-
-                mf.curve.curveArr[idx].aveHeading = mf.curve.aveLineHeading;
+                mf.curve.curveArr[idx].Name = (Math.Round(glm.toDegrees(aveLineHeading), 1)).ToString(CultureInfo.InvariantCulture)
+                     + "\u00B0" + mf.FindDirection(aveLineHeading) + DateTime.Now.ToString("hh:mm:ss", CultureInfo.InvariantCulture);
 
                 //write out the Curve Points
                 foreach (vec3 item in mf.curve.refList)
@@ -601,7 +588,7 @@ namespace AgOpenGPS
             else
             {
                 mf.curve.isCurveSet = false;
-                mf.curve.refList?.Clear();
+                mf.curve.refList.Clear();
             }
             btnExit.Focus();
         }
@@ -612,35 +599,25 @@ namespace AgOpenGPS
 
             //calculate the AB Heading
             if (A < C) { B = A; A = C; C = B; }
-            double abHead = Math.Atan2(arr[C].easting - arr[A].easting,
-                arr[C].northing - arr[A].northing);
+            double abHead = Math.Atan2(arr[C].easting - arr[A].easting, arr[C].northing - arr[A].northing);
             if (abHead < 0) abHead += glm.twoPI;
 
             double offset = ((double)nudDistance.Value * mf.inchOrCm2m);
 
             double headingCalc = abHead + glm.PIBy2;
 
-            mf.ABLine.lineArr.Add(new CABLines());
-            mf.ABLine.numABLines = mf.ABLine.lineArr.Count;
-            mf.ABLine.numABLineSelected = mf.ABLine.numABLines;
+            CABLines New = new CABLines();
 
-            int idx = mf.ABLine.numABLines - 1;
-
-            mf.ABLine.lineArr[idx].heading = abHead;
-            //calculate the new points for the reference line and points
-            mf.ABLine.lineArr[idx].origin.easting = (Math.Sin(headingCalc) * (offset)) + arr[A].easting;
-            mf.ABLine.lineArr[idx].origin.northing = (Math.Cos(headingCalc) * (offset)) + arr[A].northing;
-
-            //if (!mf.bnd.bndArr[0].IsPointInsideBoundaryEar(mf.ABLine.lineArr[idx].origin))
-            //{
-            //    headingCalc = abHead - glm.PIBy2;
-            //    mf.ABLine.lineArr[idx].origin.easting = (Math.Sin(headingCalc) * Math.Abs(offset)) + arr[A].easting;
-            //    mf.ABLine.lineArr[idx].origin.northing = (Math.Cos(headingCalc) * Math.Abs(offset)) + arr[A].northing;
-            //}
+            New.curvePts.Add(new vec3((Math.Sin(headingCalc) * offset) + arr[A].easting, (Math.Cos(headingCalc) * offset) + arr[A].northing, abHead));
+            New.curvePts.Add(new vec3(New.curvePts[0].easting + Math.Sin(abHead), New.curvePts[0].northing + Math.Cos(abHead), abHead));
 
             //create a name
-            mf.ABLine.lineArr[idx].Name = (Math.Round(glm.toDegrees(mf.ABLine.lineArr[idx].heading), 1)).ToString(CultureInfo.InvariantCulture)
-                 + "\u00B0" + mf.FindDirection(mf.ABLine.lineArr[idx].heading) + DateTime.Now.ToString("hh:mm:ss", CultureInfo.InvariantCulture);
+            New.Name = (Math.Round(glm.toDegrees(abHead), 1)).ToString(CultureInfo.InvariantCulture)
+                 + "\u00B0" + mf.FindDirection(abHead) + DateTime.Now.ToString("hh:mm:ss", CultureInfo.InvariantCulture);
+
+            mf.ABLine.lineArr.Add(New);
+            mf.ABLine.numABLines = mf.ABLine.lineArr.Count;
+            mf.ABLine.numABLineSelected = mf.ABLine.numABLines;
 
             //clean up gui
             btnMakeABLine.Enabled = false;
@@ -710,8 +687,13 @@ namespace AgOpenGPS
 
                     foreach (CABLines item in mf.ABLine.lineArr)
                     {
-                        GL.Vertex3(item.origin.easting - (Math.Sin(item.heading) * mf.ABLine.abLength), item.origin.northing - (Math.Cos(item.heading) * mf.ABLine.abLength), 0);
-                        GL.Vertex3(item.origin.easting + (Math.Sin(item.heading) * mf.ABLine.abLength), item.origin.northing + (Math.Cos(item.heading) * mf.ABLine.abLength), 0);
+                        if (item.curvePts.Count > 1)
+                        {
+                            double abHead = Math.Atan2(item.curvePts[1].easting - item.curvePts[0].easting, item.curvePts[1].northing - item.curvePts[0].northing);
+
+                            GL.Vertex3(item.curvePts[0].easting - (Math.Sin(abHead) * mf.ABLine.abLength), item.curvePts[0].northing - (Math.Cos(abHead) * mf.ABLine.abLength), 0);
+                            GL.Vertex3(item.curvePts[1].easting + (Math.Sin(abHead) * mf.ABLine.abLength), item.curvePts[1].northing + (Math.Cos(abHead) * mf.ABLine.abLength), 0);
+                        }
                     }
 
                     GL.End();
@@ -726,11 +708,17 @@ namespace AgOpenGPS
                     GL.LineWidth(4);
                     GL.Begin(PrimitiveType.Lines);
 
-                    GL.Vertex3(mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].origin.easting - (Math.Sin(mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].heading) * mf.ABLine.abLength),
-                        mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].origin.northing - (Math.Cos(mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].heading) * mf.ABLine.abLength), 0);
-                    GL.Vertex3(mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].origin.easting + (Math.Sin(mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].heading) * mf.ABLine.abLength),
-                        mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].origin.northing + (Math.Cos(mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].heading) * mf.ABLine.abLength), 0);
+                    int idx = mf.ABLine.numABLineSelected - 1;
+                    if (mf.ABLine.lineArr[idx].curvePts.Count > 1)
+                    {
+                        double abHead = Math.Atan2(mf.ABLine.lineArr[idx].curvePts[1].easting - mf.ABLine.lineArr[idx].curvePts[0].easting,
+                            mf.ABLine.lineArr[idx].curvePts[1].northing - mf.ABLine.lineArr[idx].curvePts[0].northing);
 
+                        GL.Vertex3(mf.ABLine.lineArr[idx].curvePts[0].easting - (Math.Sin(abHead) * mf.ABLine.abLength),
+                            mf.ABLine.lineArr[idx].curvePts[0].northing - (Math.Cos(abHead) * mf.ABLine.abLength), 0);
+                        GL.Vertex3(mf.ABLine.lineArr[idx].curvePts[0].easting + (Math.Sin(abHead) * mf.ABLine.abLength),
+                            mf.ABLine.lineArr[idx].curvePts[0].northing + (Math.Cos(abHead) * mf.ABLine.abLength), 0);
+                    }
                     GL.End();
                 }
             }
@@ -822,11 +810,13 @@ namespace AgOpenGPS
 
         private void btnExit_Click(object sender, EventArgs e)
         {
+            mf.ABLine.refList.Clear();
             if (mf.ABLine.numABLineSelected > 0)
             {
-                mf.ABLine.refPoint1 = mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].origin;
-                mf.ABLine.abHeading = mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].heading;
-                mf.ABLine.SetABLineByHeading();
+                for (int i = 0; i < mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].curvePts.Count; i++)
+                {
+                    mf.ABLine.refList.Add(mf.ABLine.lineArr[mf.ABLine.numABLineSelected - 1].curvePts[i]);
+                }
 
                 if (mf.ABLine.isBtnABLineOn)
                 {
@@ -834,9 +824,7 @@ namespace AgOpenGPS
                     mf.ABLine.isABLineLoaded = true;
                 }
                 else
-                {
                     mf.ABLine.isABLineSet = false;
-                }
             }
             else
             {
@@ -849,19 +837,15 @@ namespace AgOpenGPS
 
 
             //curve
+            mf.curve.refList.Clear();
             if (mf.curve.numCurveLineSelected > 0)
             {
                 int idx = mf.curve.numCurveLineSelected - 1;
-                mf.curve.aveLineHeading = mf.curve.curveArr[idx].aveHeading;
-                mf.curve.refList?.Clear();
                 foreach (vec3 v in mf.curve.curveArr[idx].curvePts) mf.curve.refList.Add(v);
                 mf.curve.isCurveSet = true;
             }
             else
-            {
-                mf.curve.refList?.Clear();
                 mf.curve.isCurveSet = false;
-            }
 
             mf.FileSaveCurveLines();
 
@@ -885,7 +869,7 @@ namespace AgOpenGPS
                     if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
                     if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
                     mf.curve.isCurveSet = false;
-                    mf.curve.refList?.Clear();
+                    mf.curve.refList.Clear();
                     mf.curve.isBtnCurveOn = false;
                     mf.btnCurve.Image = Properties.Resources.CurveOff;
                 }

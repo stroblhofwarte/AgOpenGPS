@@ -31,7 +31,7 @@ namespace AgOpenGPS
 
             string[] dirs = Directory.GetDirectories(mf.fieldsDirectory);
 
-            fileList?.Clear();
+            fileList.Clear();
 
             foreach (string dir in dirs)
             {
@@ -336,7 +336,7 @@ namespace AgOpenGPS
 
             string[] dirs = Directory.GetDirectories(mf.fieldsDirectory);
 
-            fileList?.Clear();
+            fileList.Clear();
 
             foreach (string dir in dirs)
             {
