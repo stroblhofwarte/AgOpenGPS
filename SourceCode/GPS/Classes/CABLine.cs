@@ -84,7 +84,7 @@ namespace AgOpenGPS
             GL.LineWidth(lineWidth);
             //Draw AB Points
             GL.PointSize(8.0f);
-            if (mf.gyd.refList[selectedABIndex].curvePts.Count > 1)
+            if (selectedABIndex > -1 && mf.gyd.refList[selectedABIndex].curvePts.Count > 1)
             {
                 GL.Color3(0.95f, 0.0f, 0.0f);
 

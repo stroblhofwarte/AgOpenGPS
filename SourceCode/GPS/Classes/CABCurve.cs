@@ -338,7 +338,7 @@ namespace AgOpenGPS
                     GL.End();
                 }
             }
-            else if (curList.Count > 0)
+            else if (curList.Count > 1)
             {
                 GL.PointSize(2);
 

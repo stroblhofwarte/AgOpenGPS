@@ -40,34 +40,35 @@ namespace AgOpenGPS
 
             mf.curve.isOkToAddDesPoints = false;
 
-            UpdateLineList();
-
-            if (lvLines.Items.Count > 0 && mf.curve.selectedCurveIndex > -1)
-            {
-                lvLines.Items[mf.curve.selectedCurveIndex].EnsureVisible();
-                lvLines.Items[mf.curve.selectedCurveIndex].Selected = true;
-                lvLines.Select();
-            }
-
+            UpdateLineList(true);
         }
 
-        private void UpdateLineList()
+        private void UpdateLineList(bool select = false)
         {
             lvLines.Clear();
+            int idx = -1;
 
             for (int i = 0; i < mf.gyd.refList.Count; i++)
             {
                 if ((mf.gyd.refList[i].Mode == Mode.Curve || mf.gyd.refList[i].Mode == Mode.Boundary) && mf.gyd.refList[i].curvePts.Count > 1)
+                {
                     lvLines.Items.Add(new ListViewItem(mf.gyd.refList[i].Name, i));
+                    if (select && i == mf.curve.selectedCurveIndex) idx = lvLines.Items.Count - 1;
+                }
             }
 
+            if (idx > -1)
+            {
+                lvLines.Items[idx].EnsureVisible();
+                lvLines.Items[idx].Selected = true;
+            }
             // go to bottom of list - if there is a bottom
-            if (lvLines.Items.Count > 0)
+            else if (lvLines.Items.Count > 0)
             {
                 lvLines.Items[lvLines.Items.Count - 1].EnsureVisible();
                 lvLines.Items[lvLines.Items.Count - 1].Selected = true;
-                lvLines.Select();
             }
+            lvLines.Select();
         }
         //for calculating for display the averaged new line
 
