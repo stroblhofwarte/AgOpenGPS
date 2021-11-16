@@ -72,7 +72,7 @@ namespace AgOpenGPS
             lvLines.Clear();
             ListViewItem itm;
 
-            foreach (CABLines item in mf.ABLine.lineArr)
+            foreach (CGuidanceLine item in mf.ABLine.lineArr)
             {
                 itm = new ListViewItem(item.Name);
                 lvLines.Items.Add(itm);
@@ -234,7 +234,7 @@ namespace AgOpenGPS
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            CABLines New = new CABLines();
+            CGuidanceLine New = new CGuidanceLine();
 
             New.curvePts.Add(new vec3(mf.ABLine.desPoint1.easting, mf.ABLine.desPoint1.northing, desHeading));
             New.curvePts.Add(new vec3(mf.ABLine.desPoint1.easting + Math.Sin(desHeading), mf.ABLine.desPoint1.northing + Math.Cos(desHeading), desHeading));

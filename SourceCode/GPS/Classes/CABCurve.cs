@@ -20,7 +20,7 @@ namespace AgOpenGPS
         public bool isSmoothWindowOpen;
         public List<vec3> smooList = new List<vec3>();
 
-        public List<CCurveLines> curveArr = new List<CCurveLines>();
+        public List<CGuidanceLine> curveArr = new List<CGuidanceLine>();
         public int numCurveLines, numCurveLineSelected;
 
         public List<vec3> desList = new List<vec3>();
@@ -635,11 +635,5 @@ namespace AgOpenGPS
             curList.Clear();
             refList.Clear();
         }
-    }
-
-    public class CCurveLines
-    {
-        public List<vec3> curvePts = new List<vec3>();
-        public string Name = "aa";
     }
 }

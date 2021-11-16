@@ -126,7 +126,7 @@ namespace AgOpenGPS
 
                         while (!reader.EndOfStream)
                         {
-                            CCurveLines New = new CCurveLines();
+                            CGuidanceLine New = new CGuidanceLine();
 
                             //read Name
                             New.Name = reader.ReadLine();
@@ -249,7 +249,7 @@ namespace AgOpenGPS
 
                             if (words.Length != 4) break;
 
-                            CABLines New = new CABLines();
+                            CGuidanceLine New = new CGuidanceLine();
                             New.Name = words[0];
                             vec3 origin = new vec3();
                             origin.heading = glm.toRadians(double.Parse(words[1], CultureInfo.InvariantCulture));
@@ -513,7 +513,7 @@ namespace AgOpenGPS
 
                             vec3 vecFix = new vec3(0, 0, 0);
 
-                            List<vec3> ptList = new List<vec3>(verts + 1);
+                            CGuidanceLine ptList = new CGuidanceLine();
 
                             for (int v = 0; v < verts; v++)
                             {
@@ -522,9 +522,9 @@ namespace AgOpenGPS
                                 vecFix.easting = double.Parse(words[0], CultureInfo.InvariantCulture);
                                 vecFix.northing = double.Parse(words[1], CultureInfo.InvariantCulture);
                                 vecFix.heading = double.Parse(words[2], CultureInfo.InvariantCulture);
-                                ptList.Add(vecFix);
+                                ptList.curvePts.Add(vecFix);
                             }
-                            ct.stripList.Add(ptList);
+                            ct.refList.Add(ptList);
                         }
                     }
                     catch (Exception e)

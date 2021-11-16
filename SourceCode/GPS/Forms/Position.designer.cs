@@ -569,12 +569,8 @@ namespace AgOpenGPS
             //preset the values
             guidanceLineDistanceOff = 32000;
 
-            if (ct.isContourBtnOn)
-            {
-                ct.GetCurrentContourLine(pivotAxlePos, steerAxlePos);
-            }
-            else
-                gyd.GetCurrentLine(pivotAxlePos, steerAxlePos, ABLine.isBtnABLineOn);
+            if (ct.isContourBtnOn || ABLine.isBtnABLineOn || curve.isBtnCurveOn)
+                gyd.GetCurrentLine(pivotAxlePos, steerAxlePos, ct.isContourBtnOn ? Mode.Contour : (ABLine.isBtnABLineOn ? Mode.AB : Mode.Curve));
 
             // autosteer at full speed of updates
 

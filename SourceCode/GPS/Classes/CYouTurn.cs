@@ -290,7 +290,7 @@ namespace AgOpenGPS
                 if (youTurnPhase == 0)
                 {
                     //grab the pure pursuit point right on ABLine
-                    vec3 onPurePoint = new vec3(mf.gyd.rEast, mf.gyd.rNorth, 0);
+                    vec3 onPurePoint = new vec3(mf.gyd.rEastPivot, mf.gyd.rNorthPivot, 0);
 
                     //how far are we from any turn boundary
                     mf.bnd.FindClosestTurnPoint(isYouTurnRight, onPurePoint, head);
@@ -352,8 +352,8 @@ namespace AgOpenGPS
                     CDubins.turningRadius = mf.vehicle.minTurningRadius;
 
                     //point on AB line closest to pivot axle point from ABLine PurePursuit
-                    rEastYT = mf.gyd.rEast;
-                    rNorthYT = mf.gyd.rNorth;
+                    rEastYT = mf.gyd.rEastPivot;
+                    rNorthYT = mf.gyd.rNorthPivot;
 
                     //grab the vehicle widths and offsets
                     double turnOffset = (mf.tool.toolWidth - mf.tool.toolOverlap) * rowSkipsWidth + (isYouTurnRight ? -mf.tool.toolOffset * 2.0 : mf.tool.toolOffset * 2.0);
@@ -908,8 +908,8 @@ namespace AgOpenGPS
                 head = mf.gyd.manualUturnHeading;
             else return;
 
-            rEastYT = mf.gyd.rEast;
-            rNorthYT = mf.gyd.rNorth;
+            rEastYT = mf.gyd.rEastPivot;
+            rNorthYT = mf.gyd.rNorthPivot;
             mf.gyd.isLateralTriggered = true;
 
             //grab the vehicle widths and offsets
@@ -949,8 +949,8 @@ namespace AgOpenGPS
                 head = mf.gyd.manualUturnHeading;
             else return;
 
-            rEastYT = mf.gyd.rEast;
-            rNorthYT = mf.gyd.rNorth;
+            rEastYT = mf.gyd.rEastPivot;
+            rNorthYT = mf.gyd.rNorthPivot;
             mf.gyd.isLateralTriggered = true;
 
             //grab the vehicle widths and offsets

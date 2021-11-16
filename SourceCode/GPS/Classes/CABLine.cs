@@ -15,7 +15,7 @@ namespace AgOpenGPS
         public List<vec3> curList = new List<vec3>(); 
 
         //List of all available ABLines
-        public List<CABLines> lineArr = new List<CABLines>();
+        public List<CGuidanceLine> lineArr = new List<CGuidanceLine>();
 
         public int numABLines, numABLineSelected;
 
@@ -346,11 +346,5 @@ namespace AgOpenGPS
             }
             mf.gyd.isValid = false;
         }
-    }
-
-    public class CABLines
-    {
-        public List<vec3> curvePts = new List<vec3>();
-        public string Name = "aa";
     }
 }

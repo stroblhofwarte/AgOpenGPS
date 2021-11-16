@@ -187,7 +187,7 @@ namespace AgOpenGPS
         {
             if (ct.isContourBtnOn)
             {
-                if (ct.ctList.Count > 5) ct.isLocked = !ct.isLocked;
+                if (ct.curList.Count > 5) ct.isLocked = !ct.isLocked;
                 return;
             }
 

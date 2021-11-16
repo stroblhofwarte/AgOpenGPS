@@ -356,7 +356,7 @@ namespace AgOpenGPS
 
         private void btnMakeBoundaryCurve_Click(object sender, EventArgs e)
         {
-            CCurveLines New = new CCurveLines();
+            CGuidanceLine New = new CGuidanceLine();
 
             //count the points from the boundary
             int ptCount = mf.bnd.bndList[0].fenceLine.Points.Count;
@@ -453,7 +453,7 @@ namespace AgOpenGPS
 
         private void BtnMakeCurve_Click(object sender, EventArgs e)
         {
-            CCurveLines New = new CCurveLines();
+            CGuidanceLine New = new CGuidanceLine();
 
             btnCancelTouch.Enabled = false;
 
@@ -577,7 +577,7 @@ namespace AgOpenGPS
 
             double headingCalc = abHead + glm.PIBy2;
 
-            CABLines New = new CABLines();
+            CGuidanceLine New = new CGuidanceLine();
 
             New.curvePts.Add(new vec3((Math.Sin(headingCalc) * offset) + arr[A].easting, (Math.Cos(headingCalc) * offset) + arr[A].northing, abHead));
             New.curvePts.Add(new vec3(New.curvePts[0].easting + Math.Sin(abHead), New.curvePts[0].northing + Math.Cos(abHead), abHead));
@@ -601,7 +601,7 @@ namespace AgOpenGPS
             FixLabelsABLine();
         }
 
-        public void CalculateTurnHeadings(CCurveLines New)
+        public void CalculateTurnHeadings(CGuidanceLine New)
         {
             //to calc heading based on next and previous points to give an average heading.
             int cnt = New.curvePts.Count;
@@ -623,7 +623,7 @@ namespace AgOpenGPS
             }
         }
 
-        public void AddFirstLastPoints(CCurveLines New)
+        public void AddFirstLastPoints(CGuidanceLine New)
         {
             int ptCnt = New.curvePts.Count - 1;
             for (int i = 1; i < 200; i++)
@@ -700,7 +700,7 @@ namespace AgOpenGPS
                     GL.LineWidth(2);
                     GL.Begin(PrimitiveType.Lines);
 
-                    foreach (CABLines item in mf.ABLine.lineArr)
+                    foreach (CGuidanceLine item in mf.ABLine.lineArr)
                     {
                         if (item.curvePts.Count > 1)
                         {

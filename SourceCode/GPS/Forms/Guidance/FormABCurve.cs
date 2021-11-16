@@ -57,7 +57,7 @@ namespace AgOpenGPS
             lvLines.Clear();
             ListViewItem itm;
 
-            foreach (CCurveLines item in mf.curve.curveArr)
+            foreach (CGuidanceLine item in mf.curve.curveArr)
             {
                 itm = new ListViewItem(item.Name);
                 lvLines.Items.Add(itm);
@@ -248,7 +248,7 @@ namespace AgOpenGPS
             {
                 if (textBox1.Text.Length == 0) textBox2.Text = "No Name " + DateTime.Now.ToString("hh:mm:ss", CultureInfo.InvariantCulture);
 
-                mf.curve.curveArr.Add(new CCurveLines());
+                mf.curve.curveArr.Add(new CGuidanceLine());
 
                 //array number is 1 less since it starts at zero
                 int idx = mf.curve.curveArr.Count - 1;
