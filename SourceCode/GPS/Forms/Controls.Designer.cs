@@ -82,15 +82,7 @@ namespace AgOpenGPS
                 EnableYouTurnButtons();
                 btnCurve.Image = Properties.Resources.CurveOn;
                 curve.isBtnCurveOn = true;
-
-                int idx = curve.numCurveLineSelected - 1;
-
                 gyd.moveDistance = 0;
-                curve.refList.Clear();
-                for (int i = 0; i < curve.curveArr[idx].curvePts.Count; i++)
-                {
-                    curve.refList.Add(curve.curveArr[idx].curvePts[i]);
-                }
                 return;
             }
 
@@ -149,16 +141,7 @@ namespace AgOpenGPS
                 EnableYouTurnButtons();
                 btnABLine.Image = Properties.Resources.ABLineOn;
                 ABLine.isBtnABLineOn = true;
-
-                int idx = ABLine.numABLineSelected - 1;
-
                 gyd.moveDistance = 0;
-                ABLine.refList.Clear();
-                for (int i = 0; i < ABLine.lineArr[idx].curvePts.Count; i++)
-                {
-                    ABLine.refList.Add(ABLine.lineArr[idx].curvePts[i]);
-                }
-
                 return;
             }
             
@@ -193,40 +176,22 @@ namespace AgOpenGPS
 
             if (ABLine.numABLines == 0 && curve.numCurveLines == 0) return; 
 
-                //reset to generate new reference
+            //reset to generate new reference
             gyd.isValid = false;
-
             gyd.moveDistance = 0;
+            yt.ResetYouTurn();
 
             if (ABLine.isBtnABLineOn && ABLine.numABLines > 0)
             {
-                ABLine.numABLineSelected++;
-                if (ABLine.numABLineSelected > ABLine.numABLines) ABLine.numABLineSelected = 1;
+                if (++ABLine.selectedABIndex >= ABLine.numABLines) ABLine.selectedABIndex = 0;
 
-                int idx = ABLine.numABLineSelected - 1;
-                gyd.moveDistance = 0;
-                ABLine.refList.Clear();
-                for (int i = 0; i < ABLine.lineArr[idx].curvePts.Count; i++)
-                {
-                    ABLine.refList.Add(ABLine.lineArr[idx].curvePts[i]);
-                }
-                yt.ResetYouTurn();
-                lblCurveLineName.Text = ABLine.lineArr[idx].Name;
+                lblCurveLineName.Text = ABLine.lineArr[ABLine.selectedABIndex].Name;
             }
             else if (curve.isBtnCurveOn && curve.numCurveLines > 0)
             {
-                curve.numCurveLineSelected++;
-                if (curve.numCurveLineSelected > curve.numCurveLines) curve.numCurveLineSelected = 1;
+                if (++curve.selectedCurveIndex >= curve.numCurveLines) curve.selectedCurveIndex = 0;
 
-                int idx = curve.numCurveLineSelected - 1;
-                gyd.moveDistance = 0;
-                curve.refList.Clear();
-                for (int i = 0; i < curve.curveArr[idx].curvePts.Count; i++)
-                {
-                    curve.refList.Add(curve.curveArr[idx].curvePts[i]);
-                }
-                yt.ResetYouTurn();
-                lblCurveLineName.Text = curve.curveArr[idx].Name;
+                lblCurveLineName.Text = curve.curveArr[curve.selectedCurveIndex].Name;
             }
         }
 
@@ -1214,12 +1179,12 @@ namespace AgOpenGPS
                 return;
             }
 
-            if (ABLine.numABLineSelected > 0 && ABLine.isBtnABLineOn)
+            if (ABLine.selectedABIndex > -1 && ABLine.isBtnABLineOn)
             {
                 Form form = new FormEditAB(this);
                 form.Show(this);
             }
-            else if (curve.numCurveLineSelected > 0 && curve.isBtnCurveOn)
+            else if (curve.selectedCurveIndex > -1 && curve.isBtnCurveOn)
             {
                 Form form = new FormEditCurve(this);
                 form.Show(this);
@@ -1769,14 +1734,14 @@ namespace AgOpenGPS
         {
             if (ct.isContourBtnOn) btnContour.PerformClick(); 
 
-            if (ABLine.numABLineSelected > 0 && ABLine.isBtnABLineOn)
+            if (ABLine.selectedABIndex > -1 && ABLine.isBtnABLineOn)
             {
                 Form form99 = new FormTram(this);
                 form99.Show(this);
                 form99.Left = Width - 275;
                 form99.Top = 100;
             }
-            else if (curve.numCurveLineSelected > 0 && curve.isBtnCurveOn)
+            else if (curve.selectedCurveIndex > -1 && curve.isBtnCurveOn)
             {
                 Form form97 = new FormTramCurve(this);
                 form97.Show(this);

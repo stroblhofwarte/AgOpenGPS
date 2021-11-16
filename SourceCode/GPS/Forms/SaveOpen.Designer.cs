@@ -4,7 +4,6 @@ using System.Linq;
 using System.Windows.Forms;
 using System.IO;
 using System.Globalization;
-using System.Drawing;
 using System.Xml;
 using System.Text;
 
@@ -30,42 +29,32 @@ namespace AgOpenGPS
             { Directory.CreateDirectory(directoryName); }
 
             string filename = directoryName + "\\CurveLines.txt";
-
-            int cnt = curve.curveArr.Count;
-            curve.numCurveLines = cnt;
-
+            
             using (StreamWriter writer = new StreamWriter(filename, false))
             {
                 try
                 {
-                    if (cnt > 0)
-                    {
-                        writer.WriteLine("$CurveLines");
+                    writer.WriteLine("$CurveLines");
 
-                        for (int i = 0; i < cnt; i++)
+                    for (int i = 0; i < curve.curveArr.Count; i++)
+                    {
+                        //write out the Name
+                        writer.WriteLine(curve.curveArr[i].Name);
+
+                        //write out the aveheading
+                        writer.WriteLine("0.0");
+
+                        //write out the points of ref line
+                        int cnt2 = curve.curveArr[i].curvePts.Count;
+
+                        writer.WriteLine(cnt2.ToString(CultureInfo.InvariantCulture));
+                        if (curve.curveArr[i].curvePts.Count > 0)
                         {
-                            //write out the Name
-                            writer.WriteLine(curve.curveArr[i].Name);
-
-                            //write out the aveheading
-                            writer.WriteLine("0.0");
-
-                            //write out the points of ref line
-                            int cnt2 = curve.curveArr[i].curvePts.Count;
-
-                            writer.WriteLine(cnt2.ToString(CultureInfo.InvariantCulture));
-                            if (curve.curveArr[i].curvePts.Count > 0)
-                            {
-                                for (int j = 0; j < cnt2; j++)
-                                    writer.WriteLine(Math.Round(curve.curveArr[i].curvePts[j].easting, 3).ToString(CultureInfo.InvariantCulture) + "," +
-                                                        Math.Round(curve.curveArr[i].curvePts[j].northing, 3).ToString(CultureInfo.InvariantCulture) + "," +
-                                                            Math.Round(curve.curveArr[i].curvePts[j].heading, 5).ToString(CultureInfo.InvariantCulture));
-                            }
+                            for (int j = 0; j < cnt2; j++)
+                                writer.WriteLine(Math.Round(curve.curveArr[i].curvePts[j].easting, 3).ToString(CultureInfo.InvariantCulture) + "," +
+                                                    Math.Round(curve.curveArr[i].curvePts[j].northing, 3).ToString(CultureInfo.InvariantCulture) + "," +
+                                                        Math.Round(curve.curveArr[i].curvePts[j].heading, 5).ToString(CultureInfo.InvariantCulture));
                         }
-                    }
-                    else
-                    {
-                        writer.WriteLine("$CurveLines");
                     }
                 }
                 catch (Exception er)
@@ -75,18 +64,21 @@ namespace AgOpenGPS
                     return;
                 }
             }
-
-            if (curve.numCurveLines == 0) curve.numCurveLineSelected = 0;
-            if (curve.numCurveLineSelected > curve.numCurveLines) curve.numCurveLineSelected = curve.numCurveLines;
-
         }
 
         public void FileLoadCurveLines()
         {
             gyd.moveDistance = 0;
 
-            curve.curveArr.Clear();
             curve.numCurveLines = 0;
+            for (int i = curve.curveArr.Count - 1; i >= 0; i--)
+            {
+                if (curve.curveArr[i].Mode == Mode.Boundary || curve.curveArr[i].Mode == Mode.Curve)
+                {
+                    curve.curveArr.RemoveAt(i);
+                    if (ABLine.selectedABIndex >= i) ABLine.selectedABIndex--;
+                }
+            }
 
             //get the directory and make sure it exists, create if not
             string dirField = fieldsDirectory + currentFieldDirectory + "\\";
@@ -130,6 +122,12 @@ namespace AgOpenGPS
 
                             //read Name
                             New.Name = reader.ReadLine();
+
+                            if (New.Name == "Boundary Curve")
+                                New.Mode = Mode.Boundary;
+                            else
+                                New.Mode = Mode.Curve;
+
                             // get the average heading
                             line = reader.ReadLine();
 
@@ -161,8 +159,7 @@ namespace AgOpenGPS
                 }
             }
 
-            if (curve.numCurveLines == 0) curve.numCurveLineSelected = 0;
-            if (curve.numCurveLineSelected > curve.numCurveLines) curve.numCurveLineSelected = curve.numCurveLines;
+            if (curve.numCurveLines == 0 || curve.selectedCurveIndex >= curve.curveArr.Count) curve.selectedCurveIndex = -1;
         }
 
         public void FileSaveABLines()
@@ -201,14 +198,21 @@ namespace AgOpenGPS
                     }
                 }
             }
-
-            if (ABLine.numABLines == 0) ABLine.numABLineSelected = 0;
-            if (ABLine.numABLineSelected > ABLine.numABLines) ABLine.numABLineSelected = ABLine.numABLines;
         }
 
         public void FileLoadABLines()
         {
             gyd.moveDistance = 0;
+            ABLine.numABLines = 0;
+
+            for (int i = ABLine.lineArr.Count - 1; i >= 0; i--)
+            {
+                if (ABLine.lineArr[i].Mode == Mode.AB)
+                {
+                    ABLine.lineArr.RemoveAt(i);
+                    if (curve.selectedCurveIndex >= i) curve.selectedCurveIndex--;
+                }
+            }
 
             //make sure at least a global blank AB Line file exists
             string dirField = fieldsDirectory + currentFieldDirectory + "\\";
@@ -237,9 +241,6 @@ namespace AgOpenGPS
                     try
                     {
                         string line;
-                        ABLine.numABLines = 0;
-                        ABLine.numABLineSelected = 0;
-                        ABLine.lineArr.Clear();
 
                         //read all the lines
                         for (int i = 0; !reader.EndOfStream; i++)
@@ -258,6 +259,7 @@ namespace AgOpenGPS
 
                             New.curvePts.Add(origin);
                             New.curvePts.Add(new vec3(origin.easting + Math.Sin(origin.heading), origin.northing + Math.Cos(origin.heading), origin.heading));
+                            New.Mode = Mode.AB;
 
                             ABLine.lineArr.Add(New);
                             ABLine.numABLines++;
@@ -272,8 +274,7 @@ namespace AgOpenGPS
                 }
             }
 
-            if (ABLine.numABLines == 0) ABLine.numABLineSelected = 0;
-            if (ABLine.numABLineSelected > ABLine.numABLines) ABLine.numABLineSelected = ABLine.numABLines;
+            if (ABLine.numABLines == 0 || ABLine.selectedABIndex >= ABLine.lineArr.Count) ABLine.selectedABIndex = -1;
         }
 
         //function to open a previously saved field, resume, open exisiting, open named field
@@ -406,17 +407,11 @@ namespace AgOpenGPS
 
             // ABLine -------------------------------------------------------------------------------------------------
             FileLoadABLines();
+            ABLine.selectedABIndex = ABLine.numABLines > 0 ? 0 : -1;
 
-            ABLine.refList.Clear();
-            if (ABLine.lineArr.Count > 0)
-                ABLine.numABLineSelected = 1;
-
-            //CurveLines
+            //CurveLines ----------------------------------------------------------------------------------------------
             FileLoadCurveLines();
-
-            curve.refList.Clear();
-            if (curve.curveArr.Count > 0)
-                curve.numCurveLineSelected = 1;
+            curve.selectedCurveIndex = curve.numCurveLines > 0 ? 0 : -1;
 
             //section patches
             fileAndDirectory = fieldsDirectory + currentFieldDirectory + "\\Sections.txt";

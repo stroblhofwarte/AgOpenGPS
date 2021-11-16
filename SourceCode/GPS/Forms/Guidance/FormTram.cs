@@ -20,7 +20,6 @@ namespace AgOpenGPS
             lblTramWidth.Text = (mf.tram.tramWidth * mf.m2FtOrM).ToString("N2") + mf.unitsFtM;
 
             nudPasses.Controls[0].Enabled = false;
-
         }
 
         private void FormTram_Load(object sender, EventArgs e)
@@ -58,22 +57,10 @@ namespace AgOpenGPS
                     break;
             }
             mf.CloseTopMosts();
-
         }
 
         private void btnExit_Click(object sender, EventArgs e)
         {
-            int idx = mf.ABLine.numABLineSelected - 1;
-
-            if (idx >= 0)
-            {
-                mf.ABLine.lineArr[idx].curvePts.Clear();
-                for (int i = 0; i < mf.ABLine.refList.Count; i++)
-                {
-                    mf.ABLine.lineArr[idx].curvePts.Add(mf.ABLine.refList[i]);
-                }
-            }
-
             mf.FileSaveABLines();
 
             mf.gyd.moveDistance = 0;
@@ -136,8 +123,9 @@ namespace AgOpenGPS
 
         private void btnSwapAB_Click(object sender, EventArgs e)
         {
-            if (mf.ABLine.refList.Count > 1)
-                mf.ABLine.SetABLineByHeading(Math.Atan2(mf.ABLine.refList[0].easting - mf.ABLine.refList[1].easting, mf.ABLine.refList[0].northing - mf.ABLine.refList[1].northing));
+            if (mf.ABLine.selectedABIndex > -1 && mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts.Count > 1)
+                mf.ABLine.SetABLineByHeading(Math.Atan2(mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[0].easting - mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[1].easting,
+                    mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[0].northing - mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[1].northing));
 
             mf.ABLine.BuildTram();
         }
@@ -156,6 +144,8 @@ namespace AgOpenGPS
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
+            mf.FileLoadABLines();
+
             mf.tram.tramList.Clear();
             mf.tram.tramBndOuterArr.Clear();
             mf.tram.tramBndInnerArr.Clear();

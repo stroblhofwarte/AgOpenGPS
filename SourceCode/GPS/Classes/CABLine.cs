@@ -10,14 +10,12 @@ namespace AgOpenGPS
 
         public int lineWidth;
 
-        public List<vec3> refList = new List<vec3>();
-
         public List<vec3> curList = new List<vec3>(); 
 
         //List of all available ABLines
         public List<CGuidanceLine> lineArr = new List<CGuidanceLine>();
 
-        public int numABLines, numABLineSelected;
+        public int numABLines, selectedABIndex = -1;
 
         public bool isABLineBeingSet;
         public bool isBtnABLineOn;
@@ -48,16 +46,16 @@ namespace AgOpenGPS
             double widthMinusOverlap = mf.tool.toolWidth - mf.tool.toolOverlap;
 
             curList.Clear();
-            if (refList.Count > 1)
+            if (selectedABIndex > -1 && lineArr[selectedABIndex].curvePts.Count > 1)
             {
                 //x2-x1
-                dy = refList[1].easting - refList[0].easting;
+                dy = lineArr[selectedABIndex].curvePts[1].easting - lineArr[selectedABIndex].curvePts[0].easting;
                 //z2-z1
-                dx = refList[1].northing - refList[0].northing;
+                dx = lineArr[selectedABIndex].curvePts[1].northing - lineArr[selectedABIndex].curvePts[0].northing;
 
                 double heading = Math.Atan2(dy,dx);
-                double distanceFromRefLine = ((dx * mf.guidanceLookPos.easting) - (dy * mf.guidanceLookPos.northing) + (refList[1].easting
-                                        * refList[0].northing) - (refList[1].northing * refList[0].easting))
+                double distanceFromRefLine = ((dx * mf.guidanceLookPos.easting) - (dy * mf.guidanceLookPos.northing) + (lineArr[selectedABIndex].curvePts[1].easting
+                                        * lineArr[selectedABIndex].curvePts[0].northing) - (lineArr[selectedABIndex].curvePts[1].northing * lineArr[selectedABIndex].curvePts[0].easting))
                                             / Math.Sqrt((dx * dx) + (dy * dy));
 
                 mf.gyd.isLateralTriggered = false;
@@ -74,7 +72,7 @@ namespace AgOpenGPS
                 double distAway = widthMinusOverlap * mf.gyd.howManyPathsAway + (mf.gyd.isHeadingSameWay ? -mf.tool.toolOffset : mf.tool.toolOffset);
 
                 //depending which way you are going, the offset can be either side
-                vec2 point1 = new vec2(refList[0].easting + Math.Cos(-heading) * distAway, refList[0].northing + Math.Sin(-heading) * distAway);
+                vec2 point1 = new vec2(lineArr[selectedABIndex].curvePts[0].easting + Math.Cos(-heading) * distAway, lineArr[selectedABIndex].curvePts[0].northing + Math.Sin(-heading) * distAway);
 
                 //create the new line extent points for current ABLine based on original heading of AB line
                 curList.Add(new vec3(point1.easting - (Math.Sin(heading) * abLength), point1.northing - (Math.Cos(heading) * abLength), heading));
@@ -89,16 +87,16 @@ namespace AgOpenGPS
             GL.LineWidth(lineWidth);
             //Draw AB Points
             GL.PointSize(8.0f);
-            if (refList.Count > 1)
+            if (lineArr[selectedABIndex].curvePts.Count > 1)
             {
                 GL.Color3(0.95f, 0.0f, 0.0f);
 
                 GL.Begin(PrimitiveType.Points);
-                GL.Vertex3(refList[0].easting, refList[0].northing, 0.0);
+                GL.Vertex3(lineArr[selectedABIndex].curvePts[0].easting, lineArr[selectedABIndex].curvePts[0].northing, 0.0);
                 GL.End();
 
                 if (mf.font.isFontOn && !isABLineBeingSet)
-                    mf.font.DrawText3D(refList[0].easting, refList[0].northing, "&A");
+                    mf.font.DrawText3D(lineArr[selectedABIndex].curvePts[0].easting, lineArr[selectedABIndex].curvePts[0].northing, "&A");
                 
 
                 //Draw reference AB line
@@ -106,11 +104,11 @@ namespace AgOpenGPS
                 GL.LineStipple(1, 0x0F00);
                 GL.Color3(0.930f, 0.2f, 0.2f);
 
-                double heading = Math.Atan2(refList[1].easting - refList[0].easting, refList[1].northing - refList[0].northing);
+                double heading = Math.Atan2(lineArr[selectedABIndex].curvePts[1].easting - lineArr[selectedABIndex].curvePts[0].easting, lineArr[selectedABIndex].curvePts[1].northing - lineArr[selectedABIndex].curvePts[0].northing);
 
                 GL.Begin(PrimitiveType.Lines);
-                  GL.Vertex3(refList[0].easting - (Math.Sin(heading) * abLength), refList[0].northing - (Math.Cos(heading) * abLength), 0);
-                  GL.Vertex3(refList[1].easting + (Math.Sin(heading) * abLength), refList[1].northing + (Math.Cos(heading) * abLength), 0);
+                  GL.Vertex3(lineArr[selectedABIndex].curvePts[0].easting - (Math.Sin(heading) * abLength), lineArr[selectedABIndex].curvePts[0].northing - (Math.Cos(heading) * abLength), 0);
+                  GL.Vertex3(lineArr[selectedABIndex].curvePts[1].easting + (Math.Sin(heading) * abLength), lineArr[selectedABIndex].curvePts[1].northing + (Math.Cos(heading) * abLength), 0);
                 GL.End();
                 GL.Disable(EnableCap.LineStipple);
             }
@@ -245,7 +243,7 @@ namespace AgOpenGPS
             mf.tram.BuildTramBnd();
 
             mf.tram.tramList.Clear();
-            if (refList.Count > 1)
+            if (lineArr[selectedABIndex].curvePts.Count > 1)
             {
                 List<vec2> tramRef = new List<vec2>();
 
@@ -253,7 +251,7 @@ namespace AgOpenGPS
 
                 double pass = 0.5;
 
-                double heading = Math.Atan2(refList[1].easting - refList[0].easting, refList[1].northing - refList[0].northing);
+                double heading = Math.Atan2(lineArr[selectedABIndex].curvePts[1].easting - lineArr[selectedABIndex].curvePts[0].easting, lineArr[selectedABIndex].curvePts[1].northing - lineArr[selectedABIndex].curvePts[0].northing);
                 double hsin = Math.Sin(heading);
                 double hcos = Math.Cos(heading);
 
@@ -261,8 +259,8 @@ namespace AgOpenGPS
                 vec2 P1 = new vec2();
                 for (int i = (int)-abLength; i < abLength; i += 4)
                 {
-                    P1.easting = refList[0].easting + (hsin * i);
-                    P1.northing = refList[0].northing + (hcos * i);
+                    P1.easting = lineArr[selectedABIndex].curvePts[0].easting + (hsin * i);
+                    P1.northing = lineArr[selectedABIndex].curvePts[0].northing + (hcos * i);
                     tramRef.Add(P1);
                 }
 
@@ -315,7 +313,7 @@ namespace AgOpenGPS
 
         public void DeleteAB()
         {
-            refList.Clear();
+            selectedABIndex = -1;
             curList.Clear();
 
             mf.gyd.moveDistance = 0;
@@ -324,11 +322,11 @@ namespace AgOpenGPS
 
         public void SetABLineByHeading(double heading)
         {
-            if (refList.Count > 1)
+            if (selectedABIndex > -1 && lineArr[selectedABIndex].curvePts.Count > 1)
             {
-                refList[0] = new vec3(refList[0].easting, refList[0].northing, heading);
+                lineArr[selectedABIndex].curvePts[0] = new vec3(lineArr[selectedABIndex].curvePts[0].easting, lineArr[selectedABIndex].curvePts[0].northing, heading);
 
-                refList[1] = new vec3(refList[0].easting + Math.Sin(heading), refList[0].northing + Math.Cos(heading), heading);
+                lineArr[selectedABIndex].curvePts[1] = new vec3(lineArr[selectedABIndex].curvePts[0].easting + Math.Sin(heading), lineArr[selectedABIndex].curvePts[0].northing + Math.Cos(heading), heading);
             }
         }
 
@@ -336,13 +334,13 @@ namespace AgOpenGPS
         {
             mf.gyd.moveDistance += mf.gyd.isHeadingSameWay ? dist : -dist;
 
-            if (refList.Count > 1)
+            if (selectedABIndex > -1 && lineArr[selectedABIndex].curvePts.Count > 1)
             {
-                double heading = Math.Atan2(refList[1].easting - refList[0].easting, refList[1].northing - refList[0].northing);
-
-                refList[0] = new vec3(refList[0].easting + Math.Cos(heading) * (mf.gyd.isHeadingSameWay ? dist : -dist),
-                    refList[0].northing - Math.Sin(heading) * (mf.gyd.isHeadingSameWay ? dist : -dist), heading);
-                refList[1] = new vec3(refList[0].easting + Math.Sin(heading), refList[0].northing + Math.Cos(heading), heading);
+                double heading = Math.Atan2(lineArr[selectedABIndex].curvePts[1].easting - lineArr[selectedABIndex].curvePts[0].easting, lineArr[selectedABIndex].curvePts[1].northing - lineArr[selectedABIndex].curvePts[0].northing);
+                
+                lineArr[selectedABIndex].curvePts[0] = new vec3(lineArr[selectedABIndex].curvePts[0].easting + Math.Cos(heading) * (mf.gyd.isHeadingSameWay ? dist : -dist),
+                    lineArr[selectedABIndex].curvePts[0].northing - Math.Sin(heading) * (mf.gyd.isHeadingSameWay ? dist : -dist), heading);
+                lineArr[selectedABIndex].curvePts[1] = new vec3(lineArr[selectedABIndex].curvePts[0].easting + Math.Sin(heading), lineArr[selectedABIndex].curvePts[0].northing + Math.Cos(heading), heading);
             }
             mf.gyd.isValid = false;
         }

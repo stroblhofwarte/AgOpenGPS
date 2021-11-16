@@ -1397,14 +1397,14 @@ namespace AgOpenGPS
                         //Draw reference AB line
                         GL.LineWidth(1);
 
-                        if (ABLine.refList.Count > 1)
+                        if (ABLine.selectedABIndex > -1 && ABLine.lineArr[ABLine.selectedABIndex].curvePts.Count > 1)
                         {
                             GL.Enable(EnableCap.LineStipple);
                             GL.LineStipple(1, 0x00F0);
                             GL.Begin(PrimitiveType.Lines);
                             GL.Color3(0.9f, 0.2f, 0.2f);
-                            GL.Vertex3(ABLine.refList[0].easting, ABLine.refList[0].northing, 0);
-                            GL.Vertex3(ABLine.refList[1].easting, ABLine.refList[1].northing, 0);
+                            GL.Vertex3(ABLine.lineArr[ABLine.selectedABIndex].curvePts[0].easting, ABLine.lineArr[ABLine.selectedABIndex].curvePts[0].northing, 0);
+                            GL.Vertex3(ABLine.lineArr[ABLine.selectedABIndex].curvePts[1].easting, ABLine.lineArr[ABLine.selectedABIndex].curvePts[1].northing, 0);
                             GL.End();
                             GL.Disable(EnableCap.LineStipple);
                         }

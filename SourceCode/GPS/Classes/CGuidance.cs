@@ -543,7 +543,7 @@ namespace AgOpenGPS
         }
     }
     
-    public enum Mode { AB, Boundary, Circle, Contour, Curve, Heading, Spiral };
+    public enum Mode { AB, Boundary, BoundaryContour, Contour, Curve };//, Heading, Circle, Spiral
 
     public class CGuidanceLine
     {

@@ -66,47 +66,17 @@ namespace AgOpenGPS
 
         private void bntOk_Click(object sender, EventArgs e)
         {
-            if (mf.curve.refList.Count > 0)
-            {
-                //array number is 1 less since it starts at zero
-                int idx = mf.curve.numCurveLineSelected - 1;
+            //save entire list
+            mf.FileSaveCurveLines();
+            mf.gyd.moveDistance = 0;
+            mf.gyd.isValid = false;
 
-                if (idx >= 0)
-                {
-                    mf.curve.curveArr[idx].curvePts.Clear();
-                    //write out the Curve Points
-                    foreach (vec3 item in mf.curve.refList)
-                    {
-                        mf.curve.curveArr[idx].curvePts.Add(item);
-                    }
-                }
-
-                //save entire list
-                mf.FileSaveCurveLines();
-                mf.gyd.moveDistance = 0;
-                mf.gyd.isValid = false;
-
-                Close();
-            }
+            Close();
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            mf.gyd.moveDistance = 0;
-
-            int last = mf.curve.numCurveLineSelected;
             mf.FileLoadCurveLines();
-            if (mf.curve.curveArr.Count > 0 && mf.curve.curveArr.Count >= last)
-            {
-                mf.curve.numCurveLineSelected = last;
-                int idx = mf.curve.numCurveLineSelected - 1;
-
-                mf.curve.refList.Clear();
-                for (int i = 0; i < mf.curve.curveArr[idx].curvePts.Count; i++)
-                {
-                    mf.curve.refList.Add(mf.curve.curveArr[idx].curvePts[i]);
-                }
-            }
 
             mf.gyd.isValid = false;
             Close();
@@ -114,25 +84,28 @@ namespace AgOpenGPS
 
         private void btnSwapAB_Click(object sender, EventArgs e)
         {
-            mf.gyd.isValid = false;
-            mf.gyd.lastSecond = 0;
-            int cnt = mf.curve.refList.Count;
-            if (cnt > 0)
+            if (mf.curve.selectedCurveIndex > -1)
             {
-                mf.curve.refList.Reverse();
-
-                vec3[] arr = new vec3[cnt];
-                cnt--;
-                mf.curve.refList.CopyTo(arr);
-                mf.curve.refList.Clear();
-
-                for (int i = 1; i < cnt; i++)
+                mf.gyd.isValid = false;
+                mf.gyd.lastSecond = 0;
+                int cnt = mf.curve.curveArr[mf.curve.selectedCurveIndex].curvePts.Count;
+                if (cnt > 0)
                 {
-                    vec3 pt3 = arr[i];
-                    pt3.heading += Math.PI;
-                    if (pt3.heading > glm.twoPI) pt3.heading -= glm.twoPI;
-                    if (pt3.heading < 0) pt3.heading += glm.twoPI;
-                    mf.curve.refList.Add(pt3);
+                    mf.curve.curveArr[mf.curve.selectedCurveIndex].curvePts.Reverse();
+
+                    vec3[] arr = new vec3[cnt];
+                    cnt--;
+                    mf.curve.curveArr[mf.curve.selectedCurveIndex].curvePts.CopyTo(arr);
+                    mf.curve.curveArr[mf.curve.selectedCurveIndex].curvePts.Clear();
+
+                    for (int i = 1; i < cnt; i++)
+                    {
+                        vec3 pt3 = arr[i];
+                        pt3.heading += Math.PI;
+                        if (pt3.heading > glm.twoPI) pt3.heading -= glm.twoPI;
+                        if (pt3.heading < 0) pt3.heading += glm.twoPI;
+                        mf.curve.curveArr[mf.curve.selectedCurveIndex].curvePts.Add(pt3);
+                    }
                 }
             }
         }

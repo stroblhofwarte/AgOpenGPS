@@ -68,32 +68,13 @@ namespace AgOpenGPS
 
             mf.offX = 0;
             mf.offY = 0;
-            if (mf.curve.refList.Count > 0)
-            {
-                //array number is 1 less since it starts at zero
-                int idx = mf.curve.numCurveLineSelected - 1;
-
-                //mf.curve.curveArr[idx].Name = textBox1.Text.Trim();
-                if (idx >= 0)
-                {
-                    mf.curve.curveArr[idx].curvePts.Clear();
-                    //write out the Curve Points
-                    foreach (vec3 item in mf.curve.refList)
-                    {
-                        mf.curve.curveArr[idx].curvePts.Add(item);
-                    }
-                }
-
-                //save entire list
-                mf.FileSaveCurveLines();
-                mf.gyd.moveDistance = 0;
-            }
+            //save entire list
+            mf.FileSaveCurveLines();
 
             mf.FileSaveTram();
             mf.FixTramModeButton();
 
             Close();
-
         }
 
         private void btnLeft_Click(object sender, EventArgs e)
@@ -138,15 +119,15 @@ namespace AgOpenGPS
 
         private void btnSwapAB_Click(object sender, EventArgs e)
         {
-            int cnt = mf.curve.refList.Count;
-            if (cnt > 0)
+            if (mf.curve.selectedCurveIndex > -1)
             {
-                mf.curve.refList.Reverse();
+                int cnt = mf.curve.curveArr[mf.curve.selectedCurveIndex].curvePts.Count;
+                mf.curve.curveArr[mf.curve.selectedCurveIndex].curvePts.Reverse();
 
                 vec3[] arr = new vec3[cnt];
                 cnt--;
-                mf.curve.refList.CopyTo(arr);
-                mf.curve.refList.Clear();
+                mf.curve.curveArr[mf.curve.selectedCurveIndex].curvePts.CopyTo(arr);
+                mf.curve.curveArr[mf.curve.selectedCurveIndex].curvePts.Clear();
 
                 for (int i = 1; i < cnt; i++)
                 {
@@ -154,7 +135,7 @@ namespace AgOpenGPS
                     pt3.heading += Math.PI;
                     if (pt3.heading > glm.twoPI) pt3.heading -= glm.twoPI;
                     if (pt3.heading < 0) pt3.heading += glm.twoPI;
-                    mf.curve.refList.Add(pt3);
+                    mf.curve.curveArr[mf.curve.selectedCurveIndex].curvePts.Add(pt3);
                 }
             }
             mf.curve.BuildTram();
@@ -174,6 +155,7 @@ namespace AgOpenGPS
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
+            mf.FileLoadCurveLines();
             mf.tram.tramList.Clear();
             mf.tram.tramBndOuterArr.Clear();
             mf.tram.tramBndInnerArr.Clear();

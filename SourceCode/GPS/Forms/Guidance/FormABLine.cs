@@ -11,7 +11,6 @@ namespace AgOpenGPS
         //access to the main GPS form and all its variables
         private readonly FormGPS mf = null;
 
-        private int originalLine = 0;
         private double desHeading = 0;
 
         public FormABLine(Form callingForm)
@@ -55,14 +54,12 @@ namespace AgOpenGPS
 
             this.Size = new System.Drawing.Size(470, 360);
 
-            originalLine = mf.ABLine.numABLineSelected;
-
             mf.ABLine.isABLineBeingSet = false;
             UpdateLineList();
-            if (lvLines.Items.Count > 0 && originalLine > 0)
+            if (lvLines.Items.Count > 0 && mf.ABLine.selectedABIndex > -1)
             {
-                lvLines.Items[originalLine - 1].EnsureVisible();
-                lvLines.Items[originalLine - 1].Selected = true;
+                lvLines.Items[mf.ABLine.selectedABIndex].EnsureVisible();
+                lvLines.Items[mf.ABLine.selectedABIndex].Selected = true;
                 lvLines.Select();
             }
         }
@@ -243,10 +240,11 @@ namespace AgOpenGPS
             if (textBox2.Text.Trim() == "") textBox2.Text = "No Name " + DateTime.Now.ToString("hh:mm:ss", CultureInfo.InvariantCulture);
 
             New.Name = textBox1.Text.Trim();
+            New.Mode = Mode.AB;
 
             mf.ABLine.lineArr.Add(New);
-            mf.ABLine.numABLines = mf.ABLine.lineArr.Count;
-            mf.ABLine.numABLineSelected = mf.ABLine.numABLines;
+            mf.ABLine.numABLines++;
+            mf.ABLine.selectedABIndex = mf.ABLine.lineArr.Count - 1;
 
             mf.FileSaveABLines();
 
@@ -299,14 +297,7 @@ namespace AgOpenGPS
 
             if (lvLines.SelectedItems.Count > 0)
             {
-                int idx = lvLines.SelectedIndices[0];
-                mf.ABLine.numABLineSelected = idx + 1;
-
-                mf.ABLine.refList.Clear();
-                for (int i = 0; i < mf.ABLine.lineArr[idx].curvePts.Count; i++)
-                {
-                    mf.ABLine.refList.Add(mf.ABLine.lineArr[idx].curvePts[i]);
-                }
+                mf.ABLine.selectedABIndex = lvLines.SelectedIndices[0];
 
                 mf.EnableYouTurnButtons();
 
@@ -319,7 +310,7 @@ namespace AgOpenGPS
             {
                 mf.btnABLine.Image = Properties.Resources.ABLineOff;
                 mf.ABLine.isBtnABLineOn = false;
-                mf.ABLine.numABLineSelected = 0;
+                mf.ABLine.selectedABIndex = -1;
                 mf.DisableYouTurnButtons();
                 if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
                 if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
@@ -348,7 +339,6 @@ namespace AgOpenGPS
                     mf.ABLine.lineArr[idx].curvePts.Add(new vec3(pos.easting + Math.Sin(heading), pos.northing + Math.Cos(heading), heading));
 
                     mf.FileSaveABLines();
-
                 }
 
                 UpdateLineList();
@@ -364,10 +354,11 @@ namespace AgOpenGPS
                 mf.ABLine.lineArr.RemoveAt(num);
                 lvLines.SelectedItems[0].Remove();
 
-                mf.ABLine.numABLines = mf.ABLine.lineArr.Count;
-                if (mf.ABLine.numABLineSelected == num+1) mf.ABLine.numABLineSelected = 0;
-                else if (mf.ABLine.numABLineSelected > num) mf.ABLine.numABLineSelected--;
-                if (mf.ABLine.numABLineSelected > mf.ABLine.numABLines) mf.ABLine.numABLineSelected = mf.ABLine.numABLines;
+                mf.ABLine.numABLines--;
+                if (mf.ABLine.selectedABIndex == num) mf.ABLine.selectedABIndex = -1;
+                else if (mf.ABLine.selectedABIndex > num) mf.ABLine.selectedABIndex--;
+
+                if (mf.curve.selectedCurveIndex >= num) mf.curve.selectedCurveIndex--;
 
                 if (mf.ABLine.numABLines == 0)
                 {
@@ -390,7 +381,7 @@ namespace AgOpenGPS
         {
             mf.btnABLine.Image = Properties.Resources.ABLineOff;
             mf.ABLine.isBtnABLineOn = false;
-            mf.ABLine.numABLineSelected = 0;
+            mf.ABLine.selectedABIndex = -1;
             mf.DisableYouTurnButtons();
             if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
             if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();

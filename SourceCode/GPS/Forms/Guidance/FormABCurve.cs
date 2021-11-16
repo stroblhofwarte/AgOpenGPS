@@ -38,15 +38,14 @@ namespace AgOpenGPS
 
             this.Size = new System.Drawing.Size(470, 360);
 
-            int originalLine = mf.curve.numCurveLineSelected;
             mf.curve.isOkToAddDesPoints = false;
 
             UpdateLineList();
 
-            if (lvLines.Items.Count > 0 && originalLine > 0)
+            if (lvLines.Items.Count > 0 && mf.curve.selectedCurveIndex > -1)
             {
-                lvLines.Items[originalLine - 1].EnsureVisible();
-                lvLines.Items[originalLine - 1].Selected = true;
+                lvLines.Items[mf.curve.selectedCurveIndex].EnsureVisible();
+                lvLines.Items[mf.curve.selectedCurveIndex].Selected = true;
                 lvLines.Select();
             }
 
@@ -203,7 +202,6 @@ namespace AgOpenGPS
             mf.gyd.isValid = false;
             mf.gyd.moveDistance = 0;
             mf.curve.isOkToAddDesPoints = false;
-            mf.curve.refList.Clear();
             mf.DisableYouTurnButtons();
             //mf.btnContourPriority.Enabled = false;
             //mf.curve.ResetCurveLine();
@@ -212,7 +210,7 @@ namespace AgOpenGPS
             if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
             if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
 
-            mf.curve.numCurveLineSelected = 0;
+            mf.curve.selectedCurveIndex = -1;
             Close();
         }
 
@@ -234,6 +232,7 @@ namespace AgOpenGPS
             UpdateLineList();
 
         }
+
         private void textBox1_Enter(object sender, EventArgs e)
         {
             if (mf.isKeyboardOn)
@@ -242,24 +241,24 @@ namespace AgOpenGPS
                 btnAdd.Focus();
             }
         }
+
         private void btnAdd_Click(object sender, EventArgs e)
         {
             if (mf.curve.desList.Count > 0)
             {
                 if (textBox1.Text.Length == 0) textBox2.Text = "No Name " + DateTime.Now.ToString("hh:mm:ss", CultureInfo.InvariantCulture);
 
-                mf.curve.curveArr.Add(new CGuidanceLine());
+                CGuidanceLine New = new CGuidanceLine();
 
-                //array number is 1 less since it starts at zero
-                int idx = mf.curve.curveArr.Count - 1;
-
-                mf.curve.curveArr[idx].Name = textBox1.Text.Trim();
+                New.Name = textBox1.Text.Trim();
+                New.Mode = Mode.Curve;
 
                 //write out the Curve Points
                 foreach (vec3 item in mf.curve.desList)
                 {
-                    mf.curve.curveArr[idx].curvePts.Add(item);
+                    New.curvePts.Add(item);
                 }
+                mf.curve.curveArr.Add(New);
 
                 mf.FileSaveCurveLines();
                 mf.curve.desList.Clear();
@@ -290,16 +289,17 @@ namespace AgOpenGPS
                 lvLines.SelectedItems[0].Remove();
 
                 //everything changed, so make sure its right
-                mf.curve.numCurveLines = mf.curve.curveArr.Count;
+                mf.curve.numCurveLines--;
 
-                if (mf.curve.numCurveLineSelected == num + 1) mf.curve.numCurveLineSelected = 0;
-                else if (mf.curve.numCurveLineSelected > num) mf.curve.numCurveLineSelected--;
-                if (mf.curve.numCurveLineSelected > mf.curve.numCurveLines) mf.curve.numCurveLineSelected = mf.curve.numCurveLines;
+                if (mf.curve.selectedCurveIndex == num) mf.curve.selectedCurveIndex = -1;
+                else if (mf.curve.selectedCurveIndex > num) mf.curve.selectedCurveIndex--;
+
+                if (mf.ABLine.selectedABIndex >= num) mf.ABLine.selectedABIndex--;
 
                 //if there are no saved oned, empty out current curve line and turn off
                 if (mf.curve.numCurveLines == 0)
                 {
-                    mf.curve.ResetCurveLine();
+                    mf.curve.selectedCurveIndex = -1;
                     if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
                     if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
                 }
@@ -317,16 +317,9 @@ namespace AgOpenGPS
             mf.gyd.isValid = false;
             mf.gyd.moveDistance = 0;
 
-            mf.curve.refList.Clear();
             if (lvLines.SelectedItems.Count > 0)
             {
-                int idx = lvLines.SelectedIndices[0];
-                mf.curve.numCurveLineSelected = idx + 1;
-
-                for (int i = 0; i < mf.curve.curveArr[idx].curvePts.Count; i++)
-                {
-                    mf.curve.refList.Add(mf.curve.curveArr[idx].curvePts[i]);
-                }
+                mf.curve.selectedCurveIndex = lvLines.SelectedIndices[0];
                 mf.yt.ResetYouTurn();
             }
             else
@@ -338,7 +331,7 @@ namespace AgOpenGPS
                 if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
                 if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
 
-                mf.curve.numCurveLineSelected = 0;
+                mf.curve.selectedCurveIndex = -1;
             }
             Close();
         }

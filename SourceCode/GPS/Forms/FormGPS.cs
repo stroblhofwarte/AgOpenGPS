@@ -1090,21 +1090,25 @@ namespace AgOpenGPS
             //clear the flags
             flagPts.Clear();
 
+            gyd.moveDistance = 0;
+
             //ABLine
             btnABLine.Enabled = false;
             btnABLine.Image = Properties.Resources.ABLineOff;
             ABLine.isBtnABLineOn = false;
             ABLine.DeleteAB();
             ABLine.lineArr.Clear();
-            ABLine.numABLineSelected = 0;
+            ABLine.numABLines = 0;
+            ABLine.selectedABIndex = -1;
 
             //curve line
             btnCurve.Enabled = false;
             btnCurve.Image = Properties.Resources.CurveOff;
             curve.isBtnCurveOn = false;
-            curve.ResetCurveLine();
+            curve.curList.Clear();
             curve.curveArr.Clear();
-            curve.numCurveLineSelected = 0;
+            curve.numCurveLines = 0;
+            curve.selectedCurveIndex = -1;
 
             //clean up tram
             tram.displayMode = 0;
