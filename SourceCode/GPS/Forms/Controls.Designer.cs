@@ -180,19 +180,50 @@ namespace AgOpenGPS
             gyd.isValid = false;
             gyd.moveDistance = 0;
             yt.ResetYouTurn();
-
+            
             if (ABLine.isBtnABLineOn && ABLine.numABLines > 0)
             {
-                if (++ABLine.selectedABIndex >= ABLine.numABLines) ABLine.selectedABIndex = 0;
-
-                lblCurveLineName.Text = gyd.refList[ABLine.selectedABIndex].Name;
+                bool loop = true;
+                for (int i = ABLine.selectedABIndex + 1; i < gyd.refList.Count || loop; i++)
+                {
+                    if (i >= gyd.refList.Count)
+                    {
+                        loop = false;
+                        i = -1;
+                        continue;
+                    }
+                    if (gyd.refList[i].Mode == Mode.AB)
+                    {
+                        ABLine.selectedABIndex = i;
+                        lblCurveLineName.Text = gyd.refList[ABLine.selectedABIndex].Name;
+                        break;
+                    }
+                }
             }
-            else if (curve.isBtnCurveOn && curve.numCurveLines > 0)
+            else
+                ABLine.selectedABIndex = -1;
+
+            if (curve.isBtnCurveOn && curve.numCurveLines > 0)
             {
-                if (++curve.selectedCurveIndex >= curve.numCurveLines) curve.selectedCurveIndex = 0;
-
-                lblCurveLineName.Text = gyd.refList[curve.selectedCurveIndex].Name;
+                bool loop = true;
+                for (int i = curve.selectedCurveIndex + 1; i < gyd.refList.Count || loop; i++)
+                {
+                    if (i >= gyd.refList.Count)
+                    {
+                        loop = false;
+                        i = -1;
+                        continue;
+                    }
+                    if (gyd.refList[i].Mode == Mode.Boundary || gyd.refList[i].Mode == Mode.Curve)
+                    {
+                        curve.selectedCurveIndex = i;
+                        lblCurveLineName.Text = gyd.refList[curve.selectedCurveIndex].Name;
+                        break;
+                    }
+                }
             }
+            else
+                curve.selectedCurveIndex = -1;
         }
 
         //Section Manual and Auto

@@ -240,7 +240,7 @@ namespace AgOpenGPS
             mf.tram.BuildTramBnd();
 
             mf.tram.tramList.Clear();
-            if (mf.gyd.refList[selectedABIndex].curvePts.Count > 1)
+            if (selectedABIndex > -1 && mf.gyd.refList[selectedABIndex].curvePts.Count > 1)
             {
                 List<vec2> tramRef = new List<vec2>();
 
@@ -329,10 +329,10 @@ namespace AgOpenGPS
 
         public void MoveABLine(double dist)
         {
-            mf.gyd.moveDistance += mf.gyd.isHeadingSameWay ? dist : -dist;
-
             if (selectedABIndex > -1 && mf.gyd.refList[selectedABIndex].curvePts.Count > 1)
             {
+                mf.gyd.moveDistance += mf.gyd.isHeadingSameWay ? dist : -dist;
+
                 double heading = Math.Atan2(mf.gyd.refList[selectedABIndex].curvePts[1].easting - mf.gyd.refList[selectedABIndex].curvePts[0].easting, mf.gyd.refList[selectedABIndex].curvePts[1].northing - mf.gyd.refList[selectedABIndex].curvePts[0].northing);
                 
                 mf.gyd.refList[selectedABIndex].curvePts[0] = new vec3(mf.gyd.refList[selectedABIndex].curvePts[0].easting + Math.Cos(heading) * (mf.gyd.isHeadingSameWay ? dist : -dist),
