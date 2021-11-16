@@ -11,13 +11,11 @@ namespace AgOpenGPS
 
         public bool isContourOn, isContourBtnOn, isLocked = false;
 
-        private int stripNum, lastLockPt = int.MaxValue, backSpacing = 30, Index = -1;
-
-        //list of the list of individual Lines for entire field
-        public List<CGuidanceLine> refList = new List<CGuidanceLine>();
+        private int stripNum, lastLockPt = int.MaxValue, backSpacing = 30;
+        public int ContourIndex = -1;
 
         //list of points for the new contour line
-        public List<vec3> curList = new List<vec3>(128);
+        public List<vec3> curList = new List<vec3>(128); 
 
         //constructor
         public CContour(FormGPS _f)
@@ -37,42 +35,43 @@ namespace AgOpenGPS
             if (stripNum < 0 || !isLocked)
             {
                 stripNum = -1;
-                for (int s = 0; s < refList.Count; s++)
+                for (int s = 0; s < mf.gyd.refList.Count; s++)
                 {
-                    int p;
-
-                    //if making a new strip ignore the last part or it will win always
-                    if (s == Index)
-                        ptCount = refList[s].curvePts.Count - (int)Math.Max(backSpacing, mf.tool.toolWidth);
-                    else
-                        ptCount = refList[s].curvePts.Count;
-
-                    if (ptCount < 2) continue;
-                    double dist;
-                    bool last = true;
-
-                    for (p = 0; p < ptCount || last; p += 6)
+                    if (mf.gyd.refList[s].Mode == Mode.BoundaryContour || mf.gyd.refList[s].Mode == Mode.Contour)
                     {
-                        if (p >= ptCount)
+                        //if making a new strip ignore the last part or it will win always
+                        if (s == ContourIndex)
+                            ptCount = mf.gyd.refList[s].curvePts.Count - (int)Math.Max(backSpacing, mf.tool.toolWidth);
+                        else
+                            ptCount = mf.gyd.refList[s].curvePts.Count;
+
+                        if (ptCount < 2) continue;
+                        double dist;
+                        bool last = true;
+
+                        for (int p = 0; p < ptCount || last; p += 6)
                         {
-                            last = false;
-                            p = ptCount - 1;
-                        }
-                        dist = ((pivot.easting - refList[s].curvePts[p].easting) * (pivot.easting - refList[s].curvePts[p].easting))
-                            + ((pivot.northing - refList[s].curvePts[p].northing) * (pivot.northing - refList[s].curvePts[p].northing));
-                        if (dist < minDistA)
-                        {
-                            minDistA = dist;
-                            stripNum = s;
-                            lastLockPt = p;
+                            if (p >= ptCount)
+                            {
+                                last = false;
+                                p = ptCount - 1;
+                            }
+                            dist = ((pivot.easting - mf.gyd.refList[s].curvePts[p].easting) * (pivot.easting - mf.gyd.refList[s].curvePts[p].easting))
+                                + ((pivot.northing - mf.gyd.refList[s].curvePts[p].northing) * (pivot.northing - mf.gyd.refList[s].curvePts[p].northing));
+                            if (dist < minDistA)
+                            {
+                                minDistA = dist;
+                                stripNum = s;
+                                lastLockPt = p;
+                            }
                         }
                     }
                 }
             }
 
-            int currentStripBox = stripNum == Index ? (int)Math.Max(backSpacing, mf.tool.toolWidth) : 1;
+            int currentStripBox = stripNum == ContourIndex ? (int)Math.Max(backSpacing, mf.tool.toolWidth) : 1;
 
-            if (stripNum < 0 || (ptCount = refList[stripNum].curvePts.Count - currentStripBox) < 2)
+            if (stripNum < 0 || (ptCount = mf.gyd.refList[stripNum].curvePts.Count - currentStripBox) < 2)
             {
                 curList.Clear();
                 isLocked = false;
@@ -87,8 +86,8 @@ namespace AgOpenGPS
 
             for (int i = start; i < stop; i++)
             {
-                double dist = ((pivot.easting - refList[stripNum].curvePts[i].easting) * (pivot.easting - refList[stripNum].curvePts[i].easting))
-                    + ((pivot.northing - refList[stripNum].curvePts[i].northing) * (pivot.northing - refList[stripNum].curvePts[i].northing));
+                double dist = ((pivot.easting - mf.gyd.refList[stripNum].curvePts[i].easting) * (pivot.easting - mf.gyd.refList[stripNum].curvePts[i].easting))
+                    + ((pivot.northing - mf.gyd.refList[stripNum].curvePts[i].northing) * (pivot.northing - mf.gyd.refList[stripNum].curvePts[i].northing));
 
                 if (dist < minDistance)
                 {
@@ -108,18 +107,18 @@ namespace AgOpenGPS
 
             //now we have closest point, the distance squared from it, and which patch and point its from
             
-            double dy = refList[stripNum].curvePts[pt + 1].easting - refList[stripNum].curvePts[pt].easting;
-            double dx = refList[stripNum].curvePts[pt + 1].northing - refList[stripNum].curvePts[pt].northing;
+            double dy = mf.gyd.refList[stripNum].curvePts[pt + 1].easting - mf.gyd.refList[stripNum].curvePts[pt].easting;
+            double dx = mf.gyd.refList[stripNum].curvePts[pt + 1].northing - mf.gyd.refList[stripNum].curvePts[pt].northing;
 
             //how far are we away from the reference line at 90 degrees - 2D cross product and distance
-            double distanceFromRefLine = ((dx * pivot.easting) - (dy * pivot.northing) + (refList[stripNum].curvePts[pt + 1].easting
-                                    * refList[stripNum].curvePts[pt].northing) - (refList[stripNum].curvePts[pt + 1].northing * refList[stripNum].curvePts[pt].easting))
+            double distanceFromRefLine = ((dx * pivot.easting) - (dy * pivot.northing) + (mf.gyd.refList[stripNum].curvePts[pt + 1].easting
+                                    * mf.gyd.refList[stripNum].curvePts[pt].northing) - (mf.gyd.refList[stripNum].curvePts[pt + 1].northing * mf.gyd.refList[stripNum].curvePts[pt].easting))
                                     / Math.Sqrt((dx * dx) + (dy * dy));
 
             double heading = Math.Atan2(dy, dx);
             //are we going same direction as stripList was created?
             if(!isLocked)
-                mf.gyd.isHeadingSameWay = Math.PI - Math.Abs(Math.Abs(mf.fixHeading - refList[stripNum].curvePts[pt].heading) - Math.PI) < 1.57;
+                mf.gyd.isHeadingSameWay = Math.PI - Math.Abs(Math.Abs(mf.fixHeading - mf.gyd.refList[stripNum].curvePts[pt].heading) - Math.PI) < 1.57;
 
             double RefDist = (distanceFromRefLine + (mf.gyd.isHeadingSameWay ? mf.tool.toolOffset : -mf.tool.toolOffset)) / (mf.tool.toolWidth - mf.tool.toolOverlap);
 
@@ -134,10 +133,10 @@ namespace AgOpenGPS
                 curList.Clear();
 
                 //don't guide behind yourself
-                if (stripNum == Index && howManyPathsAway == 0) return;
+                if (stripNum == ContourIndex && howManyPathsAway == 0) return;
 
                 //make the new guidance line list called guideList
-                ptCount = refList[stripNum].curvePts.Count;
+                ptCount = mf.gyd.refList[stripNum].curvePts.Count;
 
                 //shorter behind you
                 if (mf.gyd.isHeadingSameWay)
@@ -160,15 +159,15 @@ namespace AgOpenGPS
                     for (int i = start; i < stop; i++)
                     {
                         vec3 point = new vec3(
-                            refList[stripNum].curvePts[i].easting + (Math.Cos(refList[stripNum].curvePts[i].heading) * distAway),
-                            refList[stripNum].curvePts[i].northing - (Math.Sin(refList[stripNum].curvePts[i].heading) * distAway),
-                            refList[stripNum].curvePts[i].heading);
+                            mf.gyd.refList[stripNum].curvePts[i].easting + (Math.Cos(mf.gyd.refList[stripNum].curvePts[i].heading) * distAway),
+                            mf.gyd.refList[stripNum].curvePts[i].northing - (Math.Sin(mf.gyd.refList[stripNum].curvePts[i].heading) * distAway),
+                            mf.gyd.refList[stripNum].curvePts[i].heading);
 
                         bool Add = true;
                         //make sure its not closer then 1 eq width
                         for (int j = start; j < stop; j++)
                         {
-                            double check = glm.DistanceSquared(point.northing, point.easting, refList[stripNum].curvePts[j].northing, refList[stripNum].curvePts[j].easting);
+                            double check = glm.DistanceSquared(point.northing, point.easting, mf.gyd.refList[stripNum].curvePts[j].northing, mf.gyd.refList[stripNum].curvePts[j].easting);
                             if (check < distSqAway)
                             {
                                 //Add = false;
@@ -208,51 +207,54 @@ namespace AgOpenGPS
             {
                 isContourOn = true;
 
-                refList.Add(new CGuidanceLine());
-                Index = refList.Count - 1;
+                mf.gyd.refList.Add(new CGuidanceLine(Mode.Contour));
+                ContourIndex = mf.gyd.refList.Count - 1;
             }
-            else if (Index > -1)
-                refList[Index].curvePts.Add(new vec3(pivot.easting + Math.Cos(pivot.heading) * mf.tool.toolOffset, pivot.northing - Math.Sin(pivot.heading) * mf.tool.toolOffset, pivot.heading));
+
+            if (ContourIndex > -1)
+                mf.gyd.refList[ContourIndex].curvePts.Add(new vec3(pivot.easting + Math.Cos(pivot.heading) * mf.tool.toolOffset, pivot.northing - Math.Sin(pivot.heading) * mf.tool.toolOffset, pivot.heading));
         }
 
         //End the strip
         public void StopContourLine()
         {
             //make sure its long enough to bother
-            if (Index > -1 && refList[Index].curvePts.Count > 5)
+            if (ContourIndex > -1 && mf.gyd.refList[ContourIndex].curvePts.Count > 5)
             {
                 //build tale
-                double head = refList[Index].curvePts[0].heading;
-                int length = (int)mf.tool.toolWidth+3;
+                double head = mf.gyd.refList[ContourIndex].curvePts[0].heading;
+                int length = (int)mf.tool.toolWidth + 3;
                 vec3 pnt;
-                for (int a = 0; a < length; a ++)
+                for (int a = 0; a < length; a++)
                 {
-                    pnt.easting = refList[Index].curvePts[0].easting - (Math.Sin(head));
-                    pnt.northing = refList[Index].curvePts[0].northing - (Math.Cos(head));
-                    pnt.heading = refList[Index].curvePts[0].heading;
-                    refList[Index].curvePts.Insert(0, pnt);
+                    pnt.easting = mf.gyd.refList[ContourIndex].curvePts[0].easting - (Math.Sin(head));
+                    pnt.northing = mf.gyd.refList[ContourIndex].curvePts[0].northing - (Math.Cos(head));
+                    pnt.heading = mf.gyd.refList[ContourIndex].curvePts[0].heading;
+                    mf.gyd.refList[ContourIndex].curvePts.Insert(0, pnt);
                 }
 
-                int ptc = refList[Index].curvePts.Count - 1;
-                head = refList[Index].curvePts[ptc].heading;
+                int ptc = mf.gyd.refList[ContourIndex].curvePts.Count - 1;
+                head = mf.gyd.refList[ContourIndex].curvePts[ptc].heading;
 
                 for (double i = 1; i < length; i += 1)
                 {
-                    pnt.easting = refList[Index].curvePts[ptc].easting + (Math.Sin(head) * i);
-                    pnt.northing = refList[Index].curvePts[ptc].northing + (Math.Cos(head) * i);
+                    pnt.easting = mf.gyd.refList[ContourIndex].curvePts[ptc].easting + (Math.Sin(head) * i);
+                    pnt.northing = mf.gyd.refList[ContourIndex].curvePts[ptc].northing + (Math.Cos(head) * i);
                     pnt.heading = head;
-                    refList[Index].curvePts.Add(pnt);
+                    mf.gyd.refList[ContourIndex].curvePts.Add(pnt);
                 }
 
                 //add the point list to the save list for appending to contour file
-                mf.contourSaveList.Add(refList[Index].curvePts);
+                mf.contourSaveList.Add(mf.gyd.refList[ContourIndex].curvePts);
+            }
+            else if (ContourIndex > -1)
+            {
+                mf.gyd.refList.RemoveAt(ContourIndex);
+                if (mf.curve.selectedCurveIndex >= ContourIndex) mf.curve.selectedCurveIndex--;
+                if (mf.ABLine.selectedABIndex >= ContourIndex) mf.ABLine.selectedABIndex--;
             }
 
-            //delete ptList
-            else if (Index > -1)
-                refList.RemoveAt(Index);
-
-            Index = -1;
+            ContourIndex = -1;
             //turn it off
             isContourOn = false;
         }
@@ -291,7 +293,7 @@ namespace AgOpenGPS
                 //count the points from the boundary
                 int ptCount = mf.bnd.bndList[j].fenceLine.Points.Count;
 
-                CGuidanceLine ptList = new CGuidanceLine();
+                CGuidanceLine ptList = new CGuidanceLine(Mode.BoundaryContour);
 
                 for (int i = 0; i < ptCount; i++)
                 {
@@ -305,7 +307,7 @@ namespace AgOpenGPS
                     //only add if inside actual field boundary
                     ptList.curvePts.Add(point);
                 }
-                refList.Add(ptList);
+                mf.gyd.refList.Add(ptList);
             }
 
             mf.TimedMessageBox(1500, "Boundary Contour", "Contour Path Created");
@@ -345,7 +347,7 @@ namespace AgOpenGPS
 
             //GL.PointSize(6.0f);
             GL.Begin(PrimitiveType.Points);
-            for (int h = 0; h < refList[stripNum].curvePts.Count; h++) GL.Vertex3(refList[stripNum].curvePts[h].easting, refList[stripNum].curvePts[h].northing, 0);
+            for (int h = 0; h < mf.gyd.refList[stripNum].curvePts.Count; h++) GL.Vertex3(mf.gyd.refList[stripNum].curvePts[h].easting, mf.gyd.refList[stripNum].curvePts[h].northing, 0);
             GL.End();
 
             //GL.Begin(PrimitiveType.Points);
@@ -446,9 +448,18 @@ namespace AgOpenGPS
         //Reset the contour to zip
         public void ResetContour()
         {
-            Index = -1;
+            ContourIndex = -1;
             isContourOn = false;
-            refList.Clear();
+            for (int i = mf.gyd.refList.Count - 1; i >= 0; i--)
+            {
+                if (mf.gyd.refList[i].Mode == Mode.BoundaryContour || mf.gyd.refList[i].Mode == Mode.Contour)
+                {
+                    mf.gyd.refList.RemoveAt(i);
+                    if (mf.curve.selectedCurveIndex >= i) mf.curve.selectedCurveIndex--;
+                    if (mf.ABLine.selectedABIndex >= i) mf.ABLine.selectedABIndex--;
+                }
+            }
+
             curList.Clear();
         }
     }//class

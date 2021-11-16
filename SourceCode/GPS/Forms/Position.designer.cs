@@ -1019,16 +1019,15 @@ namespace AgOpenGPS
                     sectionCounter++;
                 }
             }
-            if (isAutoSteerBtnOn && !ct.isContourBtnOn && (ABLine.isBtnABLineOn || curve.isBtnCurveOn))
+
+            if (sectionCounter == 0 || (isAutoSteerBtnOn && !ct.isContourBtnOn && (ABLine.isBtnABLineOn || curve.isBtnCurveOn)))
             {
                 //no contour recorded
                 if (ct.isContourOn)
                     ct.StopContourLine();
             }
-            else if (sectionCounter != 0)//keep the line going, everything is on for recording path
+            else//keep the line going, everything is on for recording path
                 ct.AddPoint(pivotAxlePos);
-            else if (ct.isContourOn)//All sections OFF so if on, turn off
-                ct.StopContourLine();
         }
 
         //calculate the extreme tool left, right velocities, each section lookahead, and whether or not its going backwards

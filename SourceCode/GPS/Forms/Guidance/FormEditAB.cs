@@ -38,9 +38,9 @@ namespace AgOpenGPS
             btnCancel.Focus();
             lblHalfSnapFtM.Text = mf.unitsFtM;
             lblHalfWidth.Text = (mf.tool.toolWidth * 0.5 * mf.m2FtOrM).ToString("N2");
-            if (mf.ABLine.selectedABIndex > -1 && mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts.Count > 1)
-                heading = Math.Atan2(mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[1].easting - mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[0].easting,
-                    mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[1].northing - mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[0].northing);
+            if (mf.ABLine.selectedABIndex > -1 && mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts.Count > 1)
+                heading = Math.Atan2(mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[1].easting - mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[0].easting,
+                    mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[1].northing - mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[0].northing);
 
             tboxHeading.Text = Math.Round(glm.toDegrees(heading), 5).ToString();
         }
@@ -97,7 +97,7 @@ namespace AgOpenGPS
             int last = mf.ABLine.selectedABIndex;
             mf.FileLoadABLines();
 
-            if (last < mf.ABLine.lineArr.Count)
+            if (last < mf.gyd.refList.Count)
                 mf.panelRight.Enabled = true;
 
             mf.gyd.moveDistance = 0;
@@ -107,10 +107,10 @@ namespace AgOpenGPS
 
         private void btnSwapAB_Click(object sender, EventArgs e)
         {
-            if (mf.ABLine.selectedABIndex > -1 && mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts.Count > 1)
+            if (mf.ABLine.selectedABIndex > -1 && mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts.Count > 1)
             {
-                double heading = Math.Atan2(mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[0].easting - mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[1].easting,
-                    mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[0].northing - mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[1].northing);
+                double heading = Math.Atan2(mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[0].easting - mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[1].easting,
+                    mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[0].northing - mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[1].northing);
                 mf.ABLine.SetABLineByHeading(heading);
 
                 tboxHeading.Text = Math.Round(glm.toDegrees(heading), 5).ToString();

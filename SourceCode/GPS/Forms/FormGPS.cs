@@ -1091,13 +1091,15 @@ namespace AgOpenGPS
             flagPts.Clear();
 
             gyd.moveDistance = 0;
+            gyd.howManyPathsAway = 0.0;
+
+            gyd.refList.Clear();
 
             //ABLine
             btnABLine.Enabled = false;
             btnABLine.Image = Properties.Resources.ABLineOff;
             ABLine.isBtnABLineOn = false;
-            ABLine.DeleteAB();
-            ABLine.lineArr.Clear();
+            ABLine.curList.Clear();
             ABLine.numABLines = 0;
             ABLine.selectedABIndex = -1;
 
@@ -1106,7 +1108,6 @@ namespace AgOpenGPS
             btnCurve.Image = Properties.Resources.CurveOff;
             curve.isBtnCurveOn = false;
             curve.curList.Clear();
-            curve.curveArr.Clear();
             curve.numCurveLines = 0;
             curve.selectedCurveIndex = -1;
 

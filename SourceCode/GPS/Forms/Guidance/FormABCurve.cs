@@ -54,12 +54,11 @@ namespace AgOpenGPS
         private void UpdateLineList()
         {
             lvLines.Clear();
-            ListViewItem itm;
 
-            foreach (CGuidanceLine item in mf.curve.curveArr)
+            for (int i = 0; i < mf.gyd.refList.Count; i++)
             {
-                itm = new ListViewItem(item.Name);
-                lvLines.Items.Add(itm);
+                if ((mf.gyd.refList[i].Mode == Mode.Curve || mf.gyd.refList[i].Mode == Mode.Boundary) && mf.gyd.refList[i].curvePts.Count > 1)
+                    lvLines.Items.Add(new ListViewItem(mf.gyd.refList[i].Name, i));
             }
 
             // go to bottom of list - if there is a bottom
@@ -248,17 +247,16 @@ namespace AgOpenGPS
             {
                 if (textBox1.Text.Length == 0) textBox2.Text = "No Name " + DateTime.Now.ToString("hh:mm:ss", CultureInfo.InvariantCulture);
 
-                CGuidanceLine New = new CGuidanceLine();
+                CGuidanceLine New = new CGuidanceLine(Mode.Curve);
 
                 New.Name = textBox1.Text.Trim();
-                New.Mode = Mode.Curve;
 
                 //write out the Curve Points
                 foreach (vec3 item in mf.curve.desList)
                 {
                     New.curvePts.Add(item);
                 }
-                mf.curve.curveArr.Add(New);
+                mf.gyd.refList.Add(New);
 
                 mf.FileSaveCurveLines();
                 mf.curve.desList.Clear();
@@ -284,27 +282,33 @@ namespace AgOpenGPS
 
             if (lvLines.SelectedItems.Count > 0)
             {
-                int num = lvLines.SelectedIndices[0];
-                mf.curve.curveArr.RemoveAt(num);
-                lvLines.SelectedItems[0].Remove();
-
-                //everything changed, so make sure its right
-                mf.curve.numCurveLines--;
-
-                if (mf.curve.selectedCurveIndex == num) mf.curve.selectedCurveIndex = -1;
-                else if (mf.curve.selectedCurveIndex > num) mf.curve.selectedCurveIndex--;
-
-                if (mf.ABLine.selectedABIndex >= num) mf.ABLine.selectedABIndex--;
-
-                //if there are no saved oned, empty out current curve line and turn off
-                if (mf.curve.numCurveLines == 0)
+                int idx = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
+                if (idx > 0)
                 {
-                    mf.curve.selectedCurveIndex = -1;
-                    if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
-                    if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
-                }
+                    mf.gyd.refList.RemoveAt(idx);
 
-                mf.FileSaveCurveLines();
+
+                    lvLines.SelectedItems[0].Remove();
+
+                    //everything changed, so make sure its right
+                    mf.curve.numCurveLines--;
+
+                    if (mf.curve.selectedCurveIndex == idx) mf.curve.selectedCurveIndex = -1;
+                    else if (mf.curve.selectedCurveIndex > idx) mf.curve.selectedCurveIndex--;
+
+                    if (mf.ABLine.selectedABIndex >= idx) mf.ABLine.selectedABIndex--;
+                    if (mf.ct.ContourIndex >= idx) mf.ct.ContourIndex--;
+
+                    //if there are no saved oned, empty out current curve line and turn off
+                    if (mf.curve.numCurveLines == 0)
+                    {
+                        mf.curve.selectedCurveIndex = -1;
+                        if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
+                        if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
+                    }
+
+                    mf.FileSaveCurveLines();
+                }
             }
 
             UpdateLineList();
@@ -319,8 +323,8 @@ namespace AgOpenGPS
 
             if (lvLines.SelectedItems.Count > 0)
             {
-                mf.curve.selectedCurveIndex = lvLines.SelectedIndices[0];
-                mf.yt.ResetYouTurn();
+                 mf.curve.selectedCurveIndex = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
+                 mf.yt.ResetYouTurn();
             }
             else
             {
@@ -428,25 +432,26 @@ namespace AgOpenGPS
         {
             if (lvLines.SelectedItems.Count > 0)
             {
-                int idx = lvLines.SelectedIndices[0];
-
-
-                panelPick.Visible = false;
-                panelName.Visible = true;
-                this.Size = new System.Drawing.Size(270, 360);
-
-                panelAPlus.Visible = false;
-                panelName.Visible = true;
-
-                textBox1.Text = mf.curve.curveArr[idx].Name + " Copy";
-                mf.curve.desName = textBox1.Text;
-
-                mf.curve.desList.Clear();
-
-                for (int i = 0; i < mf.curve.curveArr[idx].curvePts.Count; i++)
+                int idx = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
+                if (idx > 0)
                 {
-                    vec3 pt = new vec3(mf.curve.curveArr[idx].curvePts[i]);
-                    mf.curve.desList.Add(pt);
+                    panelPick.Visible = false;
+                    panelName.Visible = true;
+                    this.Size = new System.Drawing.Size(270, 360);
+
+                    panelAPlus.Visible = false;
+                    panelName.Visible = true;
+
+                    textBox1.Text = mf.gyd.refList[idx].Name + " Copy";
+                    mf.curve.desName = textBox1.Text;
+
+                    mf.curve.desList.Clear();
+
+                    for (int i = 0; i < mf.gyd.refList[idx].curvePts.Count; i++)
+                    {
+                        vec3 pt = new vec3(mf.gyd.refList[idx].curvePts[i]);
+                        mf.curve.desList.Add(pt);
+                    }
                 }
             }
         }
@@ -455,12 +460,15 @@ namespace AgOpenGPS
         {
             if (lvLines.SelectedItems.Count > 0)
             {
-                int idx = lvLines.SelectedIndices[0];
-                textBox2.Text = mf.curve.curveArr[idx].Name;
+                int idx = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
+                if (idx > 0)
+                {
+                    textBox2.Text = mf.gyd.refList[idx].Name;
 
-                panelPick.Visible = false;
-                panelEditName.Visible = true;
-                this.Size = new System.Drawing.Size(270, 360);
+                    panelPick.Visible = false;
+                    panelEditName.Visible = true;
+                    this.Size = new System.Drawing.Size(270, 360);
+                }
             }
         }
 
@@ -473,20 +481,22 @@ namespace AgOpenGPS
         {
             if (textBox2.Text.Trim() == "") textBox2.Text = "No Name " + DateTime.Now.ToString("hh:mm:ss", CultureInfo.InvariantCulture);
 
-            int idx = lvLines.SelectedIndices[0];
-            mf.curve.curveArr[idx].Name = textBox2.Text.Trim();
+            int idx = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
+            if (idx > 0)
+            {
+                mf.gyd.refList[idx].Name = textBox2.Text.Trim();
 
-            textBox2.Enter -= textBox2_Enter;
-            panelEditName.Visible = false;
-            textBox2.Enter += textBox2_Enter;
+                textBox2.Enter -= textBox2_Enter;
+                panelEditName.Visible = false;
+                textBox2.Enter += textBox2_Enter;
 
-            panelPick.Visible = true;
+                panelPick.Visible = true;
 
-            mf.FileSaveCurveLines();
-            mf.curve.desList.Clear();
+                mf.FileSaveCurveLines();
+                mf.curve.desList.Clear();
 
-            this.Size = new System.Drawing.Size(470, 360);
-
+                this.Size = new System.Drawing.Size(470, 360);
+            }
             UpdateLineList();
             lvLines.Focus();
         }
@@ -504,29 +514,30 @@ namespace AgOpenGPS
         {
             if (lvLines.SelectedItems.Count > 0)
             {
-                int idx = lvLines.SelectedIndices[0];
-
-                int cnt = mf.curve.curveArr[idx].curvePts.Count;
-                if (cnt > 0)
+                int idx = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
+                if (idx > 0)
                 {
-                    mf.curve.curveArr[idx].curvePts.Reverse();
-
-                    vec3[] arr = new vec3[cnt];
-                    cnt--;
-                    mf.curve.curveArr[idx].curvePts.CopyTo(arr);
-                    mf.curve.curveArr[idx].curvePts.Clear();
-
-                    for (int i = 1; i < cnt; i++)
+                    int cnt = mf.gyd.refList[idx].curvePts.Count;
+                    if (cnt > 0)
                     {
-                        vec3 pt3 = arr[i];
-                        pt3.heading += Math.PI;
-                        if (pt3.heading > glm.twoPI) pt3.heading -= glm.twoPI;
-                        if (pt3.heading < 0) pt3.heading += glm.twoPI;
-                        mf.curve.curveArr[idx].curvePts.Add(pt3);
-                    }
-                }
+                        mf.gyd.refList[idx].curvePts.Reverse();
 
-                mf.FileSaveCurveLines();
+                        vec3[] arr = new vec3[cnt];
+                        cnt--;
+                        mf.gyd.refList[idx].curvePts.CopyTo(arr);
+                        mf.gyd.refList[idx].curvePts.Clear();
+
+                        for (int i = 1; i < cnt; i++)
+                        {
+                            vec3 pt3 = arr[i];
+                            pt3.heading += Math.PI;
+                            if (pt3.heading > glm.twoPI) pt3.heading -= glm.twoPI;
+                            if (pt3.heading < 0) pt3.heading += glm.twoPI;
+                            mf.gyd.refList[idx].curvePts.Add(pt3);
+                        }
+                    }
+                    mf.FileSaveCurveLines();
+                }
                 UpdateLineList();
                 lvLines.Focus();
 

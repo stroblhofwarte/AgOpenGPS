@@ -88,15 +88,15 @@ namespace AgOpenGPS
             {
                 mf.gyd.isValid = false;
                 mf.gyd.lastSecond = 0;
-                int cnt = mf.curve.curveArr[mf.curve.selectedCurveIndex].curvePts.Count;
+                int cnt = mf.gyd.refList[mf.curve.selectedCurveIndex].curvePts.Count;
                 if (cnt > 0)
                 {
-                    mf.curve.curveArr[mf.curve.selectedCurveIndex].curvePts.Reverse();
+                    mf.gyd.refList[mf.curve.selectedCurveIndex].curvePts.Reverse();
 
                     vec3[] arr = new vec3[cnt];
                     cnt--;
-                    mf.curve.curveArr[mf.curve.selectedCurveIndex].curvePts.CopyTo(arr);
-                    mf.curve.curveArr[mf.curve.selectedCurveIndex].curvePts.Clear();
+                    mf.gyd.refList[mf.curve.selectedCurveIndex].curvePts.CopyTo(arr);
+                    mf.gyd.refList[mf.curve.selectedCurveIndex].curvePts.Clear();
 
                     for (int i = 1; i < cnt; i++)
                     {
@@ -104,7 +104,7 @@ namespace AgOpenGPS
                         pt3.heading += Math.PI;
                         if (pt3.heading > glm.twoPI) pt3.heading -= glm.twoPI;
                         if (pt3.heading < 0) pt3.heading += glm.twoPI;
-                        mf.curve.curveArr[mf.curve.selectedCurveIndex].curvePts.Add(pt3);
+                        mf.gyd.refList[mf.curve.selectedCurveIndex].curvePts.Add(pt3);
                     }
                 }
             }

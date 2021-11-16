@@ -67,12 +67,11 @@ namespace AgOpenGPS
         private void UpdateLineList()
         {
             lvLines.Clear();
-            ListViewItem itm;
 
-            foreach (CGuidanceLine item in mf.ABLine.lineArr)
+            for (int i = 0; i < mf.gyd.refList.Count; i++)
             {
-                itm = new ListViewItem(item.Name);
-                lvLines.Items.Add(itm);
+                if (mf.gyd.refList[i].Mode == Mode.AB && mf.gyd.refList[i].curvePts.Count > 1)
+                    lvLines.Items.Add(new ListViewItem(mf.gyd.refList[i].Name, i));
             }
 
             // go to bottom of list - if there is a bottom
@@ -198,12 +197,15 @@ namespace AgOpenGPS
         {
             if (lvLines.SelectedItems.Count > 0)
             {
-                int idx = lvLines.SelectedIndices[0];
-                textBox2.Text = mf.ABLine.lineArr[idx].Name;
+                int idx = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
+                if (idx > 0)
+                {
+                    textBox2.Text = mf.gyd.refList[idx].Name;
 
-                panelPick.Visible = false;
-                panelEditName.Visible = true;
-                this.Size = new System.Drawing.Size(270, 360);
+                    panelPick.Visible = false;
+                    panelEditName.Visible = true;
+                    this.Size = new System.Drawing.Size(270, 360);
+                }
             }
         }
 
@@ -211,15 +213,17 @@ namespace AgOpenGPS
         {
             if (textBox2.Text.Trim() == "") textBox2.Text = "No Name " + DateTime.Now.ToString("hh:mm:ss", CultureInfo.InvariantCulture);
 
-            int idx = lvLines.SelectedIndices[0];
+            int idx = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
+            if (idx > 0)
+            {
+                textBox2.Enter -= textBox2_Enter;
+                panelEditName.Visible = false;
+                textBox2.Enter += textBox2_Enter;
 
-            textBox2.Enter -= textBox2_Enter;
-            panelEditName.Visible = false;
-            textBox2.Enter += textBox2_Enter;
+                panelPick.Visible = true;
 
-            panelPick.Visible = true;
-
-            mf.ABLine.lineArr[idx].Name = textBox2.Text.Trim();
+                mf.gyd.refList[idx].Name = textBox2.Text.Trim();
+            }
             mf.FileSaveABLines();
 
             this.Size = new System.Drawing.Size(470, 360);
@@ -231,7 +235,7 @@ namespace AgOpenGPS
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            CGuidanceLine New = new CGuidanceLine();
+            CGuidanceLine New = new CGuidanceLine(Mode.AB);
 
             New.curvePts.Add(new vec3(mf.ABLine.desPoint1.easting, mf.ABLine.desPoint1.northing, desHeading));
             New.curvePts.Add(new vec3(mf.ABLine.desPoint1.easting + Math.Sin(desHeading), mf.ABLine.desPoint1.northing + Math.Cos(desHeading), desHeading));
@@ -240,11 +244,10 @@ namespace AgOpenGPS
             if (textBox2.Text.Trim() == "") textBox2.Text = "No Name " + DateTime.Now.ToString("hh:mm:ss", CultureInfo.InvariantCulture);
 
             New.Name = textBox1.Text.Trim();
-            New.Mode = Mode.AB;
 
-            mf.ABLine.lineArr.Add(New);
+            mf.gyd.refList.Add(New);
             mf.ABLine.numABLines++;
-            mf.ABLine.selectedABIndex = mf.ABLine.lineArr.Count - 1;
+            mf.ABLine.selectedABIndex = mf.gyd.refList.Count - 1;
 
             mf.FileSaveABLines();
 
@@ -266,25 +269,27 @@ namespace AgOpenGPS
         {
             if (lvLines.SelectedItems.Count > 0)
             {
-                int idx = lvLines.SelectedIndices[0];
-
-                panelPick.Visible = false;
-                panelName.Visible = true;
-                this.Size = new System.Drawing.Size(270, 360);
-
-                panelAPlus.Visible = false;
-                panelName.Visible = true;
-
-                if (mf.ABLine.lineArr[idx].curvePts.Count > 1)
+                int idx = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
+                if (idx > 0)
                 {
-                    desHeading = Math.Atan2(mf.ABLine.lineArr[idx].curvePts[1].easting - mf.ABLine.lineArr[idx].curvePts[0].easting, mf.ABLine.lineArr[idx].curvePts[1].northing - mf.ABLine.lineArr[idx].curvePts[0].northing);
+                    panelPick.Visible = false;
+                    panelName.Visible = true;
+                    this.Size = new System.Drawing.Size(270, 360);
 
-                    //calculate the new points for the reference line and points                
-                    mf.ABLine.desPoint1.easting = mf.ABLine.lineArr[idx].curvePts[0].easting;
-                    mf.ABLine.desPoint1.northing = mf.ABLine.lineArr[idx].curvePts[0].northing;
+                    panelAPlus.Visible = false;
+                    panelName.Visible = true;
+
+                    if (mf.gyd.refList[idx].curvePts.Count > 1)
+                    {
+                        desHeading = Math.Atan2(mf.gyd.refList[idx].curvePts[1].easting - mf.gyd.refList[idx].curvePts[0].easting, mf.gyd.refList[idx].curvePts[1].northing - mf.gyd.refList[idx].curvePts[0].northing);
+
+                        //calculate the new points for the reference line and points                
+                        mf.ABLine.desPoint1.easting = mf.gyd.refList[idx].curvePts[0].easting;
+                        mf.ABLine.desPoint1.northing = mf.gyd.refList[idx].curvePts[0].northing;
+                    }
+
+                    textBox1.Text = mf.gyd.refList[idx].Name + " Copy";
                 }
-
-                textBox1.Text = mf.ABLine.lineArr[idx].Name + " Copy";
             }
         }
 
@@ -297,7 +302,7 @@ namespace AgOpenGPS
 
             if (lvLines.SelectedItems.Count > 0)
             {
-                mf.ABLine.selectedABIndex = lvLines.SelectedIndices[0];
+                mf.ABLine.selectedABIndex = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
 
                 mf.EnableYouTurnButtons();
 
@@ -323,20 +328,19 @@ namespace AgOpenGPS
             if (lvLines.SelectedItems.Count > 0)
             {
                 mf.gyd.isValid = false;
-                int idx = lvLines.SelectedIndices[0];
-
-                if (mf.ABLine.lineArr[idx].curvePts.Count > 1)
+                int idx = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
+                if (idx > 0 && mf.gyd.refList[idx].curvePts.Count > 1)
                 {
-                    double heading = Math.Atan2(mf.ABLine.lineArr[idx].curvePts[1].easting - mf.ABLine.lineArr[idx].curvePts[0].easting, mf.ABLine.lineArr[idx].curvePts[1].northing - mf.ABLine.lineArr[idx].curvePts[0].northing) + Math.PI;
+                    double heading = Math.Atan2(mf.gyd.refList[idx].curvePts[1].easting - mf.gyd.refList[idx].curvePts[0].easting, mf.gyd.refList[idx].curvePts[1].northing - mf.gyd.refList[idx].curvePts[0].northing) + Math.PI;
 
                     if (heading > glm.twoPI) heading -= glm.twoPI;
 
-                    vec3 pos = mf.ABLine.lineArr[idx].curvePts[0];
+                    vec3 pos = mf.gyd.refList[idx].curvePts[0];
 
-                    mf.ABLine.lineArr[idx].curvePts.Clear();
+                    mf.gyd.refList[idx].curvePts.Clear();
 
-                    mf.ABLine.lineArr[idx].curvePts.Add(new vec3(pos.easting, pos.northing, heading));
-                    mf.ABLine.lineArr[idx].curvePts.Add(new vec3(pos.easting + Math.Sin(heading), pos.northing + Math.Cos(heading), heading));
+                    mf.gyd.refList[idx].curvePts.Add(new vec3(pos.easting, pos.northing, heading));
+                    mf.gyd.refList[idx].curvePts.Add(new vec3(pos.easting + Math.Sin(heading), pos.northing + Math.Cos(heading), heading));
 
                     mf.FileSaveABLines();
                 }
@@ -350,23 +354,27 @@ namespace AgOpenGPS
         {
             if (lvLines.SelectedItems.Count > 0)
             {
-                int num = lvLines.SelectedIndices[0];
-                mf.ABLine.lineArr.RemoveAt(num);
-                lvLines.SelectedItems[0].Remove();
-
-                mf.ABLine.numABLines--;
-                if (mf.ABLine.selectedABIndex == num) mf.ABLine.selectedABIndex = -1;
-                else if (mf.ABLine.selectedABIndex > num) mf.ABLine.selectedABIndex--;
-
-                if (mf.curve.selectedCurveIndex >= num) mf.curve.selectedCurveIndex--;
-
-                if (mf.ABLine.numABLines == 0)
+                int idx = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
+                if (idx > 0)
                 {
-                    mf.ABLine.DeleteAB();
-                    if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
-                    if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
+                    mf.gyd.refList.RemoveAt(idx);
+                    lvLines.SelectedItems[0].Remove();
+
+                    mf.ABLine.numABLines--;
+                    if (mf.ABLine.selectedABIndex == idx) mf.ABLine.selectedABIndex = -1;
+                    else if (mf.ABLine.selectedABIndex > idx) mf.ABLine.selectedABIndex--;
+
+                    if (mf.curve.selectedCurveIndex >= idx) mf.curve.selectedCurveIndex--;
+                    if (mf.ct.ContourIndex >= idx) mf.ct.ContourIndex--;
+
+                    if (mf.ABLine.numABLines == 0)
+                    {
+                        mf.ABLine.DeleteAB();
+                        if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
+                        if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
+                    }
+                    mf.FileSaveABLines();
                 }
-                mf.FileSaveABLines();
             }
             else
             {

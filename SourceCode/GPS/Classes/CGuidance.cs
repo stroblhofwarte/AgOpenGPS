@@ -7,6 +7,9 @@ namespace AgOpenGPS
     {
         private readonly FormGPS mf;
 
+        //list of the list of individual Lines for entire field
+        public List<CGuidanceLine> refList = new List<CGuidanceLine>();
+
         public bool isHeadingSameWay = true;
         public double howManyPathsAway;
         public double lastSecond = 0;
@@ -53,7 +56,7 @@ namespace AgOpenGPS
             //build new current ref line if required
             if (ab == Mode.Contour)
             {
-                if ((mf.ct.curList.Count < 9 && (mf.secondsSinceStart - mf.gyd.lastSecond) > 0.66) || (mf.secondsSinceStart - mf.gyd.lastSecond) > 2.0)
+                if ((mf.ct.curList.Count < 9 && (mf.secondsSinceStart - lastSecond) > 0.66) || (mf.secondsSinceStart - lastSecond) > 2.0)
                     mf.ct.BuildCurrentContourList(pivot);
             }
             else if (!isValid || ((mf.secondsSinceStart - lastSecond) > 0.66 && (!mf.isAutoSteerBtnOn || mf.mc.steerSwitchValue != 0)))
@@ -550,5 +553,10 @@ namespace AgOpenGPS
         public List<vec3> curvePts = new List<vec3>();
         public string Name = "aa";
         public Mode Mode;
+
+        public CGuidanceLine(Mode mode)
+        {
+            Mode = mode;
+        }
     }
 }

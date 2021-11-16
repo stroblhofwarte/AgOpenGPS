@@ -185,13 +185,13 @@ namespace AgOpenGPS
             {
                 if (++ABLine.selectedABIndex >= ABLine.numABLines) ABLine.selectedABIndex = 0;
 
-                lblCurveLineName.Text = ABLine.lineArr[ABLine.selectedABIndex].Name;
+                lblCurveLineName.Text = gyd.refList[ABLine.selectedABIndex].Name;
             }
             else if (curve.isBtnCurveOn && curve.numCurveLines > 0)
             {
                 if (++curve.selectedCurveIndex >= curve.numCurveLines) curve.selectedCurveIndex = 0;
 
-                lblCurveLineName.Text = curve.curveArr[curve.selectedCurveIndex].Name;
+                lblCurveLineName.Text = gyd.refList[curve.selectedCurveIndex].Name;
             }
         }
 

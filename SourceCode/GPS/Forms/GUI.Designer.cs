@@ -158,12 +158,11 @@ namespace AgOpenGPS
 
                     if (curve.selectedCurveIndex > -1 && curve.isBtnCurveOn)
                     {
-                        lblCurveLineName.Text = "Cur-" + curve.curveArr[curve.selectedCurveIndex].Name;
+                        lblCurveLineName.Text = "Cur-" + gyd.refList[curve.selectedCurveIndex].Name;
                     }
-
                     else if (ABLine.selectedABIndex > -1 && ABLine.isBtnABLineOn)
                     {
-                        lblCurveLineName.Text = "AB-" + ABLine.lineArr[ABLine.selectedABIndex].Name;
+                        lblCurveLineName.Text = "AB-" + gyd.refList[ABLine.selectedABIndex].Name;
                     }
                     else lblCurveLineName.Text = string.Empty;
                 }

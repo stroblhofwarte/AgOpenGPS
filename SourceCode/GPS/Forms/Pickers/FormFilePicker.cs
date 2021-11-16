@@ -27,7 +27,6 @@ namespace AgOpenGPS
         {
             order = 0;
             timer1.Enabled = true;
-            ListViewItem itm;
 
             string[] dirs = Directory.GetDirectories(mf.fieldsDirectory);
 
@@ -187,8 +186,7 @@ namespace AgOpenGPS
             for (int i = 0; i < fileList.Count; i += 3)
             {
                 string[] fieldNames = { fileList[i], fileList[i + 1], fileList[i + 2] };
-                itm = new ListViewItem(fieldNames);
-                lvLines.Items.Add(itm);
+                lvLines.Items.Add(new ListViewItem(fieldNames));
             }
 
             //string fieldName = Path.GetDirectoryName(dir).ToString(CultureInfo.InvariantCulture);
@@ -331,8 +329,6 @@ namespace AgOpenGPS
                 else return;
             }
             else return;
-
-            ListViewItem itm;
 
             string[] dirs = Directory.GetDirectories(mf.fieldsDirectory);
 
@@ -493,8 +489,7 @@ namespace AgOpenGPS
             for (int i = 0; i < fileList.Count; i += 3)
             {
                 string[] fieldNames = { fileList[i], fileList[i + 1], fileList[i + 2] };
-                itm = new ListViewItem(fieldNames);
-                lvLines.Items.Add(itm);
+                lvLines.Items.Add(new ListViewItem(fieldNames));
             }
 
             //string fieldName = Path.GetDirectoryName(dir).ToString(CultureInfo.InvariantCulture);

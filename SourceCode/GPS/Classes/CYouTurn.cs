@@ -281,10 +281,10 @@ namespace AgOpenGPS
 
         public bool BuildABLineDubinsYouTurn(bool isTurnRight)
         {
-            if (mf.ABLine.selectedABIndex > -1 && mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts.Count > 1)
+            if (mf.ABLine.selectedABIndex > -1 && mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts.Count > 1)
             {
-                double head = Math.Atan2(mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[1].easting - mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[0].easting,
-                    mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[1].northing - mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[0].northing);
+                double head = Math.Atan2(mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[1].easting - mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[0].easting,
+                    mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[1].northing - mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[0].northing);
                 
                 if (!mf.gyd.isHeadingSameWay) head += Math.PI;
 
@@ -903,9 +903,9 @@ namespace AgOpenGPS
         {
             double head;
             //point on AB line closest to pivot axle point from ABLine PurePursuit
-            if (mf.ABLine.isBtnABLineOn && mf.ABLine.selectedABIndex > -1 && mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts.Count > 1)
-                head = Math.Atan2(mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[1].easting - mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[0].easting,
-                    mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[1].northing - mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[0].northing);
+            if (mf.ABLine.isBtnABLineOn && mf.ABLine.selectedABIndex > -1 && mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts.Count > 1)
+                head = Math.Atan2(mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[1].easting - mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[0].easting,
+                    mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[1].northing - mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[0].northing);
             else if (mf.curve.isBtnCurveOn && mf.curve.curList.Count > 1)
                 head = mf.gyd.manualUturnHeading;
             else return;
@@ -945,9 +945,9 @@ namespace AgOpenGPS
 
             double head;
             //point on AB line closest to pivot axle point from ABLine PurePursuit
-            if (mf.ABLine.isBtnABLineOn && mf.ABLine.selectedABIndex > -1 && mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts.Count > 1)
-                head = Math.Atan2(mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[1].easting - mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[0].easting,
-                    mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[1].northing - mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[0].northing);
+            if (mf.ABLine.isBtnABLineOn && mf.ABLine.selectedABIndex > -1 && mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts.Count > 1)
+                head = Math.Atan2(mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[1].easting - mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[0].easting,
+                    mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[1].northing - mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[0].northing);
             else if (mf.curve.isBtnCurveOn && mf.curve.curList.Count > 1)
                 head = mf.gyd.manualUturnHeading;
             else return;

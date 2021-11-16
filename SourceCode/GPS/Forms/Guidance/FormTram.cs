@@ -123,9 +123,9 @@ namespace AgOpenGPS
 
         private void btnSwapAB_Click(object sender, EventArgs e)
         {
-            if (mf.ABLine.selectedABIndex > -1 && mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts.Count > 1)
-                mf.ABLine.SetABLineByHeading(Math.Atan2(mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[0].easting - mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[1].easting,
-                    mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[0].northing - mf.ABLine.lineArr[mf.ABLine.selectedABIndex].curvePts[1].northing));
+            if (mf.ABLine.selectedABIndex > -1 && mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts.Count > 1)
+                mf.ABLine.SetABLineByHeading(Math.Atan2(mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[0].easting - mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[1].easting,
+                    mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[0].northing - mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[1].northing));
 
             mf.ABLine.BuildTram();
         }
