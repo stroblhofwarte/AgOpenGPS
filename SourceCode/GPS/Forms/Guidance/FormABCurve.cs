@@ -38,7 +38,7 @@ namespace AgOpenGPS
 
             this.Size = new System.Drawing.Size(470, 360);
 
-            mf.curve.isOkToAddDesPoints = false;
+            mf.gyd.isOkToAddDesPoints = false;
 
             UpdateLineList(true);
         }
@@ -52,8 +52,8 @@ namespace AgOpenGPS
             {
                 if ((mf.gyd.refList[i].Mode == Mode.Curve || mf.gyd.refList[i].Mode == Mode.Boundary) && mf.gyd.refList[i].curvePts.Count > 1)
                 {
-                    lvLines.Items.Add(new ListViewItem(mf.gyd.refList[i].Name, i));
-                    if (select && i == mf.curve.selectedCurveIndex) idx = lvLines.Items.Count - 1;
+                    lvLines.Items.Add(new ListViewItem(mf.gyd.refList[i].Name.Trim(), i));
+                    if (select && mf.gyd.refList[i] == mf.gyd.selectedCurveLine) idx = lvLines.Items.Count - 1;
                 }
             }
 
@@ -82,7 +82,7 @@ namespace AgOpenGPS
             btnAPoint.Enabled = true;
             btnBPoint.Enabled = false;
             btnPausePlay.Enabled = false;
-            mf.curve.desList.Clear();
+            mf.gyd.desList.Clear();
 
             this.Size = new System.Drawing.Size(270, 360);
         }
@@ -96,18 +96,18 @@ namespace AgOpenGPS
             //mf.curve.ResetCurveLine();
 
             btnAPoint.Enabled = false;
-            mf.curve.isOkToAddDesPoints = true;
+            mf.gyd.isOkToAddDesPoints = true;
             btnPausePlay.Enabled = true;
             btnPausePlay.Visible = true;
         }
 
         private void btnBPoint_Click(object sender, System.EventArgs e)
         {
-            mf.curve.isOkToAddDesPoints = false;
+            mf.gyd.isOkToAddDesPoints = false;
             panelAPlus.Visible = false;
             panelName.Visible = true;
 
-            int cnt = mf.curve.desList.Count;
+            int cnt = mf.gyd.desList.Count;
             if (cnt > 3)
             {
                 //make sure distance isn't too big between points on Turn
@@ -115,28 +115,28 @@ namespace AgOpenGPS
                 {
                     int j = i + 1;
                     //if (j == cnt) j = 0;
-                    double distance = glm.Distance(mf.curve.desList[i], mf.curve.desList[j]);
+                    double distance = glm.Distance(mf.gyd.desList[i], mf.gyd.desList[j]);
                     if (distance > 1.2)
                     {
-                        vec3 pointB = new vec3((mf.curve.desList[i].easting + mf.curve.desList[j].easting) / 2.0,
-                            (mf.curve.desList[i].northing + mf.curve.desList[j].northing) / 2.0,
-                            mf.curve.desList[i].heading);
+                        vec3 pointB = new vec3((mf.gyd.desList[i].easting + mf.gyd.desList[j].easting) / 2.0,
+                            (mf.gyd.desList[i].northing + mf.gyd.desList[j].northing) / 2.0,
+                            mf.gyd.desList[i].heading);
 
-                        mf.curve.desList.Insert(j, pointB);
-                        cnt = mf.curve.desList.Count;
+                        mf.gyd.desList.Insert(j, pointB);
+                        cnt = mf.gyd.desList.Count;
                         i = -1;
                     }
                 }
 
                 //calculate average heading of line
                 double x = 0, y = 0;
-                foreach (vec3 pt in mf.curve.desList)
+                foreach (vec3 pt in mf.gyd.desList)
                 {
                     x += Math.Cos(pt.heading);
                     y += Math.Sin(pt.heading);
                 }
-                x /= mf.curve.desList.Count;
-                y /= mf.curve.desList.Count;
+                x /= mf.gyd.desList.Count;
+                y /= mf.gyd.desList.Count;
                 double aveLineHeading = Math.Atan2(y, x);
                 if (aveLineHeading < 0) aveLineHeading += glm.twoPI;
 
@@ -148,16 +148,14 @@ namespace AgOpenGPS
                 panelAPlus.Visible = false;
                 panelName.Visible = true;
 
-                mf.curve.desName = "Cu " +
+                textBox1.Text = "Cu " +
                     (Math.Round(glm.toDegrees(aveLineHeading), 1)).ToString(CultureInfo.InvariantCulture) +
                     "\u00B0 " + mf.FindDirection(aveLineHeading);
-
-                textBox1.Text = mf.curve.desName;
             }
             else
             {
-                mf.curve.isOkToAddDesPoints = false;
-                mf.curve.desList.Clear();
+                mf.gyd.isOkToAddDesPoints = false;
+                mf.gyd.desList.Clear();
 
                 panelPick.Visible = true;
                 panelAPlus.Visible = false;
@@ -174,22 +172,21 @@ namespace AgOpenGPS
         private void btnAddTime_Click(object sender, EventArgs e)
         {
             textBox1.Text += DateTime.Now.ToString(" hh:mm:ss", CultureInfo.InvariantCulture);
-            mf.curve.desName = textBox1.Text;
         }
 
 
         private void btnPausePlay_Click(object sender, EventArgs e)
         {
-            if (mf.curve.isOkToAddDesPoints)
+            if (mf.gyd.isOkToAddDesPoints)
             {
-                mf.curve.isOkToAddDesPoints = false;
+                mf.gyd.isOkToAddDesPoints = false;
                 btnPausePlay.Image = Properties.Resources.BoundaryRecord;
                 //btnPausePlay.Text = gStr.gsRecord;
                 btnBPoint.Enabled = false;
             }
             else
             {
-                mf.curve.isOkToAddDesPoints = true;
+                mf.gyd.isOkToAddDesPoints = true;
                 btnPausePlay.Image = Properties.Resources.boundaryPause;
                 //btnPausePlay.Text = gStr.gsPause;
                 btnBPoint.Enabled = true;
@@ -201,23 +198,23 @@ namespace AgOpenGPS
         {
             mf.gyd.isValid = false;
             mf.gyd.moveDistance = 0;
-            mf.curve.isOkToAddDesPoints = false;
+            mf.gyd.isOkToAddDesPoints = false;
             mf.DisableYouTurnButtons();
             //mf.btnContourPriority.Enabled = false;
             //mf.curve.ResetCurveLine();
-            mf.curve.isBtnCurveOn = false;
+            mf.gyd.isBtnCurveOn = false;
             mf.btnCurve.Image = Properties.Resources.CurveOff;
             if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
             if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
 
-            mf.curve.selectedCurveIndex = -1;
+            mf.gyd.selectedCurveLine = null;
             Close();
         }
 
         private void btnCancelCurve_Click(object sender, EventArgs e)
         {
-            mf.curve.isOkToAddDesPoints = false;
-            mf.curve.desList.Clear();
+            mf.gyd.isOkToAddDesPoints = false;
+            mf.gyd.desList.Clear();
 
             panelPick.Visible = true;
             panelAPlus.Visible = false;
@@ -244,23 +241,26 @@ namespace AgOpenGPS
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            if (mf.curve.desList.Count > 0)
+            if (mf.gyd.desList.Count > 0)
             {
-                if (textBox1.Text.Length == 0) textBox2.Text = "No Name " + DateTime.Now.ToString("hh:mm:ss", CultureInfo.InvariantCulture);
-
                 CGuidanceLine New = new CGuidanceLine(Mode.Curve);
 
-                New.Name = textBox1.Text.Trim();
+                string text = textBox1.Text.Trim();
+                if (text.Length == 0) text = "No Name " + DateTime.Now.ToString("hh:mm:ss", CultureInfo.InvariantCulture);
+
+                while (mf.gyd.refList.Exists(x => x.Name == text))//generate unique name!
+                    text += " ";
+                New.Name = text;
 
                 //write out the Curve Points
-                foreach (vec3 item in mf.curve.desList)
+                foreach (vec3 item in mf.gyd.desList)
                 {
                     New.curvePts.Add(item);
                 }
                 mf.gyd.refList.Add(New);
 
                 mf.FileSaveCurveLines();
-                mf.curve.desList.Clear();
+                mf.gyd.desList.Clear();
             }
 
             panelPick.Visible = true;
@@ -274,7 +274,7 @@ namespace AgOpenGPS
 
             UpdateLineList();
             lvLines.Focus();
-            mf.curve.desList.Clear();
+            mf.gyd.desList.Clear();
         }
 
         private void btnListDelete_Click(object sender, EventArgs e)
@@ -286,24 +286,18 @@ namespace AgOpenGPS
                 int idx = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
                 if (idx > 0)
                 {
-                    mf.gyd.refList.RemoveAt(idx);
+                    //everything changed, so make sure its right
+                    mf.gyd.numCurveLines--;
 
+                    if (mf.gyd.selectedCurveLine == mf.gyd.refList[idx]) mf.gyd.selectedCurveLine = null;
 
                     lvLines.SelectedItems[0].Remove();
-
-                    //everything changed, so make sure its right
-                    mf.curve.numCurveLines--;
-
-                    if (mf.curve.selectedCurveIndex == idx) mf.curve.selectedCurveIndex = -1;
-                    else if (mf.curve.selectedCurveIndex > idx) mf.curve.selectedCurveIndex--;
-
-                    if (mf.ABLine.selectedABIndex >= idx) mf.ABLine.selectedABIndex--;
-                    if (mf.ct.ContourIndex >= idx) mf.ct.ContourIndex--;
+                    mf.gyd.refList.RemoveAt(idx);
 
                     //if there are no saved oned, empty out current curve line and turn off
-                    if (mf.curve.numCurveLines == 0)
+                    if (mf.gyd.numCurveLines == 0)
                     {
-                        mf.curve.selectedCurveIndex = -1;
+                        mf.gyd.selectedCurveLine = null;
                         if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
                         if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
                     }
@@ -324,19 +318,19 @@ namespace AgOpenGPS
 
             if (lvLines.SelectedItems.Count > 0)
             {
-                 mf.curve.selectedCurveIndex = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
+                 mf.gyd.selectedCurveLine = mf.gyd.refList[lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex];
                  mf.yt.ResetYouTurn();
             }
             else
             {
-                mf.curve.isOkToAddDesPoints = false;
+                mf.gyd.isOkToAddDesPoints = false;
                 mf.DisableYouTurnButtons();
-                mf.curve.isBtnCurveOn = false;
+                mf.gyd.isBtnCurveOn = false;
                 mf.btnCurve.Image = Properties.Resources.CurveOff;
                 if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
                 if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
 
-                mf.curve.selectedCurveIndex = -1;
+                mf.gyd.selectedCurveLine = null;
             }
             Close();
         }
@@ -344,7 +338,7 @@ namespace AgOpenGPS
         public void SmoothAB(int smPts)
         {
             //count the reference list of original curve
-            int cnt = mf.curve.desList.Count;
+            int cnt = mf.gyd.desList.Count;
 
             //the temp array
             vec3[] arr = new vec3[cnt];
@@ -352,16 +346,16 @@ namespace AgOpenGPS
             //read the points before and after the setpoint
             for (int s = 0; s < smPts / 2; s++)
             {
-                arr[s].easting = mf.curve.desList[s].easting;
-                arr[s].northing = mf.curve.desList[s].northing;
-                arr[s].heading = mf.curve.desList[s].heading;
+                arr[s].easting = mf.gyd.desList[s].easting;
+                arr[s].northing = mf.gyd.desList[s].northing;
+                arr[s].heading = mf.gyd.desList[s].heading;
             }
 
             for (int s = cnt - (smPts / 2); s < cnt; s++)
             {
-                arr[s].easting = mf.curve.desList[s].easting;
-                arr[s].northing = mf.curve.desList[s].northing;
-                arr[s].heading = mf.curve.desList[s].heading;
+                arr[s].easting = mf.gyd.desList[s].easting;
+                arr[s].northing = mf.gyd.desList[s].northing;
+                arr[s].heading = mf.gyd.desList[s].heading;
             }
 
             //average them - center weighted average
@@ -369,54 +363,54 @@ namespace AgOpenGPS
             {
                 for (int j = -smPts / 2; j < smPts / 2; j++)
                 {
-                    arr[i].easting += mf.curve.desList[j + i].easting;
-                    arr[i].northing += mf.curve.desList[j + i].northing;
+                    arr[i].easting += mf.gyd.desList[j + i].easting;
+                    arr[i].northing += mf.gyd.desList[j + i].northing;
                 }
                 arr[i].easting /= smPts;
                 arr[i].northing /= smPts;
-                arr[i].heading = mf.curve.desList[i].heading;
+                arr[i].heading = mf.gyd.desList[i].heading;
             }
 
             //make a list to draw
-            mf.curve.desList.Clear();
+            mf.gyd.desList.Clear();
             for (int i = 0; i < cnt; i++)
             {
-                mf.curve.desList.Add(arr[i]);
+                mf.gyd.desList.Add(arr[i]);
             }
         }
 
         public void AddFirstLastPoints()
         {
-            int ptCnt = mf.curve.desList.Count - 1;
+            int ptCnt = mf.gyd.desList.Count - 1;
             for (int i = 1; i < 200; i++)
             {
-                vec3 pt = new vec3(mf.curve.desList[ptCnt]);
+                vec3 pt = new vec3(mf.gyd.desList[ptCnt]);
                 pt.easting += (Math.Sin(pt.heading) * i);
                 pt.northing += (Math.Cos(pt.heading) * i);
-                mf.curve.desList.Add(pt);
+                mf.gyd.desList.Add(pt);
             }
 
             //and the beginning
-            vec3 start = new vec3(mf.curve.desList[0]);
+            vec3 start = new vec3(mf.gyd.desList[0]);
             for (int i = 1; i < 200; i++)
             {
                 vec3 pt = new vec3(start);
                 pt.easting -= (Math.Sin(pt.heading) * i);
                 pt.northing -= (Math.Cos(pt.heading) * i);
-                mf.curve.desList.Insert(0, pt);
+                mf.gyd.desList.Insert(0, pt);
             }
         }
 
         public void CalculateTurnHeadings()
         {
             //to calc heading based on next and previous points to give an average heading.
-            int cnt = mf.curve.desList.Count;
+            int cnt = mf.gyd.desList.Count;
             if (cnt > 0)
             {
                 vec3[] arr = new vec3[cnt];
                 cnt--;
-                mf.curve.desList.CopyTo(arr);
-                mf.curve.desList.Clear();
+                mf.gyd.desList.CopyTo(arr);
+                mf.gyd.desList.Clear();
 
                 //middle points
                 for (int i = 1; i < cnt; i++)
@@ -424,7 +418,7 @@ namespace AgOpenGPS
                     vec3 pt3 = arr[i];
                     pt3.heading = Math.Atan2(arr[i + 1].easting - arr[i - 1].easting, arr[i + 1].northing - arr[i - 1].northing);
                     if (pt3.heading < 0) pt3.heading += glm.twoPI;
-                    mf.curve.desList.Add(pt3);
+                    mf.gyd.desList.Add(pt3);
                 }
             }
         }
@@ -443,15 +437,14 @@ namespace AgOpenGPS
                     panelAPlus.Visible = false;
                     panelName.Visible = true;
 
-                    textBox1.Text = mf.gyd.refList[idx].Name + " Copy";
-                    mf.curve.desName = textBox1.Text;
+                    textBox1.Text = mf.gyd.refList[idx].Name.Trim() + " Copy";
 
-                    mf.curve.desList.Clear();
+                    mf.gyd.desList.Clear();
 
                     for (int i = 0; i < mf.gyd.refList[idx].curvePts.Count; i++)
                     {
                         vec3 pt = new vec3(mf.gyd.refList[idx].curvePts[i]);
-                        mf.curve.desList.Add(pt);
+                        mf.gyd.desList.Add(pt);
                     }
                 }
             }
@@ -464,7 +457,7 @@ namespace AgOpenGPS
                 int idx = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
                 if (idx > 0)
                 {
-                    textBox2.Text = mf.gyd.refList[idx].Name;
+                    textBox2.Text = mf.gyd.refList[idx].Name.Trim();
 
                     panelPick.Visible = false;
                     panelEditName.Visible = true;
@@ -485,7 +478,10 @@ namespace AgOpenGPS
             int idx = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
             if (idx > 0)
             {
-                mf.gyd.refList[idx].Name = textBox2.Text.Trim();
+                string text = textBox2.Text.Trim();
+                while (mf.gyd.refList.Exists(x => x != mf.gyd.refList[idx] && x.Name == text))//generate unique name!
+                    text += " ";
+                mf.gyd.refList[idx].Name = text;
 
                 textBox2.Enter -= textBox2_Enter;
                 panelEditName.Visible = false;
@@ -494,7 +490,7 @@ namespace AgOpenGPS
                 panelPick.Visible = true;
 
                 mf.FileSaveCurveLines();
-                mf.curve.desList.Clear();
+                mf.gyd.desList.Clear();
 
                 this.Size = new System.Drawing.Size(470, 360);
             }

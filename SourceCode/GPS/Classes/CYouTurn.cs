@@ -68,20 +68,19 @@ namespace AgOpenGPS
         //Finds the point where an AB Curve crosses the turn line
         public bool FindCurveTurnPoints()
         {
-
             crossingCurvePoint.easting = -20000;
             //find closet AB Curve point that will cross and go out of bounds
             int Count = mf.gyd.isHeadingSameWay ? 1 : -1;
             int turnNum = 99;
 
-            for (int j = mf.gyd.currentLocationIndex; j > 0 && j < mf.curve.curList.Count; j += Count)
+            for (int j = mf.gyd.currentLocationIndex; j > 0 && j < mf.gyd.curList.Count; j += Count)
             {
-                int idx = mf.bnd.IsPointInsideTurnArea(mf.curve.curList[j]);
+                int idx = mf.bnd.IsPointInsideTurnArea(mf.gyd.curList[j]);
                 if (idx != 0)
                 {
-                    crossingCurvePoint.easting = mf.curve.curList[j - Count].easting;
-                    crossingCurvePoint.northing = mf.curve.curList[j - Count].northing;
-                    crossingCurvePoint.heading = mf.curve.curList[j - Count].heading;
+                    crossingCurvePoint.easting = mf.gyd.curList[j - Count].easting;
+                    crossingCurvePoint.northing = mf.gyd.curList[j - Count].northing;
+                    crossingCurvePoint.heading = mf.gyd.curList[j - Count].heading;
                     crossingCurvePoint.index = j - Count;
                     turnNum = idx;
                     break;
@@ -281,10 +280,10 @@ namespace AgOpenGPS
 
         public bool BuildABLineDubinsYouTurn(bool isTurnRight)
         {
-            if (mf.ABLine.selectedABIndex > -1 && mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts.Count > 1)
+            if (mf.gyd.selectedABLine?.curvePts.Count > 1)
             {
-                double head = Math.Atan2(mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[1].easting - mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[0].easting,
-                    mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[1].northing - mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[0].northing);
+                double head = Math.Atan2(mf.gyd.selectedABLine.curvePts[1].easting - mf.gyd.selectedABLine.curvePts[0].easting,
+                    mf.gyd.selectedABLine.curvePts[1].northing - mf.gyd.selectedABLine.curvePts[0].northing);
                 
                 if (!mf.gyd.isHeadingSameWay) head += Math.PI;
 
@@ -757,9 +756,9 @@ namespace AgOpenGPS
                         //    if (crossingCurvePoint.index >= curListCount)
                         //        crossingCurvePoint.index = curListCount - 1;
                         //}
-                        //crossingCurvePoint.easting = mf.curve.curList[crossingCurvePoint.index].easting;
-                        //crossingCurvePoint.northing = mf.curve.curList[crossingCurvePoint.index].northing;
-                        //crossingCurvePoint.heading = mf.curve.curList[crossingCurvePoint.index].heading;
+                        //crossingCurvePoint.easting = mf.gyd.curList[crossingCurvePoint.index].easting;
+                        //crossingCurvePoint.northing = mf.gyd.curList[crossingCurvePoint.index].northing;
+                        //crossingCurvePoint.heading = mf.gyd.curList[crossingCurvePoint.index].heading;
                         return true;
                     }
 
@@ -772,12 +771,12 @@ namespace AgOpenGPS
                     else
                     {
                         crossingCurvePoint.index++;
-                        if (crossingCurvePoint.index >= mf.curve.curList.Count)
-                            crossingCurvePoint.index = mf.curve.curList.Count - 1;
+                        if (crossingCurvePoint.index >= mf.gyd.curList.Count)
+                            crossingCurvePoint.index = mf.gyd.curList.Count - 1;
                     }
-                    crossingCurvePoint.easting = mf.curve.curList[crossingCurvePoint.index].easting;
-                    crossingCurvePoint.northing = mf.curve.curList[crossingCurvePoint.index].northing;
-                    crossingCurvePoint.heading = mf.curve.curList[crossingCurvePoint.index].heading;
+                    crossingCurvePoint.easting = mf.gyd.curList[crossingCurvePoint.index].easting;
+                    crossingCurvePoint.northing = mf.gyd.curList[crossingCurvePoint.index].northing;
+                    crossingCurvePoint.heading = mf.gyd.curList[crossingCurvePoint.index].heading;
 
                     double tooClose = glm.Distance(ytList[0], pivotPos);
                     isTurnCreationTooClose = tooClose < 3;
@@ -901,14 +900,7 @@ namespace AgOpenGPS
 
         public void BuildManualYouLateral(bool isTurnRight)
         {
-            double head;
-            //point on AB line closest to pivot axle point from ABLine PurePursuit
-            if (mf.ABLine.isBtnABLineOn && mf.ABLine.selectedABIndex > -1 && mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts.Count > 1)
-                head = Math.Atan2(mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[1].easting - mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[0].easting,
-                    mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[1].northing - mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[0].northing);
-            else if (mf.curve.isBtnCurveOn && mf.curve.curList.Count > 1)
-                head = mf.gyd.manualUturnHeading;
-            else return;
+            double head = mf.gyd.manualUturnHeading;
 
             rEastYT = mf.gyd.rEastPivot;
             rNorthYT = mf.gyd.rNorthPivot;
@@ -943,14 +935,7 @@ namespace AgOpenGPS
         {
             isYouTurnTriggered = true;
 
-            double head;
-            //point on AB line closest to pivot axle point from ABLine PurePursuit
-            if (mf.ABLine.isBtnABLineOn && mf.ABLine.selectedABIndex > -1 && mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts.Count > 1)
-                head = Math.Atan2(mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[1].easting - mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[0].easting,
-                    mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[1].northing - mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[0].northing);
-            else if (mf.curve.isBtnCurveOn && mf.curve.curList.Count > 1)
-                head = mf.gyd.manualUturnHeading;
-            else return;
+            double head = mf.gyd.manualUturnHeading;
 
             rEastYT = mf.gyd.rEastPivot;
             rNorthYT = mf.gyd.rNorthPivot;
@@ -1285,7 +1270,7 @@ namespace AgOpenGPS
 
             int ptCount = ytList.Count;
             if (ptCount < 3) return;
-            GL.PointSize(mf.ABLine.lineWidth);
+            GL.PointSize(mf.gyd.lineWidth);
 
             if (isYouTurnTriggered)
                 GL.Color3(0.95f, 0.5f, 0.95f);

@@ -155,6 +155,7 @@
       <DependentUpon>CBoundaryList.cs</DependentUpon>
     </Compile>
     <Compile Include="Classes\CTool.cs" />
+    <Compile Include="Classes\ZStaticClass.cs" />
     <Compile Include="Forms\FormFieldKML.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -106,9 +106,9 @@ namespace AgOpenGPS
         /*
         private void MakeDubinsLineFromPivotToFlag()
         {
-            //if (mf.ABLine.isBtnABLineOn)
+            //if (mf.gyd.isBtnABLineOn)
             //{
-            //    mf.ABLine.isBtnABLineOn = false;
+            //    mf.gyd.isBtnABLineOn = false;
             //    mf.btnABLine.Image = Properties.Resources.ABLineOff;
             //}
 

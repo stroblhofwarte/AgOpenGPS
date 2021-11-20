@@ -290,12 +290,12 @@ namespace AgOpenGPS
                     GL.Color3(1, 1, 1);
 
                     //draw contour line if button on 
-                    if (ct.isContourBtnOn)
-                        ct.DrawContourLine();
-                    else if (ABLine.isBtnABLineOn)
-                        ABLine.DrawABLines();
-                    else if (curve.isBtnCurveOn)
-                        curve.DrawCurve();
+                    if (gyd.isContourBtnOn)
+                        gyd.DrawContourLine();
+                    else if (gyd.isBtnABLineOn)
+                        gyd.DrawABLines();
+                    else if (gyd.isBtnCurveOn)
+                        gyd.DrawCurve();
 
                     recPath.DrawRecordedLine();
                     recPath.DrawDubins();
@@ -305,10 +305,10 @@ namespace AgOpenGPS
                         //draw Boundaries
                         bnd.DrawFenceLines();
 
-                        GL.LineWidth(ABLine.lineWidth);
+                        GL.LineWidth(gyd.lineWidth);
 
                         //draw the turnLines
-                        if (yt.isYouTurnBtnOn && !ct.isContourBtnOn)
+                        if (yt.isYouTurnBtnOn && !gyd.isContourBtnOn)
                         {
                             GL.Color3(0.3555f, 0.6232f, 0.20f);
                             for (int i = 0; i < bnd.bndList.Count; i++)
@@ -345,7 +345,7 @@ namespace AgOpenGPS
                     {
                         if (flagNumberPicked > 0)
                         {
-                            GL.LineWidth(ABLine.lineWidth);
+                            GL.LineWidth(gyd.lineWidth);
                             GL.Enable(EnableCap.LineStipple);
                             GL.LineStipple(1, 0x0707);
                             GL.Begin(PrimitiveType.Lines);
@@ -400,7 +400,7 @@ namespace AgOpenGPS
 
                     if (bnd.bndList.Count > 0 && yt.isYouTurnBtnOn) DrawUTurnBtn();
 
-                    if (isAutoSteerBtnOn && !ct.isContourBtnOn) DrawManUTurnBtn();
+                    if (isAutoSteerBtnOn && !gyd.isContourBtnOn) DrawManUTurnBtn();
 
                     //if (isCompassOn) DrawCompass();
                     DrawCompassText();
@@ -446,7 +446,7 @@ namespace AgOpenGPS
                     //draw the section control window off screen buffer
                     if (isJobStarted)
                     {
-                        if (isFastSections)
+                        if (mode == 1 || isFastSections)
                         {
                             oglBack.Refresh();
                             SendPgnToLoop(p_239.pgn);
@@ -562,7 +562,7 @@ namespace AgOpenGPS
                 //draw 245 green for the tram tracks
                 if (isTramOnBackBuffer)
                 {
-                    if (tram.displayMode != 0 && (curve.isBtnCurveOn || ABLine.isBtnABLineOn))
+                    if (tram.displayMode != 0 && (gyd.isBtnCurveOn || gyd.isBtnABLineOn))
                     {
                         GL.Color3((byte)0, (byte)245, (byte)0);
                         GL.LineWidth(8);
@@ -978,76 +978,78 @@ namespace AgOpenGPS
                        (((pos3 > 12) && (pos3 < 20)) || ((pos3 >= 0) && (pos3 < 8)))) tram.controlByte += 2;
                     if (int4 > 0 && (((pos4 > 12) && (pos4 < 20)) || ((pos4 >= 0) && (pos4 < 8)))) tram.controlByte += 1;
                 }
-
-                total = grnPixelsLength;
-                outside = 0;
-                ininner = 0;
-                infield = 0;
-                inhead0 = 0;
-                inhead1 = 0;
-                tramcnt = 0;
-                section0x = 0;
-                section1x = 0;
-                section2x = 0;
-                section3x = 0;
-                section4x = 0;
-                section5x = 0;
-                section6x = 0;
-                section7x = 0;
-                section8x = 0;
-                section9x = 0;
-                section10x = 0;
-                section11x = 0;
-                unknown = 0;
-
-                for (int a = 0; a < grnPixelsLength; a++)
+                if (DrawBackBuffer)
                 {
-                    int dfdf = grnPixels[a];
-                    int tt4 = grnPixels[a] % 5;
-                    if (grnPixels[a] < 13 || grnPixels[a] > 252)
-                    {
-                        unknown++;
-                    }
-                    else
-                    {
-                        if ((grnPixels[a] % 20 >= 0 && grnPixels[a] % 20 < 8) || (grnPixels[a] % 20 > 12 && grnPixels[a] % 20 < 20))
-                            tramcnt++;
+                    total = grnPixelsLength;
+                    outside = 0;
+                    ininner = 0;
+                    infield = 0;
+                    inhead0 = 0;
+                    inhead1 = 0;
+                    tramcnt = 0;
+                    section0x = 0;
+                    section1x = 0;
+                    section2x = 0;
+                    section3x = 0;
+                    section4x = 0;
+                    section5x = 0;
+                    section6x = 0;
+                    section7x = 0;
+                    section8x = 0;
+                    section9x = 0;
+                    section10x = 0;
+                    section11x = 0;
+                    unknown = 0;
 
-                        if (tt4 == 0)
-                            infield++;
-                        else if (tt4 == 1)
-                            ininner++;
-                        else if (tt4 == 2)
-                            outside++;
-                        else if (tt4 == 3)
-                            inhead1++;
-                        else if (tt4 == 4)
-                            inhead0++;
+                    for (int a = 0; a < grnPixelsLength; a++)
+                    {
+                        int dfdf = grnPixels[a];
+                        int tt4 = grnPixels[a] % 5;
+                        if (grnPixels[a] < 13 || grnPixels[a] > 252)
+                        {
+                            unknown++;
+                        }
+                        else
+                        {
+                            if ((grnPixels[a] % 20 >= 0 && grnPixels[a] % 20 < 8) || (grnPixels[a] % 20 > 12 && grnPixels[a] % 20 < 20))
+                                tramcnt++;
 
-                        if (grnPixels[a] > 232)
-                            section0x++;
-                        else if (grnPixels[a] > 212)
-                            section1x++;
-                        else if (grnPixels[a] > 192)
-                            section2x++;
-                        else if (grnPixels[a] > 172)
-                            section3x++;
-                        else if (grnPixels[a] > 152)
-                            section4x++;
-                        else if (grnPixels[a] > 132)
-                            section5x++;
-                        else if (grnPixels[a] > 112)
-                            section6x++;
-                        else if (grnPixels[a] > 92)
-                            section7x++;
-                        else if (grnPixels[a] > 72)
-                            section8x++;
-                        else if (grnPixels[a] > 52)
-                            section9x++;
-                        else if (grnPixels[a] > 32)
-                            section10x++;
-                        else if (grnPixels[a] > 12)
-                            section11x++;
+                            if (tt4 == 0)
+                                infield++;
+                            else if (tt4 == 1)
+                                ininner++;
+                            else if (tt4 == 2)
+                                outside++;
+                            else if (tt4 == 3)
+                                inhead1++;
+                            else if (tt4 == 4)
+                                inhead0++;
+
+                            if (grnPixels[a] > 232)
+                                section0x++;
+                            else if (grnPixels[a] > 212)
+                                section1x++;
+                            else if (grnPixels[a] > 192)
+                                section2x++;
+                            else if (grnPixels[a] > 172)
+                                section3x++;
+                            else if (grnPixels[a] > 152)
+                                section4x++;
+                            else if (grnPixels[a] > 132)
+                                section5x++;
+                            else if (grnPixels[a] > 112)
+                                section6x++;
+                            else if (grnPixels[a] > 92)
+                                section7x++;
+                            else if (grnPixels[a] > 72)
+                                section8x++;
+                            else if (grnPixels[a] > 52)
+                                section9x++;
+                            else if (grnPixels[a] > 32)
+                                section10x++;
+                            else if (grnPixels[a] > 12)
+                                section11x++;
+                        }
                     }
                 }
 
@@ -1206,7 +1208,7 @@ namespace AgOpenGPS
             //this is the end of the "frame". Now we wait for next NMEA sentence with a valid fix. 
         }
 
-        bool DrawBackBuffer = true;
+        bool DrawBackBuffer = false;
 
         private void oglZoom_Load(object sender, EventArgs e)
         {
@@ -1392,44 +1394,44 @@ namespace AgOpenGPS
                     }
 
                     //draw the ABLine
-                    if (ABLine.isBtnABLineOn)
+                    if (gyd.isBtnABLineOn)
                     {
                         //Draw reference AB line
                         GL.LineWidth(1);
 
-                        if (ABLine.selectedABIndex > -1 && gyd.refList[ABLine.selectedABIndex].curvePts.Count > 1)
+                        if (gyd.selectedABLine?.curvePts.Count > 1)
                         {
                             GL.Enable(EnableCap.LineStipple);
                             GL.LineStipple(1, 0x00F0);
                             GL.Begin(PrimitiveType.Lines);
                             GL.Color3(0.9f, 0.2f, 0.2f);
-                            GL.Vertex3(gyd.refList[ABLine.selectedABIndex].curvePts[0].easting, gyd.refList[ABLine.selectedABIndex].curvePts[0].northing, 0);
-                            GL.Vertex3(gyd.refList[ABLine.selectedABIndex].curvePts[1].easting, gyd.refList[ABLine.selectedABIndex].curvePts[1].northing, 0);
+                            GL.Vertex3(gyd.selectedABLine.curvePts[0].easting, gyd.selectedABLine.curvePts[0].northing, 0);
+                            GL.Vertex3(gyd.selectedABLine.curvePts[1].easting, gyd.selectedABLine.curvePts[1].northing, 0);
                             GL.End();
                             GL.Disable(EnableCap.LineStipple);
                         }
 
-                        if (ABLine.curList.Count > 1)
+                        if (gyd.curList.Count > 1)
                         {
                             //raw current AB Line
                             GL.Begin(PrimitiveType.Lines);
                             GL.Color3(0.9f, 0.20f, 0.90f);
-                            GL.Vertex3(ABLine.curList[0].easting, ABLine.curList[0].northing, 0.0);
-                            GL.Vertex3(ABLine.curList[1].easting, ABLine.curList[1].northing, 0.0);
+                            GL.Vertex3(gyd.curList[0].easting, gyd.curList[0].northing, 0.0);
+                            GL.Vertex3(gyd.curList[1].easting, gyd.curList[1].northing, 0.0);
                             GL.End();
                         }
                     }
 
                     //draw curve if there is one
-                    if (curve.isBtnCurveOn)
+                    if (gyd.isBtnCurveOn)
                     {
-                        int ptC = curve.curList.Count;
+                        int ptC = gyd.curList.Count;
                         if (ptC > 1)
                         {
                             GL.LineWidth(2);
                             GL.Color3(0.925f, 0.2f, 0.90f);
                             GL.Begin(PrimitiveType.LineStrip);
-                            for (int h = 0; h < ptC; h++) GL.Vertex3(curve.curList[h].easting, curve.curList[h].northing, 0);
+                            for (int h = 0; h < ptC; h++) GL.Vertex3(gyd.curList[h].easting, gyd.curList[h].northing, 0);
                             GL.End();
                         }
                     }
@@ -1818,10 +1820,9 @@ namespace AgOpenGPS
         private double avgPivDistance, lightbarDistance;
         private void DrawLightBarText()
         {
-
             GL.Disable(EnableCap.DepthTest);
 
-            if (ct.isContourBtnOn || ABLine.isBtnABLineOn || curve.isBtnCurveOn)
+            if (gyd.isContourBtnOn || gyd.isBtnABLineOn || gyd.isBtnCurveOn)
             {
 
                 //if (guidanceLineDistanceOff != 32000 && guidanceLineDistanceOff != 32020)
@@ -2050,8 +2051,7 @@ namespace AgOpenGPS
                 font.DrawText(center, 100, "I:" + Math.Round(ahrs.imuHeading, 1).ToString(), 1);
             }
 
-
-            if (mode == 1)
+            if (DrawBackBuffer && mode == 1)
             {
                 font.DrawText(center, 120, "Unknown:" + ((unknown * 100.0) / total).ToString("0.00"));
                 font.DrawText(center, 140, "outside:" + ((outside * 100.0) / total).ToString("0.00"));
@@ -2073,7 +2073,7 @@ namespace AgOpenGPS
                 font.DrawText(center, 480, "section 10x:" + ((section10x * 100.0) / total).ToString("0.00"));
                 font.DrawText(center, 500, "section 11x:" + ((section11x * 100.0) / total).ToString("0.00"));
             }
-
+            
             if (isAngVelGuidance)
             {
                 GL.Color3(0.852f, 0.652f, 0.93f);
@@ -2094,13 +2094,10 @@ namespace AgOpenGPS
             GL.Color3(0.9752f, 0.62f, 0.325f);
             if (timerSim.Enabled) font.DrawText(-110, oglMain.Height - 130, "Simulator On", 1);
 
-            if (ct.isContourBtnOn)
+            if (gyd.isContourBtnOn && isFlashOnOff && gyd.isLocked)
             {
-                if (isFlashOnOff && ct.isLocked)
-                {
-                    GL.Color3(0.9652f, 0.752f, 0.75f);
-                    font.DrawText(-center - 100, oglMain.Height / 2.3, "Locked", 1);
-                }
+                GL.Color3(0.9652f, 0.752f, 0.75f);
+                font.DrawText(-center - 100, oglMain.Height / 2.3, "Locked", 1);
             }
 
             //GL.Color3(0.9752f, 0.52f, 0.23f);

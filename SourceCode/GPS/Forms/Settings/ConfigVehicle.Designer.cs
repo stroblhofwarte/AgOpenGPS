@@ -520,7 +520,7 @@ namespace AgOpenGPS
             if (mf.KeypadToNUD((NumericUpDown)sender, this))
             {
                 Properties.Settings.Default.setDisplay_lineWidth = (int)nudLineWidth.Value;
-                mf.ABLine.lineWidth = Properties.Settings.Default.setDisplay_lineWidth;
+                mf.gyd.lineWidth = Properties.Settings.Default.setDisplay_lineWidth;
             }
         }
 
@@ -547,7 +547,7 @@ namespace AgOpenGPS
             if (mf.KeypadToNUD((NumericUpDown)sender, this))
             {
                 Properties.Settings.Default.setAB_lineLength = ((double)nudABLength.Value * mf.ftOrMtoM);
-                mf.ABLine.abLength = Properties.Settings.Default.setAB_lineLength;
+                mf.gyd.abLength = Properties.Settings.Default.setAB_lineLength;
             }
         }
 

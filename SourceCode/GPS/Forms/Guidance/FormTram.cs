@@ -76,27 +76,27 @@ namespace AgOpenGPS
         private void btnLeft_Click(object sender, EventArgs e)
         {
             double dist = -0.1;
-            mf.ABLine.MoveABLine(dist);
-            mf.ABLine.BuildTram();
+            mf.gyd.MoveABLine(dist);
+            mf.gyd.BuildTram();
         }
 
         private void btnRight_Click(object sender, EventArgs e)
         {
             double dist = 0.1;
-            mf.ABLine.MoveABLine(dist);
-            mf.ABLine.BuildTram();
+            mf.gyd.MoveABLine(dist);
+            mf.gyd.BuildTram();
         }
 
         private void btnAdjLeft_Click(object sender, EventArgs e)
         {
-            mf.ABLine.MoveABLine(-mf.tool.halfToolWidth);
-            mf.ABLine.BuildTram();
+            mf.gyd.MoveABLine(-mf.tool.halfToolWidth);
+            mf.gyd.BuildTram();
         }
 
         private void btnAdjRight_Click(object sender, EventArgs e)
         {
-            mf.ABLine.BuildTram();
-            mf.ABLine.MoveABLine(mf.tool.halfToolWidth);
+            mf.gyd.MoveABLine(mf.tool.halfToolWidth);
+            mf.gyd.BuildTram();
         }
 
         //determine mins maxs of patches and whole field.
@@ -111,35 +111,35 @@ namespace AgOpenGPS
             mf.tram.passes = (int)nudPasses.Value;
             Properties.Settings.Default.setTram_passes = mf.tram.passes;
             Properties.Settings.Default.Save();
-            mf.ABLine.BuildTram();
+            mf.gyd.BuildTram();
         }
 
         private void nudPasses_Enter(object sender, EventArgs e)
         {
             mf.KeypadToNUD((NumericUpDown)sender, this);
             btnCancel.Focus();
-            mf.ABLine.BuildTram();
+            mf.gyd.BuildTram();
         }
 
         private void btnSwapAB_Click(object sender, EventArgs e)
         {
-            if (mf.ABLine.selectedABIndex > -1 && mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts.Count > 1)
-                mf.ABLine.SetABLineByHeading(Math.Atan2(mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[0].easting - mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[1].easting,
-                    mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[0].northing - mf.gyd.refList[mf.ABLine.selectedABIndex].curvePts[1].northing));
+            if (mf.gyd.selectedABLine?.curvePts.Count > 1)
+                mf.gyd.SetABLineByHeading(Math.Atan2(mf.gyd.selectedABLine.curvePts[0].easting - mf.gyd.selectedABLine.curvePts[1].easting,
+                    mf.gyd.selectedABLine.curvePts[0].northing - mf.gyd.selectedABLine.curvePts[1].northing));
 
-            mf.ABLine.BuildTram();
+            mf.gyd.BuildTram();
         }
 
         private void btnTriggerDistanceUp_MouseDown(object sender, MouseEventArgs e)
         {
             nudPasses.UpButton();
-            mf.ABLine.BuildTram();
+            mf.gyd.BuildTram();
         }
 
         private void btnTriggerDistanceDn_MouseDown(object sender, MouseEventArgs e)
         {
             nudPasses.DownButton();
-            mf.ABLine.BuildTram();
+            mf.gyd.BuildTram();
         }
 
         private void btnCancel_Click(object sender, EventArgs e)

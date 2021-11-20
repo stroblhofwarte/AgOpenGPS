@@ -156,13 +156,13 @@ namespace AgOpenGPS
                 {
                     lblCurrentField.Text = "Field: " + displayFieldName;
 
-                    if (curve.selectedCurveIndex > -1 && curve.isBtnCurveOn)
+                    if (gyd.selectedCurveLine != null && gyd.isBtnCurveOn)
                     {
-                        lblCurveLineName.Text = "Cur-" + gyd.refList[curve.selectedCurveIndex].Name;
+                        lblCurveLineName.Text = "Cur-" + gyd.selectedCurveLine.Name.Trim();
                     }
-                    else if (ABLine.selectedABIndex > -1 && ABLine.isBtnABLineOn)
+                    else if (gyd.selectedABLine != null && gyd.isBtnABLineOn)
                     {
-                        lblCurveLineName.Text = "AB-" + gyd.refList[ABLine.selectedABIndex].Name;
+                        lblCurveLineName.Text = "AB-" + gyd.selectedABLine.Name.Trim();
                     }
                     else lblCurveLineName.Text = string.Empty;
                 }
@@ -173,7 +173,7 @@ namespace AgOpenGPS
 
                 if (isJobStarted)
                 {
-                    if (ABLine.isBtnABLineOn || curve.isBtnCurveOn)
+                    if (gyd.isBtnABLineOn || gyd.isBtnCurveOn)
                     {
                         if (!btnEditAB.Visible)
                         {
@@ -214,10 +214,10 @@ namespace AgOpenGPS
                 minuteCounter++;
                 tenMinuteCounter++;
 
-                if (curve.isBtnCurveOn || ABLine.isBtnABLineOn || ct.isContourBtnOn)
+                if (gyd.isBtnCurveOn || gyd.isBtnABLineOn || gyd.isContourBtnOn)
                     lblInty.Text = gyd.inty.ToString("N3");
 
-                if ((ABLine.isBtnABLineOn || curve.isBtnCurveOn) && !ct.isContourBtnOn)
+                if ((gyd.isBtnABLineOn || gyd.isBtnCurveOn) && !gyd.isContourBtnOn)
                     btnEditAB.Text = ((int)(gyd.moveDistance * 100)).ToString();
 
                 //the main formgps window
@@ -249,7 +249,7 @@ namespace AgOpenGPS
 
                 isFlashOnOff = !isFlashOnOff;
 
-                if ((!ABLine.isBtnABLineOn && !ct.isContourBtnOn && !curve.isBtnCurveOn && isAutoSteerBtnOn))
+                if ((!gyd.isBtnABLineOn && !gyd.isContourBtnOn && !gyd.isBtnCurveOn && isAutoSteerBtnOn))
                     btnAutoSteer.PerformClick();
 
                 //the main formgps window
@@ -908,7 +908,7 @@ namespace AgOpenGPS
                 //0 at bottom for opengl, 0 at top for windows, so invert Y value
                 Point point = oglMain.PointToClient(Cursor.Position);
 
-                if (point.Y < 90 && point.Y > 30 && (ABLine.isBtnABLineOn || curve.isBtnCurveOn))
+                if (point.Y < 90 && point.Y > 30 && (gyd.isBtnABLineOn || gyd.isBtnCurveOn))
                 {
                     int middle = oglMain.Width / 2 + oglMain.Width / 5;
                     if (point.X > middle - 80 && point.X < middle + 80)
@@ -947,7 +947,7 @@ namespace AgOpenGPS
                     }
                 }
 
-                if (point.Y < 150 && point.Y > 90 && (ABLine.isBtnABLineOn || curve.isBtnCurveOn))
+                if (point.Y < 150 && point.Y > 90 && (gyd.isBtnABLineOn || gyd.isBtnCurveOn))
                 {
                     int middle = oglMain.Width / 2 - oglMain.Width / 4;
                     if (point.X > middle - 140 && point.X < middle && isLateralOn)

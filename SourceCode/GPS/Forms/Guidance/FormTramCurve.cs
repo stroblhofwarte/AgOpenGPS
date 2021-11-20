@@ -79,28 +79,26 @@ namespace AgOpenGPS
 
         private void btnLeft_Click(object sender, EventArgs e)
         {
-            double dist = -0.1;
-            mf.curve.MoveABCurve(dist);
-            mf.curve.BuildTram();
+            mf.gyd.MoveABCurve(-0.1);
+            mf.gyd.BuildTram2();
         }
 
         private void btnRight_Click(object sender, EventArgs e)
         {
-            double dist = 0.1;
-            mf.curve.MoveABCurve(dist);
-            mf.curve.BuildTram();
+            mf.gyd.MoveABCurve(0.1);
+            mf.gyd.BuildTram2();
         }
 
         private void btnAdjLeft_Click(object sender, EventArgs e)
         {
-            mf.curve.MoveABCurve(-mf.tool.halfToolWidth);
-            mf.curve.BuildTram();
+            mf.gyd.MoveABCurve(-mf.tool.halfToolWidth);
+            mf.gyd.BuildTram2();
         }
 
         private void btnAdjRight_Click(object sender, EventArgs e)
         {
-            mf.curve.MoveABCurve(mf.tool.halfToolWidth);
-            mf.curve.BuildTram();
+            mf.gyd.MoveABCurve(mf.tool.halfToolWidth);
+            mf.gyd.BuildTram2();
         }
 
         private void nudPasses_ValueChanged(object sender, EventArgs e)
@@ -108,7 +106,7 @@ namespace AgOpenGPS
             mf.tram.passes = (int)nudPasses.Value;
             Properties.Settings.Default.setTram_passes = mf.tram.passes;
             Properties.Settings.Default.Save();
-            mf.curve.BuildTram();
+            mf.gyd.BuildTram2();
         }
 
         private void nudPasses_Enter(object sender, EventArgs e)
@@ -119,15 +117,15 @@ namespace AgOpenGPS
 
         private void btnSwapAB_Click(object sender, EventArgs e)
         {
-            if (mf.curve.selectedCurveIndex > -1)
+            if (mf.gyd.selectedCurveLine != null)
             {
-                int cnt = mf.gyd.refList[mf.curve.selectedCurveIndex].curvePts.Count;
-                mf.gyd.refList[mf.curve.selectedCurveIndex].curvePts.Reverse();
+                int cnt = mf.gyd.selectedCurveLine.curvePts.Count;
+                mf.gyd.selectedCurveLine.curvePts.Reverse();
 
                 vec3[] arr = new vec3[cnt];
                 cnt--;
-                mf.gyd.refList[mf.curve.selectedCurveIndex].curvePts.CopyTo(arr);
-                mf.gyd.refList[mf.curve.selectedCurveIndex].curvePts.Clear();
+                mf.gyd.selectedCurveLine.curvePts.CopyTo(arr);
+                mf.gyd.selectedCurveLine.curvePts.Clear();
 
                 for (int i = 1; i < cnt; i++)
                 {
@@ -135,10 +133,10 @@ namespace AgOpenGPS
                     pt3.heading += Math.PI;
                     if (pt3.heading > glm.twoPI) pt3.heading -= glm.twoPI;
                     if (pt3.heading < 0) pt3.heading += glm.twoPI;
-                    mf.gyd.refList[mf.curve.selectedCurveIndex].curvePts.Add(pt3);
+                    mf.gyd.selectedCurveLine.curvePts.Add(pt3);
                 }
             }
-            mf.curve.BuildTram();
+            mf.gyd.BuildTram2();
         }
 
         private void btnTriggerDistanceUp_MouseDown(object sender, MouseEventArgs e)

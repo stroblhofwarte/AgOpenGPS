@@ -454,7 +454,7 @@ namespace AgOpenGPS
             //    GL.End();
             //}
 
-            if ((mf.ABLine.isBtnABLineOn || mf.curve.isBtnCurveOn) && !mf.ct.isContourBtnOn)
+            if ((mf.gyd.isBtnABLineOn || mf.gyd.isBtnCurveOn) && !mf.gyd.isContourBtnOn)
             {
                 GL.Color4(1.269, 1.25, 1.2510, 0.87);
 

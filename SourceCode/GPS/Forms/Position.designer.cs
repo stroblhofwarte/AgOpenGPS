@@ -569,8 +569,8 @@ namespace AgOpenGPS
             //preset the values
             guidanceLineDistanceOff = 32000;
 
-            if (ct.isContourBtnOn || ABLine.isBtnABLineOn || curve.isBtnCurveOn)
-                gyd.GetCurrentLine(pivotAxlePos, steerAxlePos, ct.isContourBtnOn ? Mode.Contour : (ABLine.isBtnABLineOn ? Mode.AB : Mode.Curve));
+            if (gyd.isContourBtnOn || gyd.isBtnABLineOn || gyd.isBtnCurveOn)
+                gyd.GetCurrentLine(pivotAxlePos, steerAxlePos);
 
             // autosteer at full speed of updates
 
@@ -715,7 +715,7 @@ namespace AgOpenGPS
                             {
                                 if (crossTrackError > 500)
                                     yt.ResetCreatedYouTurn();
-                                else if (ABLine.isBtnABLineOn)
+                                else if (gyd.isBtnABLineOn)
                                     yt.BuildABLineDubinsYouTurn(yt.isYouTurnRight);
                                 else
                                     yt.BuildCurveDubinsYouTurn(yt.isYouTurnRight, pivotAxlePos);
@@ -943,8 +943,8 @@ namespace AgOpenGPS
             }
 
             //finally fixed distance for making a curve line
-            if (!curve.isOkToAddDesPoints) sectionTriggerStepDistance = sectionTriggerStepDistance + 0.2;
-            if (ct.isContourBtnOn) sectionTriggerStepDistance *=0.5;
+            if (!gyd.isOkToAddDesPoints) sectionTriggerStepDistance = sectionTriggerStepDistance + 0.2;
+            if (gyd.isContourBtnOn) sectionTriggerStepDistance *= 0.5;
 
             //precalc the sin and cos of heading * -1
             sinSectionHeading = Math.Sin(-toolPos.heading);
@@ -998,10 +998,8 @@ namespace AgOpenGPS
                 recPath.recList.Add(new CRecPathPt(pivotAxlePos.easting, pivotAxlePos.northing, pivotAxlePos.heading, speed, autoBtn));
             }
 
-            if (curve.isOkToAddDesPoints)
-            {
-                curve.desList.Add(new vec3(pivotAxlePos.easting, pivotAxlePos.northing, pivotAxlePos.heading));
-            }
+            if (gyd.isOkToAddDesPoints)
+                gyd.desList.Add(new vec3(pivotAxlePos.easting, pivotAxlePos.northing, pivotAxlePos.heading));
 
             //save the north & east as previous
             prevSectionPos.northing = pn.fix.northing;
@@ -1020,14 +1018,14 @@ namespace AgOpenGPS
                 }
             }
 
-            if (sectionCounter == 0 || (isAutoSteerBtnOn && !ct.isContourBtnOn && (ABLine.isBtnABLineOn || curve.isBtnCurveOn)))
+            if (sectionCounter == 0 || (isAutoSteerBtnOn && !gyd.isContourBtnOn && (gyd.isBtnABLineOn || gyd.isBtnCurveOn)))
             {
                 //no contour recorded
-                if (ct.isContourOn)
-                    ct.StopContourLine();
+                if (gyd.ContourIndex != null)
+                    gyd.StopContourLine();
             }
             else//keep the line going, everything is on for recording path
-                ct.AddPoint(pivotAxlePos);
+                gyd.AddPoint(pivotAxlePos);
         }
 
         //calculate the extreme tool left, right velocities, each section lookahead, and whether or not its going backwards

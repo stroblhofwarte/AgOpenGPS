@@ -3,15 +3,20 @@ using System.Collections.Generic;
 
 namespace AgOpenGPS
 {
-    public class CGuidance
+    public partial class CGuidance
     {
         private readonly FormGPS mf;
 
         //list of the list of individual Lines for entire field
         public List<CGuidanceLine> refList = new List<CGuidanceLine>();
+        public List<vec3> curList = new List<vec3>();
+
+        public bool isBtnABLineOn, isBtnCurveOn, isContourBtnOn;
+        public int numABLines = 0, numCurveLines;
+        public CGuidanceLine selectedABLine, selectedCurveLine, ContourIndex;
 
         public bool isHeadingSameWay = true;
-        public double howManyPathsAway;
+        public double howManyPathsAway, oldHowManyPathsAway;
         public double lastSecond = 0;
 
         //steer, pivot, and ref indexes
@@ -48,49 +53,49 @@ namespace AgOpenGPS
             //constructor
             mf = _f;
             sideHillCompFactor = Properties.Settings.Default.setAS_sideHillComp;
-
+            lineWidth = Properties.Settings.Default.setDisplay_lineWidth;
+            abLength = Properties.Settings.Default.setAB_lineLength;
         }
 
-        public void GetCurrentLine(vec3 pivot, vec3 steer, Mode ab)
+        public void GetCurrentLine(vec3 pivot, vec3 steer)
         {
             //build new current ref line if required
-            if (ab == Mode.Contour)
+            if (isContourBtnOn)
             {
-                if ((mf.ct.curList.Count < 9 && (mf.secondsSinceStart - lastSecond) > 0.66) || (mf.secondsSinceStart - lastSecond) > 2.0)
-                    mf.ct.BuildCurrentContourList(pivot);
+                if (((!isValid || curList.Count < 9) && (mf.secondsSinceStart - lastSecond) > 0.66) || (mf.secondsSinceStart - lastSecond) > 2.0)
+                    BuildCurrentContourList(pivot);
             }
             else if (!isValid || ((mf.secondsSinceStart - lastSecond) > 0.66 && (!mf.isAutoSteerBtnOn || mf.mc.steerSwitchValue != 0)))
             {
-                if (ab == Mode.AB)
-                    mf.ABLine.BuildCurrentABLineList(pivot);
+                if (isBtnABLineOn)
+                    BuildCurrentABLineList(pivot);
                 else
-                    mf.curve.BuildCurrentCurveList(pivot);
+                    BuildCurrentCurveList(pivot);
             }
 
-            List<vec3> curList = ab == Mode.Contour ? mf.ct.curList : (ab == Mode.AB ? mf.ABLine.curList : mf.curve.curList);
-
-            if (ab == Mode.Contour ? curList.Count > 8 : curList.Count > 1)
+            if (curList.Count > (isContourBtnOn ? 8 : 1))
             {
-                if (ab != Mode.Contour && mf.yt.isYouTurnTriggered && mf.yt.DistanceFromYouTurnLine())//do the pure pursuit from youTurn
+                if (!isContourBtnOn && mf.yt.isYouTurnTriggered && mf.yt.DistanceFromYouTurnLine())//do the pure pursuit from youTurn
                 {
                 
                 }
                 else if (mf.isStanleyUsed)
-                    StanleyGuidance(pivot, steer, ref curList, ab);
+                    StanleyGuidance(pivot, steer, curList);
                 else
-                    PurePursuitGuidance(pivot, steer, ref curList, ab);
+                    PurePursuitGuidance(pivot, steer, curList);
             }
             else
             {
-                mf.ct.isLocked = false;
-                
+                isLocked = false;
+                isValid = false;
+                oldHowManyPathsAway = double.NaN;
                 //invalid distance so tell AS module
                 distanceFromCurrentLinePivot = 32000;
                 mf.guidanceLineDistanceOff = 32000;
             }
         }
 
-        public void StanleyGuidance(vec3 pivot, vec3 steer, ref List<vec3> curList, Mode ab)
+        public void StanleyGuidance(vec3 pivot, vec3 steer, List<vec3> curList)
         {
             double dx, dz, U;
             //find the closest point roughly
@@ -140,7 +145,7 @@ namespace AgOpenGPS
                 //currentLocationIndex = sA;
                 if (sA > ptCount - 1 || sB > ptCount - 1) return;
 
-                if (ab != Mode.Contour)
+                if (!isContourBtnOn)
                 {
                     minDistA = minDistB = double.MaxValue;
 
@@ -256,7 +261,7 @@ namespace AgOpenGPS
                             * steerA.northing) - (steerB.northing * steerA.easting))
                                 / Math.Sqrt((dz * dz) + (dx * dx));
 
-                if (ab == Mode.Contour)
+                if (isContourBtnOn)
                     distanceFromCurrentLinePivot = distanceFromCurrentLineSteer;
 
                 // calc point on ABLine closest to current position - for display only
@@ -267,7 +272,7 @@ namespace AgOpenGPS
                 rEastSteer = steerA.easting + (U * dx);
                 rNorthSteer = steerA.northing + (U * dz);
 
-                if (ab == Mode.AB)
+                if (isBtnABLineOn)
                 {
                     double steerErr = Math.Atan2(rEastSteer - rEastPivot, rNorthSteer - rNorthPivot);
                     steerHeadingError = (steer.heading - steerErr);
@@ -286,7 +291,7 @@ namespace AgOpenGPS
                 //Overshoot setting on Stanley tab
                 steerHeadingError *= mf.vehicle.stanleyHeadingErrorGain;
 
-                if (ab == Mode.Contour)
+                if (isContourBtnOn)
                 {
                     if (steerHeadingError > 0.74) steerHeadingError = 0.74;
                     if (steerHeadingError < -0.74) steerHeadingError = -0.74;
@@ -311,7 +316,7 @@ namespace AgOpenGPS
 
                 steerAngle = glm.toDegrees((xTrackSteerCorrection + steerHeadingError) * -1.0);
 
-                if (ab != Mode.Contour)
+                if (!isContourBtnOn)
                 {
                     if (Math.Abs(distanceFromCurrentLineSteer) > 0.5) steerAngle *= 0.5;
                     else steerAngle *= (1 - Math.Abs(distanceFromCurrentLineSteer));
@@ -363,7 +368,7 @@ namespace AgOpenGPS
             }
         }
 
-        public void PurePursuitGuidance(vec3 pivot, vec3 steer, ref List<vec3> curList, Mode ab)
+        public void PurePursuitGuidance(vec3 pivot, vec3 steer, List<vec3> curList)
         {
             double dist, dx, dz;
             double minDistA = double.MaxValue, minDistB = double.MaxValue;
@@ -428,7 +433,7 @@ namespace AgOpenGPS
                     //if over the line heading wrong way, rapidly decrease integral
                     if ((inty < 0 && distanceFromCurrentLinePivot < 0) || (inty > 0 && distanceFromCurrentLinePivot > 0))
                     {
-                        if (ab == Mode.Contour)
+                        if (isContourBtnOn)
                             inty += pivotDistanceError * mf.vehicle.purePursuitIntegralGain * -0.06;
                         else
                             inty += pivotDistanceError * mf.vehicle.purePursuitIntegralGain * -0.04;
@@ -507,7 +512,7 @@ namespace AgOpenGPS
             radiusPoint.easting = pivot.easting + (ppRadius * Math.Cos(localHeading));
             radiusPoint.northing = pivot.northing + (ppRadius * Math.Sin(localHeading));
 
-            if (ab == Mode.AB)
+            if (isBtnABLineOn)
             {
                 if (mf.isAngVelGuidance)
                 {

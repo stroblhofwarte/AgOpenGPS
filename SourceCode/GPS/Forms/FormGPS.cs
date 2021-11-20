@@ -9,19 +9,14 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
-using System.Media;
 using System.Net.Sockets;
-using System.Reflection;
-using System.Resources;
 using System.Windows.Forms;
 
 namespace AgOpenGPS
 {
-
     public enum TBrand { AGOpenGPS, Case, Claas, Deutz, Fendt, JDeere, Kubota, Massey, NewHolland, Same, Steyr, Ursus, Valtra }
     public enum HBrand { AGOpenGPS, Case, Claas, JDeere, NewHolland }
     public enum WDBrand { AGOpenGPS, Case, Challenger, JDeere, NewHolland }
-
 
     //the main form object
     public partial class FormGPS : Form
@@ -149,24 +144,9 @@ namespace AgOpenGPS
         public CSection[] section;
 
         /// <summary>
-        /// AB Line object
-        /// </summary>
-        public CABLine ABLine;
-
-        /// <summary>
         /// TramLine class for boundary and settings
         /// </summary>
         public CTram tram;
-
-        /// <summary>
-        /// Contour Mode Instance
-        /// </summary>
-        public CContour ct;
-
-        /// <summary>
-        /// ABCurve instance
-        /// </summary>
-        public CABCurve curve;
 
         /// <summary>
         /// Auto Headland YouTurn
@@ -300,15 +280,6 @@ namespace AgOpenGPS
 
             //our NMEA parser
             pn = new CNMEA(this);
-
-            //create the ABLine instance
-            ABLine = new CABLine(this);
-
-            //new instance of contour mode
-            ct = new CContour(this);
-
-            //new instance of contour mode
-            curve = new CABCurve(this);
 
             ////new instance of auto headland turn
             yt = new CYouTurn(this);
@@ -1094,22 +1065,21 @@ namespace AgOpenGPS
             gyd.howManyPathsAway = 0.0;
 
             gyd.refList.Clear();
+            gyd.curList.Clear();
 
             //ABLine
             btnABLine.Enabled = false;
             btnABLine.Image = Properties.Resources.ABLineOff;
-            ABLine.isBtnABLineOn = false;
-            ABLine.curList.Clear();
-            ABLine.numABLines = 0;
-            ABLine.selectedABIndex = -1;
+            gyd.isBtnABLineOn = false;
+            gyd.numABLines = 0;
+            gyd.selectedABLine = null;
 
             //curve line
             btnCurve.Enabled = false;
             btnCurve.Image = Properties.Resources.CurveOff;
-            curve.isBtnCurveOn = false;
-            curve.curList.Clear();
-            curve.numCurveLines = 0;
-            curve.selectedCurveIndex = -1;
+            gyd.isBtnCurveOn = false;
+            gyd.numCurveLines = 0;
+            gyd.selectedCurveLine = null;
 
             //clean up tram
             tram.displayMode = 0;
@@ -1121,10 +1091,10 @@ namespace AgOpenGPS
             btnContour.Enabled = false;
             //btnContourPriority.Enabled = false;
             btnSnapToPivot.Image = Properties.Resources.SnapToPivot;
-            ct.ResetContour();
-            ct.isContourBtnOn = false;
+            gyd.ResetContour();
+            gyd.isContourBtnOn = false;
             btnContour.Image = Properties.Resources.ContourOff;
-            ct.isContourOn = false;
+            gyd.ContourIndex = null;
 
             btnMakeLinesFromBoundary.Enabled = false;
             btnCycleLines.Image = Properties.Resources.ABLineCycle;
@@ -1311,8 +1281,8 @@ namespace AgOpenGPS
         private void FileSaveEverythingBeforeClosingField()
         {
             //turn off contour line if on
-            if (ct.isContourOn)
-                ct.StopContourLine();
+            if (gyd.ContourIndex != null)
+                gyd.StopContourLine();
 
             //turn off all the sections
             for (int j = 0; j < tool.numOfSections + 1; j++)

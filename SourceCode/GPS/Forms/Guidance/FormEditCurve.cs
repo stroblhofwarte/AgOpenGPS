@@ -54,16 +54,6 @@ namespace AgOpenGPS
             snapAdj = (double)nudMinTurnRadius.Value * mf.inOrCm2Cm * 0.01;
         }
 
-        private void btnAdjRight_Click(object sender, EventArgs e)
-        {
-            mf.curve.MoveABCurve(snapAdj);
-        }
-
-        private void btnAdjLeft_Click(object sender, EventArgs e)
-        {
-            mf.curve.MoveABCurve(-snapAdj);
-        }
-
         private void bntOk_Click(object sender, EventArgs e)
         {
             //save entire list
@@ -84,46 +74,46 @@ namespace AgOpenGPS
 
         private void btnSwapAB_Click(object sender, EventArgs e)
         {
-            if (mf.curve.selectedCurveIndex > -1)
+            mf.gyd.isValid = false;
+            mf.gyd.lastSecond = 0;
+
+            if (mf.gyd.selectedCurveLine?.curvePts.Count > 1)
             {
-                mf.gyd.isValid = false;
-                mf.gyd.lastSecond = 0;
-                int cnt = mf.gyd.refList[mf.curve.selectedCurveIndex].curvePts.Count;
-                if (cnt > 0)
+                mf.gyd.selectedCurveLine.curvePts.Reverse();
+
+                for (int i = 0; i < mf.gyd.selectedCurveLine.curvePts.Count; i++)
                 {
-                    mf.gyd.refList[mf.curve.selectedCurveIndex].curvePts.Reverse();
-
-                    vec3[] arr = new vec3[cnt];
-                    cnt--;
-                    mf.gyd.refList[mf.curve.selectedCurveIndex].curvePts.CopyTo(arr);
-                    mf.gyd.refList[mf.curve.selectedCurveIndex].curvePts.Clear();
-
-                    for (int i = 1; i < cnt; i++)
-                    {
-                        vec3 pt3 = arr[i];
-                        pt3.heading += Math.PI;
-                        if (pt3.heading > glm.twoPI) pt3.heading -= glm.twoPI;
-                        if (pt3.heading < 0) pt3.heading += glm.twoPI;
-                        mf.gyd.refList[mf.curve.selectedCurveIndex].curvePts.Add(pt3);
-                    }
+                    vec3 pt3 = mf.gyd.selectedCurveLine.curvePts[i];
+                    pt3.heading += Math.PI;
+                    if (pt3.heading > glm.twoPI) pt3.heading -= glm.twoPI;
+                    mf.gyd.selectedCurveLine.curvePts[i] = pt3;
                 }
             }
         }
 
         private void btnContourPriority_Click(object sender, EventArgs e)
         {
-            if (mf.curve.isBtnCurveOn)
-                mf.curve.MoveABCurve(mf.gyd.distanceFromCurrentLinePivot);
+            mf.gyd.MoveABCurve(mf.gyd.distanceFromCurrentLinePivot);
+        }
+
+        private void btnAdjRight_Click(object sender, EventArgs e)
+        {
+            mf.gyd.MoveABCurve(snapAdj);
+        }
+
+        private void btnAdjLeft_Click(object sender, EventArgs e)
+        {
+            mf.gyd.MoveABCurve(-snapAdj);
         }
 
         private void btnRightHalfWidth_Click(object sender, EventArgs e)
         {
-            mf.curve.MoveABCurve(mf.tool.toolWidth * 0.5);
+            mf.gyd.MoveABCurve(mf.tool.toolWidth * 0.5);
         }
 
         private void btnLeftHalfWidth_Click(object sender, EventArgs e)
         {
-            mf.curve.MoveABCurve(mf.tool.toolWidth * -0.5);
+            mf.gyd.MoveABCurve(mf.tool.toolWidth * -0.5);
         }
 
         private void btnNosave_Click(object sender, EventArgs e)

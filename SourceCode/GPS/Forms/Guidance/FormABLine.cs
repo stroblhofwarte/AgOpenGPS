@@ -54,7 +54,6 @@ namespace AgOpenGPS
 
             this.Size = new System.Drawing.Size(470, 360);
 
-            mf.ABLine.isABLineBeingSet = false;
             UpdateLineList(true);
         }
 
@@ -67,8 +66,8 @@ namespace AgOpenGPS
             {
                 if (mf.gyd.refList[i].Mode == Mode.AB && mf.gyd.refList[i].curvePts.Count > 1)
                 {
-                    lvLines.Items.Add(new ListViewItem(mf.gyd.refList[i].Name, i));
-                    if (select && i == mf.ABLine.selectedABIndex) idx = lvLines.Items.Count - 1;
+                    lvLines.Items.Add(new ListViewItem(mf.gyd.refList[i].Name.Trim(), i));
+                    if (select && mf.gyd.refList[i] == mf.gyd.selectedABLine) idx = lvLines.Items.Count - 1;
                 }
             }
 
@@ -85,6 +84,7 @@ namespace AgOpenGPS
             }
             lvLines.Select();
         }
+
         private void btnCancel_APlus_Click(object sender, EventArgs e)
         {
             panelPick.Visible = true;
@@ -98,7 +98,7 @@ namespace AgOpenGPS
             this.Size = new System.Drawing.Size(470, 360);
 
             UpdateLineList();
-            mf.ABLine.isABLineBeingSet = false;
+            mf.gyd.isABLineBeingSet = false;
             btnBPoint.BackColor = System.Drawing.Color.Transparent;
         }
 
@@ -106,8 +106,8 @@ namespace AgOpenGPS
         {
             vec3 fix = new vec3(mf.pivotAxlePos);
 
-            mf.ABLine.desPoint1.easting = fix.easting + Math.Cos(fix.heading) * mf.tool.toolOffset;
-            mf.ABLine.desPoint1.northing = fix.northing - Math.Sin(fix.heading) * mf.tool.toolOffset;
+            mf.gyd.desPoint1.easting = fix.easting + Math.Cos(fix.heading) * mf.tool.toolOffset;
+            mf.gyd.desPoint1.northing = fix.northing - Math.Sin(fix.heading) * mf.tool.toolOffset;
             desHeading = fix.heading;
 
             nudHeading.Enabled = true;
@@ -119,7 +119,7 @@ namespace AgOpenGPS
             btnAPoint.Enabled = false;
 
             btnEnter_APlus.Enabled = true;
-            mf.ABLine.isABLineBeingSet = true;
+            mf.gyd.isABLineBeingSet = true;
         }
 
         private void btnBPoint_Click(object sender, EventArgs e)
@@ -128,12 +128,12 @@ namespace AgOpenGPS
 
             btnBPoint.BackColor = System.Drawing.Color.Teal;
 
-            mf.ABLine.desPoint2.easting = fix.easting + Math.Cos(fix.heading) * mf.tool.toolOffset;
-            mf.ABLine.desPoint2.northing = fix.northing - Math.Sin(fix.heading) * mf.tool.toolOffset;
+            mf.gyd.desPoint2.easting = fix.easting + Math.Cos(fix.heading) * mf.tool.toolOffset;
+            mf.gyd.desPoint2.northing = fix.northing - Math.Sin(fix.heading) * mf.tool.toolOffset;
 
             // heading based on AB points
-            desHeading = Math.Atan2(fix.easting + Math.Cos(fix.heading) * mf.tool.toolOffset - mf.ABLine.desPoint1.easting,
-                fix.northing - Math.Sin(fix.heading) * mf.tool.toolOffset - mf.ABLine.desPoint1.northing);
+            desHeading = Math.Atan2(fix.easting + Math.Cos(fix.heading) * mf.tool.toolOffset - mf.gyd.desPoint1.easting,
+                fix.northing - Math.Sin(fix.heading) * mf.tool.toolOffset - mf.gyd.desPoint1.northing);
             if (desHeading < 0) desHeading += glm.twoPI;
 
             nudHeading.Value = (decimal)(glm.toDegrees(desHeading));
@@ -151,8 +151,8 @@ namespace AgOpenGPS
         {
             desHeading = glm.toRadians((double)nudHeading.Value);
 
-            mf.ABLine.desPoint2.easting = mf.ABLine.desPoint1.easting + Math.Sin(desHeading);
-            mf.ABLine.desPoint2.northing = mf.ABLine.desPoint1.northing + Math.Cos(desHeading);
+            mf.gyd.desPoint2.easting = mf.gyd.desPoint1.easting + Math.Sin(desHeading);
+            mf.gyd.desPoint2.northing = mf.gyd.desPoint1.northing + Math.Cos(desHeading);
         }
 
         private void textBox1_Enter(object sender, EventArgs e)
@@ -174,9 +174,9 @@ namespace AgOpenGPS
             panelAPlus.Visible = false;
             panelName.Visible = true;
 
-            textBox1.Text = "AB " +
+            textBox1.Text = ("AB " +
                 Math.Round(glm.toDegrees(desHeading), 1).ToString(CultureInfo.InvariantCulture) +
-                "\u00B0 " + mf.FindDirection(desHeading);
+                "\u00B0 " + mf.FindDirection(desHeading)).Trim();
         }
 
         private void BtnNewABLine_Click(object sender, EventArgs e)
@@ -203,7 +203,7 @@ namespace AgOpenGPS
                 int idx = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
                 if (idx > 0)
                 {
-                    textBox2.Text = mf.gyd.refList[idx].Name;
+                    textBox2.Text = mf.gyd.refList[idx].Name.Trim();
 
                     panelPick.Visible = false;
                     panelEditName.Visible = true;
@@ -214,8 +214,6 @@ namespace AgOpenGPS
 
         private void btnSaveEditName_Click(object sender, EventArgs e)
         {
-            if (textBox2.Text.Trim() == "") textBox2.Text = "No Name " + DateTime.Now.ToString("hh:mm:ss", CultureInfo.InvariantCulture);
-
             int idx = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
             if (idx > 0)
             {
@@ -224,8 +222,12 @@ namespace AgOpenGPS
                 textBox2.Enter += textBox2_Enter;
 
                 panelPick.Visible = true;
+                string text = textBox2.Text.Trim();
+                if (text.Trim() == "") text = "No Name " + DateTime.Now.ToString("hh:mm:ss", CultureInfo.InvariantCulture);
+                while (mf.gyd.refList.Exists(x => x != mf.gyd.refList[idx] && x.Name == text))//generate unique name!
+                    text += " ";
 
-                mf.gyd.refList[idx].Name = textBox2.Text.Trim();
+                mf.gyd.refList[idx].Name = text;
             }
             mf.FileSaveABLines();
 
@@ -233,24 +235,26 @@ namespace AgOpenGPS
 
             UpdateLineList();
             lvLines.Focus();
-            mf.ABLine.isABLineBeingSet = false;
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
             CGuidanceLine New = new CGuidanceLine(Mode.AB);
 
-            New.curvePts.Add(new vec3(mf.ABLine.desPoint1.easting, mf.ABLine.desPoint1.northing, desHeading));
-            New.curvePts.Add(new vec3(mf.ABLine.desPoint1.easting + Math.Sin(desHeading), mf.ABLine.desPoint1.northing + Math.Cos(desHeading), desHeading));
+            New.curvePts.Add(new vec3(mf.gyd.desPoint1.easting, mf.gyd.desPoint1.northing, desHeading));
+            New.curvePts.Add(new vec3(mf.gyd.desPoint1.easting + Math.Sin(desHeading), mf.gyd.desPoint1.northing + Math.Cos(desHeading), desHeading));
 
             //name
-            if (textBox2.Text.Trim() == "") textBox2.Text = "No Name " + DateTime.Now.ToString("hh:mm:ss", CultureInfo.InvariantCulture);
+            string text = textBox1.Text.Trim();
+            if (text.Trim() == "") text = "No Name " + DateTime.Now.ToString("hh:mm:ss", CultureInfo.InvariantCulture);
+            while (mf.gyd.refList.Exists(x => x.Name == text))//generate unique name!
+                text += " ";
 
-            New.Name = textBox1.Text.Trim();
+            New.Name = text;
 
             mf.gyd.refList.Add(New);
-            mf.ABLine.numABLines++;
-            mf.ABLine.selectedABIndex = mf.gyd.refList.Count - 1;
+            mf.gyd.numABLines++;
+            mf.gyd.selectedABLine = New;
 
             mf.FileSaveABLines();
 
@@ -265,7 +269,7 @@ namespace AgOpenGPS
 
             UpdateLineList();
             lvLines.Focus();
-            mf.ABLine.isABLineBeingSet = false;
+            mf.gyd.isABLineBeingSet = false;
         }
 
         private void btnDuplicate_Click(object sender, EventArgs e)
@@ -287,11 +291,11 @@ namespace AgOpenGPS
                         desHeading = Math.Atan2(mf.gyd.refList[idx].curvePts[1].easting - mf.gyd.refList[idx].curvePts[0].easting, mf.gyd.refList[idx].curvePts[1].northing - mf.gyd.refList[idx].curvePts[0].northing);
 
                         //calculate the new points for the reference line and points                
-                        mf.ABLine.desPoint1.easting = mf.gyd.refList[idx].curvePts[0].easting;
-                        mf.ABLine.desPoint1.northing = mf.gyd.refList[idx].curvePts[0].northing;
+                        mf.gyd.desPoint1.easting = mf.gyd.refList[idx].curvePts[0].easting;
+                        mf.gyd.desPoint1.northing = mf.gyd.refList[idx].curvePts[0].northing;
                     }
 
-                    textBox1.Text = mf.gyd.refList[idx].Name + " Copy";
+                    textBox1.Text = mf.gyd.refList[idx].Name.Trim() + " Copy";
                 }
             }
         }
@@ -305,7 +309,7 @@ namespace AgOpenGPS
 
             if (lvLines.SelectedItems.Count > 0)
             {
-                mf.ABLine.selectedABIndex = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
+                mf.gyd.selectedABLine = mf.gyd.refList[lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex];
 
                 mf.EnableYouTurnButtons();
 
@@ -317,8 +321,8 @@ namespace AgOpenGPS
             else
             {
                 mf.btnABLine.Image = Properties.Resources.ABLineOff;
-                mf.ABLine.isBtnABLineOn = false;
-                mf.ABLine.selectedABIndex = -1;
+                mf.gyd.isBtnABLineOn = false;
+                mf.gyd.selectedABLine = null;
                 mf.DisableYouTurnButtons();
                 if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
                 if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
@@ -360,19 +364,15 @@ namespace AgOpenGPS
                 int idx = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
                 if (idx > 0)
                 {
+                    mf.gyd.numABLines--;
+                    if (mf.gyd.selectedABLine == mf.gyd.refList[idx]) mf.gyd.selectedABLine = null;
+
                     mf.gyd.refList.RemoveAt(idx);
                     lvLines.SelectedItems[0].Remove();
 
-                    mf.ABLine.numABLines--;
-                    if (mf.ABLine.selectedABIndex == idx) mf.ABLine.selectedABIndex = -1;
-                    else if (mf.ABLine.selectedABIndex > idx) mf.ABLine.selectedABIndex--;
-
-                    if (mf.curve.selectedCurveIndex >= idx) mf.curve.selectedCurveIndex--;
-                    if (mf.ct.ContourIndex >= idx) mf.ct.ContourIndex--;
-
-                    if (mf.ABLine.numABLines == 0)
+                    if (mf.gyd.numABLines == 0)
                     {
-                        mf.ABLine.DeleteAB();
+                        mf.gyd.DeleteAB();
                         if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
                         if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
                     }
@@ -391,8 +391,8 @@ namespace AgOpenGPS
         private void btnCancel_Click(object sender, EventArgs e)
         {
             mf.btnABLine.Image = Properties.Resources.ABLineOff;
-            mf.ABLine.isBtnABLineOn = false;
-            mf.ABLine.selectedABIndex = -1;
+            mf.gyd.isBtnABLineOn = false;
+            mf.gyd.selectedABLine = null;
             mf.DisableYouTurnButtons();
             if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
             if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
@@ -427,12 +427,17 @@ namespace AgOpenGPS
                         (Math.Round(glm.toDegrees(desHeading), 1)).ToString(CultureInfo.InvariantCulture) +
                         "\u00B0 " + mf.FindDirection(desHeading);
 
-                    mf.ABLine.desPoint2.easting = mf.ABLine.desPoint1.easting + Math.Sin(desHeading);
-                    mf.ABLine.desPoint2.northing = mf.ABLine.desPoint1.northing + Math.Cos(desHeading);
+                    mf.gyd.desPoint2.easting = mf.gyd.desPoint1.easting + Math.Sin(desHeading);
+                    mf.gyd.desPoint2.northing = mf.gyd.desPoint1.northing + Math.Cos(desHeading);
                 }
                 else
                     btnCancel_APlus.PerformClick();
             }
+        }
+
+        private void FormABLine_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            mf.gyd.isABLineBeingSet = false;
         }
     }
 }
