@@ -254,6 +254,10 @@
       <SubType>Form</SubType>
       <DependentUpon>FormConfig.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\Settings\ConfigHelp.Designer.cs">
+      <SubType>Form</SubType>
+      <DependentUpon>FormConfig.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\Settings\ConfigVehicle.Designer.cs">
       <SubType>Form</SubType>
       <DependentUpon>FormConfig.cs</DependentUpon>
@@ -639,6 +643,7 @@
     <EmbeddedResource Include="gStr.nl.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>gStr.nl.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="gStr.pl.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -725,6 +730,7 @@
   <ItemGroup>
     <Content Include="AOG.ico" />
     <Content Include="aChangeLog.txt" />
+    <None Include="btnImages\HelpCancel.png" />
     <None Include="btnImages\Config\ConF_HydLiftSound.png" />
     <None Include="btnImages\Config\ConF_TurnSound.png" />
     <None Include="btnImages\Config\ConF_SteerSound.png" />

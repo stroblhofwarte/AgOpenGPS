@@ -384,8 +384,6 @@ namespace AgOpenGPS
 
                                     mf.bnd.bndList.Add(New);
 
-                                    mf.btnMakeLinesFromBoundary.Visible = true;
-
                                     coordinates = "";
                                 }
                                 else
@@ -400,7 +398,8 @@ namespace AgOpenGPS
                         }
                         mf.FileSaveBoundary();
                         mf.bnd.BuildTurnLines();
-                        mf.btnMakeLinesFromBoundary.Visible = true;
+                        if (mf.bnd.bndList.Count > 0)
+                            mf.btnABDraw.Visible = true;
                         mf.fd.UpdateFieldBoundaryGUIAreas();
                         UpdateChart();
                     }

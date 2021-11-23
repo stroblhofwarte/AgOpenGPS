@@ -888,6 +888,7 @@ namespace AgOpenGPS
             SmoothABtoolStripMenu.Enabled = isOn;
             deleteContourPathsToolStripMenuItem.Enabled = isOn;
             deleteAppliedAreaToolStripMenuItem.Enabled = isOn;
+            btnABDraw.Enabled = isOn;
 
             toolStripMenuItem9.Visible = isOn;
             boundariesToolStripMenuItem.Visible = isOn && Settings.Default.setFeatures.isBoundaryOn;
@@ -1000,8 +1001,6 @@ namespace AgOpenGPS
             tram.tramBndInnerArr.Clear();
             tram.tramBndOuterArr.Clear();
             FixTramModeButton();
-
-            btnMakeLinesFromBoundary.Visible = false;
 
             //reset acre and distance counters
             fd.workedAreaTotal = 0;
