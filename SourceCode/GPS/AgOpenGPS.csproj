@@ -131,7 +131,6 @@
     <Compile Include="Classes\CDubins.cs" />
     <Compile Include="Classes\CAHRS.cs" />
     <Compile Include="Classes\CAutoSteer.cs" />
-    <Compile Include="Classes\CABCurve.cs" />
     <Compile Include="Classes\CFont.cs" />
     <Compile Include="Classes\CHead.cs">
       <DependentUpon>CBoundary.cs</DependentUpon>
@@ -140,7 +139,6 @@
     <Compile Include="Classes\CTram.cs" />
     <Compile Include="Classes\CYouTurn.cs" />
     <Compile Include="Classes\CFlag.cs" />
-    <Compile Include="Classes\CABLine.cs" />
     <Compile Include="Classes\CCamera.cs" />
     <Compile Include="Classes\CContour.cs" />
     <Compile Include="Classes\CModuleComm.cs" />
@@ -210,17 +208,11 @@
     <Compile Include="Forms\FormHeadland.Designer.cs">
       <DependentUpon>FormHeadland.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Guidance\FormEditCurve.cs">
+    <Compile Include="Forms\Guidance\FormEdit.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Guidance\FormEditCurve.Designer.cs">
-      <DependentUpon>FormEditCurve.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\Guidance\FormEditAB.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\Guidance\FormEditAB.Designer.cs">
-      <DependentUpon>FormEditAB.cs</DependentUpon>
+    <Compile Include="Forms\Guidance\FormEdit.Designer.cs">
+      <DependentUpon>FormEdit.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\Pickers\FormFilePicker.cs">
       <SubType>Form</SubType>
@@ -278,11 +270,11 @@
       <SubType>Form</SubType>
       <DependentUpon>FormConfig.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Guidance\FormABDraw.cs">
+    <Compile Include="Forms\Guidance\FormDraw.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Guidance\FormABDraw.Designer.cs">
-      <DependentUpon>FormABDraw.cs</DependentUpon>
+    <Compile Include="Forms\Guidance\FormDraw.Designer.cs">
+      <DependentUpon>FormDraw.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\FormFlags.cs">
       <SubType>Form</SubType>
@@ -314,11 +306,11 @@
     <Compile Include="Forms\Guidance\FormSmoothAB.Designer.cs">
       <DependentUpon>FormSmoothAB.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Guidance\FormABCurve.cs">
+    <Compile Include="Forms\Guidance\FormSelect.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Guidance\FormABCurve.Designer.cs">
-      <DependentUpon>FormABCurve.cs</DependentUpon>
+    <Compile Include="Forms\Guidance\FormSelect.Designer.cs">
+      <DependentUpon>FormSelect.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\FormBoundary.cs">
       <SubType>Form</SubType>
@@ -367,12 +359,6 @@
     </Compile>
     <Compile Include="Forms\FormTimedMessage.Designer.cs">
       <DependentUpon>FormTimedMessage.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\Guidance\FormTramCurve.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\Guidance\FormTramCurve.Designer.cs">
-      <DependentUpon>FormTramCurve.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\FormWebCam.cs">
       <SubType>Form</SubType>
@@ -448,12 +434,6 @@
     <Compile Include="Forms\SaveOpen.Designer.cs">
       <SubType>Form</SubType>
       <DependentUpon>FormGPS.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\Guidance\FormABLine.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\Guidance\FormABLine.Designer.cs">
-      <DependentUpon>FormABLine.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\FormGPSData.cs">
       <SubType>Form</SubType>
@@ -539,11 +519,8 @@
     <EmbeddedResource Include="Forms\FormHeadland.resx">
       <DependentUpon>FormHeadland.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Guidance\FormEditCurve.resx">
-      <DependentUpon>FormEditCurve.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Guidance\FormEditAB.resx">
-      <DependentUpon>FormEditAB.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\Guidance\FormEdit.resx">
+      <DependentUpon>FormEdit.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Pickers\FormFilePicker.resx">
       <DependentUpon>FormFilePicker.cs</DependentUpon>
@@ -565,8 +542,8 @@
     <EmbeddedResource Include="Forms\Settings\FormConfig.resx">
       <DependentUpon>FormConfig.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Guidance\FormABDraw.resx">
-      <DependentUpon>FormABDraw.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\Guidance\FormDraw.resx">
+      <DependentUpon>FormDraw.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormFlags.resx">
       <DependentUpon>FormFlags.cs</DependentUpon>
@@ -574,8 +551,8 @@
     <EmbeddedResource Include="Forms\FormShiftPos.resx">
       <DependentUpon>FormShiftPos.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Guidance\FormABCurve.resx">
-      <DependentUpon>FormABCurve.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\Guidance\FormSelect.resx">
+      <DependentUpon>FormSelect.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormBoundary.resx">
       <DependentUpon>FormBoundary.cs</DependentUpon>
@@ -585,10 +562,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormFieldDir.resx">
       <DependentUpon>FormFieldDir.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Guidance\FormABLine.resx">
-      <DependentUpon>FormABLine.cs</DependentUpon>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormGPSData.resx">
       <DependentUpon>FormGPSData.cs</DependentUpon>
@@ -622,9 +595,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormtimedMessage.resx">
       <DependentUpon>FormTimedMessage.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Guidance\FormTramCurve.resx">
-      <DependentUpon>FormTramCurve.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormWebCam.resx">
       <DependentUpon>FormWebCam.cs</DependentUpon>

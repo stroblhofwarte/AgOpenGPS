@@ -147,7 +147,6 @@ namespace AgOpenGPS
                     if (navPanelCounter-- < 1) panelNavigation.Visible = false;
                 }
 
-
                 lblTopData.Text = (tool.toolWidth * m2FtOrM).ToString("N2") + unitsFtM + " - " + vehicleFileName;
                 lblFix.Text = FixQuality;
                 lblAge.Text = pn.age.ToString("N1");
@@ -156,46 +155,12 @@ namespace AgOpenGPS
                 {
                     lblCurrentField.Text = "Field: " + displayFieldName;
 
-                    if (gyd.selectedCurveLine != null && gyd.isBtnCurveOn)
-                    {
-                        lblCurveLineName.Text = "Cur-" + gyd.selectedCurveLine.Name.Trim();
-                    }
-                    else if (gyd.selectedABLine != null && gyd.isBtnABLineOn)
-                    {
-                        lblCurveLineName.Text = "AB-" + gyd.selectedABLine.Name.Trim();
-                    }
+                    if (gyd.selectedLine != null && (gyd.isBtnCurveOn || gyd.isBtnABLineOn))
+                        lblCurveLineName.Text = (gyd.selectedLine.Mode.HasFlag(Mode.AB) ? "AB-" : "Cur-") + gyd.selectedLine.Name.Trim();
                     else lblCurveLineName.Text = string.Empty;
                 }
                 else
-                {
                     lblCurveLineName.Text = lblCurrentField.Text = string.Empty;
-                }
-
-                if (isJobStarted)
-                {
-                    if (gyd.isBtnABLineOn || gyd.isBtnCurveOn)
-                    {
-                        if (!btnEditAB.Visible)
-                        {
-                            //btnMakeLinesFromBoundary.Visible = true;
-                            btnEditAB.Visible = true;
-                            btnSnapToPivot.Visible = true;
-                            cboxpRowWidth.Visible = true;
-                            btnYouSkipEnable.Visible = true;
-                        }
-                    }
-                    else
-                    {
-                        if (btnEditAB.Visible)
-                        {
-                            //btnMakeLinesFromBoundary.Visible = false;
-                            btnEditAB.Visible = false;
-                            btnSnapToPivot.Visible = false;
-                            cboxpRowWidth.Visible = false;
-                            btnYouSkipEnable.Visible = false;
-                        }
-                    }
-                }
 
                 lbludpWatchCounts.Text = udpWatchCounts.ToString();
 
@@ -297,12 +262,6 @@ namespace AgOpenGPS
 
             isMetric = Settings.Default.setMenu_isMetric;
 
-            tramLinesMenuField.Visible = Properties.Settings.Default.setFeatures.isTramOn;
-            headlandToolStripMenuItem.Visible = Properties.Settings.Default.setFeatures.isHeadlandOn;
-
-            boundariesToolStripMenuItem.Visible = Properties.Settings.Default.setFeatures.isBoundaryOn;
-            //toolStripBtnMakeBndContour.Visible = Properties.Settings.Default.setFeatures.isBndContourOn;
-            recordedPathStripMenu.Visible = Properties.Settings.Default.setFeatures.isRecPathOn;
             SmoothABtoolStripMenu.Visible = Properties.Settings.Default.setFeatures.isABSmoothOn;
             deleteContourPathsToolStripMenuItem.Visible = Properties.Settings.Default.setFeatures.isHideContourOn;
             webcamToolStrip.Visible = Properties.Settings.Default.setFeatures.isWebCamOn;
@@ -443,9 +402,6 @@ namespace AgOpenGPS
             if (Properties.Settings.Default.setAS_isAutoSteerAutoOn) btnAutoSteer.Text = "R";
             else btnAutoSteer.Text = "M";
 
-            if (bnd.isHeadlandOn) btnHeadlandOnOff.Image = Properties.Resources.HeadlandOn;
-            else btnHeadlandOnOff.Image = Properties.Resources.HeadlandOff;
-
             btnChangeMappingColor.BackColor = sectionColorDay;
             btnChangeMappingColor.Text = Application.ProductVersion.ToString(CultureInfo.InvariantCulture);
 
@@ -484,7 +440,7 @@ namespace AgOpenGPS
             cboxpRowWidth.SelectedIndex = yt.rowSkipsWidth - 1;
             yt.Set_Alternate_skips();
 
-            DisableYouTurnButtons();
+            enableYouTurnButton(false);
 
             //which heading source is being used
             headingFromSource = Settings.Default.setGPS_headingFromWhichSource;
@@ -553,8 +509,8 @@ namespace AgOpenGPS
                     }
                 }
             }
+            FieldMenuButtonEnableDisable(isJobStarted);
 
-            FixPanelsAndMenus(false);
             camera.camSetDistance = camera.zoomValue * camera.zoomValue * -1;
             SetZoom();
         }
@@ -590,12 +546,8 @@ namespace AgOpenGPS
                 this.BackColor = frameDayColor;
                 foreach (Control c in this.Controls)
                 {
-                    //if (c is Label || c is Button)
-                    {
-                        c.ForeColor = textColorDay;
-                    }
+                    c.ForeColor = textColorDay;
                 }
-                LineUpManualBtns();
             }
             else //nightmode
             {
@@ -604,11 +556,8 @@ namespace AgOpenGPS
 
                 foreach (Control c in this.Controls)
                 {
-                    {
-                        c.ForeColor = textColorNight;
-                    }
+                    c.ForeColor = textColorNight;
                 }
-                LineUpManualBtns();
             }
             btnAutoSteerConfig.ForeColor = Color.Black;
             btnEditAB.ForeColor = Color.Black;
@@ -617,85 +566,22 @@ namespace AgOpenGPS
             Properties.Settings.Default.Save();
         }
 
-        private void FixPanelsAndMenus(bool isButtonsVisible)
-        {
-            panelAB.Size = new System.Drawing.Size(780 + ((Width - 900) / 2), 64);
-            panelAB.Location = new Point((Width - 900) / 3 + 64, this.Height - 66);
-
-            //if (isButtonsVisible)
-            //{
-            //    oglMain.Left = 75;
-            //    oglMain.Width = this.Width - statusStripLeft.Width - 84;
-            //    oglMain.Height = this.Height - panelAB.Height - 58;
-            //    panelAB.Visible = true;
-            //    panelRight.Visible = true;
-            //}
-            //else
-            //{
-            //    if (!isJobStarted)
-            //    {
-            //        panelAB.Visible = false;
-            //        panelRight.Visible = false;
-            //    }
-            //    oglMain.Left = 75;
-            //    oglMain.Width = this.Width - statusStripLeft.Width - 22; //22
-            //    oglMain.Height = this.Height - 62;
-            //}
-
-            if (!isJobStarted)
-            {
-                panelAB.Visible = false;
-                panelRight.Visible = false;
-
-                oglMain.Left = 75;
-                oglMain.Width = this.Width - statusStripLeft.Width - 22; //22
-                oglMain.Height = this.Height - 62;
-            }
-            else
-            {
-                panelAB.Visible = true;
-                panelRight.Visible = true;
-                oglMain.Left = 75;
-                oglMain.Width = this.Width - statusStripLeft.Width - 84; //22
-                oglMain.Height = this.Height - 120;
-            }
-
-            LineUpManualBtns();
-        }
-
         //line up section On Off Auto buttons based on how many there are
         public void LineUpManualBtns()
         {
-            int oglCenter = 0;
+            int oglCenter = oglMain.Width / 2;
 
-            oglCenter = statusStripLeft.Width + oglMain.Width / 2;
-
-            int top = 130;
-
-            int buttonMaxWidth = 400, buttonHeight = 25;
+            int buttonMaxWidth = 400;
 
 
-            if ((Height - oglMain.Height) < 80) //max size - buttons hid
+            int top = oglMain.Height - 70;
+            if (panelSim.Visible == true)
             {
-                top = Height - 70;
-                if (panelSim.Visible == true)
-                {
-                    top = Height - 100;
-                    panelSim.Top = Height - 60;
-                }
-
-            }
-            else //buttons exposed
-            {
-                top = Height - 130;
-                if (panelSim.Visible == true)
-                {
-                    top = Height - 160;
-                    panelSim.Top = Height - 120;
-                }
+                top = oglMain.Height - 100;
+                panelSim.Top = oglMain.Height - 60;
             }
 
-            //if (!isJobStarted) top = Height - 40;
+
 
             btnSection1Man.Top = btnSection2Man.Top = btnSection3Man.Top = 
             btnSection4Man.Top = btnSection5Man.Top = btnSection6Man.Top =
@@ -714,7 +600,7 @@ namespace AgOpenGPS
             btnSection7Man.Size = btnSection8Man.Size = btnSection9Man.Size = 
             btnSection10Man.Size = btnSection11Man.Size = btnSection12Man.Size = 
             btnSection13Man.Size = btnSection14Man.Size = btnSection15Man.Size = 
-            btnSection16Man.Size = new System.Drawing.Size(buttonWidth, buttonHeight);
+            btnSection16Man.Size = new System.Drawing.Size(buttonWidth, 25);
 
             btnSection1Man.Left = (oglCenter) - (tool.numOfSections * btnSection1Man.Size.Width) / 2;
             btnSection2Man.Left = btnSection1Man.Left + btnSection1Man.Size.Width;
@@ -831,23 +717,12 @@ namespace AgOpenGPS
         //force all the buttons same according to two main buttons
         public void ManualAllBtnsUpdate()
         {
-            ManualBtnUpdate(0, btnSection1Man);
-            ManualBtnUpdate(1, btnSection2Man);
-            ManualBtnUpdate(2, btnSection3Man);
-            ManualBtnUpdate(3, btnSection4Man);
-            ManualBtnUpdate(4, btnSection5Man);
-            ManualBtnUpdate(5, btnSection6Man);
-            ManualBtnUpdate(6, btnSection7Man);
-            ManualBtnUpdate(7, btnSection8Man);
-            ManualBtnUpdate(8, btnSection9Man);
-            ManualBtnUpdate(9, btnSection10Man);
-            ManualBtnUpdate(10, btnSection11Man);
-            ManualBtnUpdate(11, btnSection12Man);
-            ManualBtnUpdate(12, btnSection13Man);
-            ManualBtnUpdate(13, btnSection14Man);
-            ManualBtnUpdate(14, btnSection15Man);
-            ManualBtnUpdate(15, btnSection16Man);
-
+            for (int j = 0; j < MAXSECTIONS - 1; j++)
+            {
+                Button button = oglPanel.Controls["btnSection" + (j + 1) + "Man"] as Button;
+                if (button != null)
+                    ManualBtnUpdate(j, button);
+            }
         }
         //update individual btn based on state after push
 
@@ -926,7 +801,6 @@ namespace AgOpenGPS
                         }
                         else
                         {
-                            yt.isYouTurnTriggered = true;
                             yt.BuildManualYouTurn(false, true);
                             return;
                         }
@@ -940,7 +814,6 @@ namespace AgOpenGPS
                         }
                         else
                         {
-                            yt.isYouTurnTriggered = true;
                             yt.BuildManualYouTurn(true, true);
                             return;
                         }
@@ -1014,6 +887,8 @@ namespace AgOpenGPS
                 mouseY = oglMain.Height - point.Y;
                 leftMouseDownOnOpenGL = true;
             }
+            else if (e.Button == MouseButtons.Right)
+                DoRemoteSwitches();
         }
         private void oglZoom_MouseClick(object sender, MouseEventArgs e)
         {
@@ -1046,21 +921,11 @@ namespace AgOpenGPS
                 for (int i = 0; i < flagCnt; i++) flagPts[i].ID = i + 1;
             }
         }
-        public void EnableYouTurnButtons()
+
+        public void enableYouTurnButton(bool isOn)
         {
-            yt.ResetYouTurn();
-
             yt.isYouTurnBtnOn = false;
-            btnAutoYouTurn.Enabled = true;
-
-            btnAutoYouTurn.Image = Properties.Resources.YouTurnNo;
-        }
-        public void DisableYouTurnButtons()
-        {
-
-            //btnAutoYouTurn.Enabled = false;
-
-            yt.isYouTurnBtnOn = false;
+            btnAutoYouTurn.Enabled = isOn;
             btnAutoYouTurn.Image = Properties.Resources.YouTurnNo;
             yt.ResetYouTurn();
         }

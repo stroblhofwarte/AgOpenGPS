@@ -215,7 +215,6 @@ namespace AgOpenGPS
 
         private void tabTSettings_Leave(object sender, EventArgs e)
         {
-
             Properties.Vehicle.Default.setVehicle_toolLookAheadOn = mf.tool.lookAheadOnSetting;
             Properties.Vehicle.Default.setVehicle_toolLookAheadOff = mf.tool.lookAheadOffSetting;
             Properties.Vehicle.Default.setVehicle_toolOffDelay = mf.tool.turnOffDelay;
@@ -223,14 +222,15 @@ namespace AgOpenGPS
             mf.tool.mappingOffDelay = mf.tool.lookAheadOffSetting + 0.05;
             mf.tool.mappingOnDelay = mf.tool.lookAheadOnSetting - 0.05;
 
-            //line up manual buttons based on # of sections
-            mf.LineUpManualBtns();
+            if ((double)nudOffset.Value * mf.inchOrCm2m != mf.tool.toolOffset)
+            {
+                Properties.Vehicle.Default.setVehicle_toolOffset = mf.tool.toolOffset = (double)nudOffset.Value * mf.inchOrCm2m;
 
-            //update the sections to newly configured widths and positions in main
-            mf.SectionSetPosition();
-
-            //update the widths of sections and tool width in main
-            mf.SectionCalcWidths();
+                //update the sections to newly configured widths and positions in main
+                mf.SectionSetPosition();
+                //update the widths of sections and tool width in main
+                mf.SectionCalcWidths();
+            }
 
             Properties.Vehicle.Default.Save();
         }
@@ -298,11 +298,7 @@ namespace AgOpenGPS
 
         private void nudOffset_Click(object sender, EventArgs e)
         {
-            if (mf.KeypadToNUD((NumericUpDown)sender, this))
-            {
-                Properties.Vehicle.Default.setVehicle_toolOffset = mf.tool.toolOffset 
-                    = (double)nudOffset.Value * mf.inchOrCm2m;
-            }
+            mf.KeypadToNUD((NumericUpDown)sender, this);
         }
 
         #endregion
@@ -329,9 +325,6 @@ namespace AgOpenGPS
 
             //Update the button colors and text
             mf.ManualAllBtnsUpdate();
-
-            //enable disable manual buttons
-            mf.LineUpManualBtns();
 
             nudCutoffSpeed.Value = (decimal)Properties.Vehicle.Default.setVehicle_slowSpeedCutoff;
 
@@ -390,14 +383,16 @@ namespace AgOpenGPS
             Properties.Vehicle.Default.setSection_position16 = sectionPosition16;
             Properties.Vehicle.Default.setSection_position17 = sectionPosition17;
 
-            mf.tool.numOfSections = numberOfSections;
-            mf.tool.numSuperSection = numberOfSections + 1;
 
+            if (numberOfSections != mf.tool.numSuperSection)
+            {
+                mf.tool.numOfSections = numberOfSections;
+                mf.tool.numSuperSection = numberOfSections + 1;
+                Properties.Vehicle.Default.setVehicle_numSections = mf.tool.numOfSections;
 
-            Properties.Vehicle.Default.setVehicle_numSections = mf.tool.numOfSections;
-
-            //line up manual buttons based on # of sections
-            mf.LineUpManualBtns();
+                //line up manual buttons based on # of sections
+                mf.LineUpManualBtns();
+            }
 
             //update the sections to newly configured widths and positions in main
             mf.SectionSetPosition();
@@ -474,8 +469,6 @@ namespace AgOpenGPS
 
             //take the section widths and convert to meters and positions along tool.
             CalculateSectionPositions();
-            //line up manual buttons based on # of sections
-            mf.LineUpManualBtns();
 
             //update the sections to newly configured widths and positions in main
             mf.SectionSetPosition();

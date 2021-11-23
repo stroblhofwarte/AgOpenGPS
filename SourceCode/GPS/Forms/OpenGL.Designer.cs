@@ -12,12 +12,9 @@ namespace AgOpenGPS
         //extracted Near, Far, Right, Left clipping planes of frustum
         public double[] frustum = new double[24];
 
-        private bool isInit = false;
         private double fovy = 0.7;
-        private double camDistanceFactor = -4;
 
         int mouseX = 0, mouseY = 0;
-        public double offX, offY;
         private int zoomUpdateCounter = 0;
         private int steerModuleConnectedCounter = 0;
 
@@ -66,10 +63,11 @@ namespace AgOpenGPS
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
             GL.Viewport(0, 0, oglMain.Width, oglMain.Height);
-            Matrix4 mat = Matrix4.CreatePerspectiveFieldOfView((float)fovy, (float)oglMain.Width / (float)oglMain.Height,
-                1.0f, (float)(camDistanceFactor * camera.camSetDistance));
+            Matrix4 mat = Matrix4.CreatePerspectiveFieldOfView((float)fovy, oglMain.AspectRatio, 0.001f, (float)(float.MaxValue));
             GL.LoadMatrix(ref mat);
             GL.MatrixMode(MatrixMode.Modelview);
+
+            LineUpManualBtns();
         }
 
         //oglMain rendering, Draw
@@ -168,11 +166,6 @@ namespace AgOpenGPS
                 if (isGPSPositionInitialized)
                 {
                     oglMain.MakeCurrent();
-                    if (!isInit)
-                    {
-                        oglMain_Resize(oglMain, EventArgs.Empty);
-                    }
-                    isInit = true;
 
                     //  Clear the color and depth buffer.
                     GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
@@ -183,7 +176,7 @@ namespace AgOpenGPS
                     GL.LoadIdentity();
 
                     //position the camera
-                    camera.SetWorldCam(pivotAxlePos.easting + offX, pivotAxlePos.northing + offY, camHeading);
+                    camera.SetWorldCam(pivotAxlePos.easting, pivotAxlePos.northing, camHeading);
 
                     //the bounding box of the camera for cullling.
                     CalcFrustum();
@@ -253,7 +246,7 @@ namespace AgOpenGPS
                         }
                     }
 
-                    if (autoBtnState == btnStates.Auto || manualBtnState == btnStates.On)
+                    //if (autoBtnState == btnStates.Auto || manualBtnState == btnStates.On)
                     {
                         for (int j = 0; j < tool.numSuperSection; j++)
                         {
@@ -290,12 +283,8 @@ namespace AgOpenGPS
                     GL.Color3(1, 1, 1);
 
                     //draw contour line if button on 
-                    if (gyd.isContourBtnOn)
-                        gyd.DrawContourLine();
-                    else if (gyd.isBtnABLineOn)
-                        gyd.DrawABLines();
-                    else if (gyd.isBtnCurveOn)
-                        gyd.DrawCurve();
+                    if (gyd.isContourBtnOn || gyd.isBtnABLineOn || gyd.isBtnCurveOn)
+                        gyd.DrawLines();
 
                     recPath.DrawRecordedLine();
                     recPath.DrawDubins();
@@ -1399,41 +1388,25 @@ namespace AgOpenGPS
                         //Draw reference AB line
                         GL.LineWidth(1);
 
-                        if (gyd.selectedABLine?.curvePts.Count > 1)
+                        if (gyd.selectedLine?.curvePts.Count > 1 && gyd.selectedLine.Mode.HasFlag(Mode.AB))
                         {
                             GL.Enable(EnableCap.LineStipple);
                             GL.LineStipple(1, 0x00F0);
                             GL.Begin(PrimitiveType.Lines);
                             GL.Color3(0.9f, 0.2f, 0.2f);
-                            GL.Vertex3(gyd.selectedABLine.curvePts[0].easting, gyd.selectedABLine.curvePts[0].northing, 0);
-                            GL.Vertex3(gyd.selectedABLine.curvePts[1].easting, gyd.selectedABLine.curvePts[1].northing, 0);
+                            GL.Vertex3(gyd.selectedLine.curvePts[0].easting, gyd.selectedLine.curvePts[0].northing, 0);
+                            GL.Vertex3(gyd.selectedLine.curvePts[1].easting, gyd.selectedLine.curvePts[1].northing, 0);
                             GL.End();
                             GL.Disable(EnableCap.LineStipple);
                         }
-
-                        if (gyd.curList.Count > 1)
-                        {
-                            //raw current AB Line
-                            GL.Begin(PrimitiveType.Lines);
-                            GL.Color3(0.9f, 0.20f, 0.90f);
-                            GL.Vertex3(gyd.curList[0].easting, gyd.curList[0].northing, 0.0);
-                            GL.Vertex3(gyd.curList[1].easting, gyd.curList[1].northing, 0.0);
-                            GL.End();
-                        }
                     }
 
-                    //draw curve if there is one
-                    if (gyd.isBtnCurveOn)
+                    if (gyd.curList.Count > 1)
                     {
-                        int ptC = gyd.curList.Count;
-                        if (ptC > 1)
-                        {
-                            GL.LineWidth(2);
-                            GL.Color3(0.925f, 0.2f, 0.90f);
-                            GL.Begin(PrimitiveType.LineStrip);
-                            for (int h = 0; h < ptC; h++) GL.Vertex3(gyd.curList[h].easting, gyd.curList[h].northing, 0);
-                            GL.End();
-                        }
+                        GL.Color3(0.9f, 0.20f, 0.90f);
+                        GL.Begin(PrimitiveType.LineStrip);
+                        for (int h = 0; h < gyd.curList.Count; h++) GL.Vertex3(gyd.curList[h].easting, gyd.curList[h].northing, 0);
+                        GL.End();
                     }
 
                     //draw all the fences
@@ -1538,7 +1511,7 @@ namespace AgOpenGPS
                 }
                 else
                 {
-                    font.DrawText(-30 + two3, 80, yt.onA.ToString());
+                    font.DrawText(-30 + two3, 80, gyd.onA.ToString());
                 }
             }
             else
@@ -1550,7 +1523,7 @@ namespace AgOpenGPS
                 }
                 else
                 {
-                    font.DrawText(-40 + two3, 80, yt.onA.ToString());
+                    font.DrawText(-40 + two3, 80, gyd.onA.ToString());
                 }
             }
         }

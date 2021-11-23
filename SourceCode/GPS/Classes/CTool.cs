@@ -62,7 +62,6 @@ namespace AgOpenGPS
         //Constructor called by FormGPS
         public CTool(FormGPS _f)
         {
-
             mf = _f;
 
             //from settings grab the vehicle specifics
@@ -89,6 +88,7 @@ namespace AgOpenGPS
             turnOffDelay = Properties.Vehicle.Default.setVehicle_toolOffDelay;
 
             numOfSections = Properties.Vehicle.Default.setVehicle_numSections;
+
             numSuperSection = numOfSections + 1;
 
             minCoverage = Properties.Vehicle.Default.setVehicle_minCoverage;

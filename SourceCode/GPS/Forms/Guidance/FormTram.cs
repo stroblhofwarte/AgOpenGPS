@@ -7,28 +7,27 @@ namespace AgOpenGPS
     {
         //access to the main GPS form and all its variables
         private readonly FormGPS mf = null;
+        private Mode mode;
 
-        public FormTram(Form callingForm)
+        public FormTram(Form callingForm, Mode mode2)
         {
             //get copy of the calling main form
             mf = callingForm as FormGPS;
             InitializeComponent();
+            mode = mode2;
 
             this.Text = gStr.gsTramLines;
             label3.Text = gStr.gsPasses;
             label2.Text = ((int)(0.1 * mf.m2InchOrCm)).ToString() + mf.unitsInCm;
             lblTramWidth.Text = (mf.tram.tramWidth * mf.m2FtOrM).ToString("N2") + mf.unitsFtM;
-
+            lblTrack.Text = (mf.vehicle.trackWidth * mf.m2FtOrM).ToString("N2") + mf.unitsFtM;
             nudPasses.Controls[0].Enabled = false;
         }
 
         private void FormTram_Load(object sender, EventArgs e)
         {
-            nudPasses.ValueChanged -= nudPasses_ValueChanged;
             nudPasses.Value = Properties.Settings.Default.setTram_passes;
             nudPasses.ValueChanged += nudPasses_ValueChanged;
-
-            lblTrack.Text = (mf.vehicle.trackWidth * mf.m2FtOrM).ToString("N2") + mf.unitsFtM;
 
             mf.tool.halfToolWidth = (mf.tool.toolWidth - mf.tool.toolOverlap) / 2.0;
             lblToolWidthHalf.Text = (mf.tool.halfToolWidth * mf.m2FtOrM).ToString("N2") + mf.unitsFtM;
@@ -61,13 +60,13 @@ namespace AgOpenGPS
 
         private void btnExit_Click(object sender, EventArgs e)
         {
-            mf.FileSaveABLines();
+            if (mode.HasFlag(Mode.AB))
+                mf.FileSaveABLines();
+            else
+                mf.FileSaveCurveLines();
 
-            mf.gyd.moveDistance = 0;
             mf.panelRight.Enabled = true;
             mf.panelDrag.Visible = false;
-            mf.offX = 0;
-            mf.offY = 0;
             mf.FileSaveTram();
             mf.FixTramModeButton();
             Close();
@@ -75,15 +74,13 @@ namespace AgOpenGPS
 
         private void btnLeft_Click(object sender, EventArgs e)
         {
-            double dist = -0.1;
-            mf.gyd.MoveABLine(dist);
+            mf.gyd.MoveABLine(-0.1);
             mf.gyd.BuildTram();
         }
 
         private void btnRight_Click(object sender, EventArgs e)
         {
-            double dist = 0.1;
-            mf.gyd.MoveABLine(dist);
+            mf.gyd.MoveABLine(0.1);
             mf.gyd.BuildTram();
         }
 
@@ -99,13 +96,6 @@ namespace AgOpenGPS
             mf.gyd.BuildTram();
         }
 
-        //determine mins maxs of patches and whole field.
-        private void nudSnapAdj_Enter(object sender, EventArgs e)
-        {
-            mf.KeypadToNUD((NumericUpDown)sender, this);
-            btnCancel.Focus();
-        }
-
         private void nudPasses_ValueChanged(object sender, EventArgs e)
         {
             mf.tram.passes = (int)nudPasses.Value;
@@ -114,37 +104,55 @@ namespace AgOpenGPS
             mf.gyd.BuildTram();
         }
 
-        private void nudPasses_Enter(object sender, EventArgs e)
-        {
-            mf.KeypadToNUD((NumericUpDown)sender, this);
-            btnCancel.Focus();
-            mf.gyd.BuildTram();
-        }
-
         private void btnSwapAB_Click(object sender, EventArgs e)
         {
-            if (mf.gyd.selectedABLine?.curvePts.Count > 1)
-                mf.gyd.SetABLineByHeading(Math.Atan2(mf.gyd.selectedABLine.curvePts[0].easting - mf.gyd.selectedABLine.curvePts[1].easting,
-                    mf.gyd.selectedABLine.curvePts[0].northing - mf.gyd.selectedABLine.curvePts[1].northing));
+            if (mf.gyd.selectedLine?.curvePts.Count > 1)
+            {
+                if (mode.HasFlag(Mode.AB))
+                {
+                    mf.gyd.SetABLineByHeading(Math.Atan2(mf.gyd.selectedLine.curvePts[0].easting - mf.gyd.selectedLine.curvePts[1].easting,
+                        mf.gyd.selectedLine.curvePts[0].northing - mf.gyd.selectedLine.curvePts[1].northing));
 
-            mf.gyd.BuildTram();
+                }
+                else
+                {
+                    int cnt = mf.gyd.selectedLine.curvePts.Count;
+                    mf.gyd.selectedLine.curvePts.Reverse();
+
+                    vec3[] arr = new vec3[cnt];
+                    cnt--;
+                    mf.gyd.selectedLine.curvePts.CopyTo(arr);
+                    mf.gyd.selectedLine.curvePts.Clear();
+
+                    for (int i = 1; i < cnt; i++)
+                    {
+                        vec3 pt3 = arr[i];
+                        pt3.heading += Math.PI;
+                        if (pt3.heading > glm.twoPI) pt3.heading -= glm.twoPI;
+                        if (pt3.heading < 0) pt3.heading += glm.twoPI;
+                        mf.gyd.selectedLine.curvePts.Add(pt3);
+                    }
+                }
+                mf.gyd.BuildTram();
+            }
         }
 
         private void btnTriggerDistanceUp_MouseDown(object sender, MouseEventArgs e)
         {
             nudPasses.UpButton();
-            mf.gyd.BuildTram();
         }
 
         private void btnTriggerDistanceDn_MouseDown(object sender, MouseEventArgs e)
         {
             nudPasses.DownButton();
-            mf.gyd.BuildTram();
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            mf.FileLoadABLines();
+            if (mode.HasFlag(Mode.AB))
+                mf.FileLoadABLines();
+            else
+                mf.FileLoadCurveLines();
 
             mf.tram.tramList.Clear();
             mf.tram.tramBndOuterArr.Clear();
@@ -154,8 +162,6 @@ namespace AgOpenGPS
             //mf.ABLine.tramBasedOn = 0;
             mf.panelRight.Enabled = true;
             mf.panelDrag.Visible = false;
-            mf.offX = 0;
-            mf.offY = 0;
 
             mf.tram.displayMode = 0;
             mf.FileSaveTram();
@@ -186,6 +192,12 @@ namespace AgOpenGPS
                 default:
                     break;
             }
+        }
+
+        private void nudPasses_Click(object sender, EventArgs e)
+        {
+            mf.KeypadToNUD((NumericUpDown)sender, this);
+            btnCancel.Focus();
         }
     }
 }

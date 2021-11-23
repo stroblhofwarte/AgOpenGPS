@@ -1232,7 +1232,6 @@ namespace AgOpenGPS
                     //}
                     //if ( headingFromSource == "Fix" )TimedMessageBox(5000, "Set Inital Direction", "Drive Straight Forward Please");
 
-                    SetZoom();
                 }
                 return;
             }

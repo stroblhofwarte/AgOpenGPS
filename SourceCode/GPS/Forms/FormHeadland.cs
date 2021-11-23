@@ -11,10 +11,9 @@ namespace AgOpenGPS
     {
         //access to the main GPS form and all its variables
         private readonly FormGPS mf = null;
-
         private Point fixPt;
 
-        private bool isA, isSet;
+        private bool isA, isSet, reset;
         public double headWidth = 0;
         private int A, B, C, D, E, start = 99999, end = 99999;
         private double totalHeadlandWidth = 0;
@@ -225,6 +224,7 @@ namespace AgOpenGPS
 
         private void btnSetDistance_Click(object sender, EventArgs e)
         {
+            reset = false;
             double width = (double)nudSetDistance.Value * mf.ftOrMtoM;
 
             if (end > headLineTemplate.Count)
@@ -269,6 +269,7 @@ namespace AgOpenGPS
 
         private void btnMakeFixedHeadland_Click(object sender, EventArgs e)
         {
+            reset = false;
             double width = (double)nudDistance.Value * mf.ftOrMtoM;
             for (int i = 0; i < headLineTemplate.Count; i++)
             {
@@ -291,6 +292,7 @@ namespace AgOpenGPS
 
         private void cboxToolWidths_SelectedIndexChanged(object sender, EventArgs e)
         {
+            reset = false;
             BuildHeadLineTemplateFromBoundary();
             double width = (Math.Round(mf.tool.toolWidth * cboxToolWidths.SelectedIndex, 1));
 
@@ -506,8 +508,8 @@ namespace AgOpenGPS
 
         private void btnReset_Click(object sender, EventArgs e)
         {
+            reset = true;
             BuildHeadLineTemplateFromBoundary();
-
         }
 
         private void nudDistance_Click(object sender, EventArgs e)
@@ -574,35 +576,38 @@ namespace AgOpenGPS
             Properties.Settings.Default.setHeadland_isSectionControlled = cboxIsSectionControlled.Checked;
             Properties.Settings.Default.Save();
 
-            //middle points
-            for (int i = 1; i < hdArr.Length; i++)
+            if (!reset)
             {
-                hdArr[i - 1].heading = Math.Atan2(hdArr[i - 1].easting - hdArr[i].easting, hdArr[i - 1].northing - hdArr[i].northing);
-                if (hdArr[i].heading < 0) hdArr[i].heading += glm.twoPI;
-                if (hdArr[i].heading > glm.twoPI) hdArr[i].heading -= glm.twoPI;
+                //middle points
+                for (int i = 1; i < hdArr.Length; i++)
+                {
+                    hdArr[i - 1].heading = Math.Atan2(hdArr[i - 1].easting - hdArr[i].easting, hdArr[i - 1].northing - hdArr[i].northing);
+                    if (hdArr[i].heading < 0) hdArr[i].heading += glm.twoPI;
+                    if (hdArr[i].heading > glm.twoPI) hdArr[i].heading -= glm.twoPI;
+                }
+
+                double delta = 0;
+                for (int i = 0; i < hdArr.Length; i++)
+                {
+                    if (i == 0)
+                    {
+                        mf.bnd.bndList[0].hdLine.Points.Add(new vec3(hdArr[i].easting, hdArr[i].northing, hdArr[i].heading));
+                        continue;
+                    }
+                    delta += (hdArr[i - 1].heading - hdArr[i].heading);
+
+                    if (Math.Abs(delta) > 0.01)
+                    {
+                        vec3 pt = new vec3(hdArr[i].easting, hdArr[i].northing, hdArr[i].heading);
+
+                        mf.bnd.bndList[0].hdLine.Points.Add(pt);
+                        delta = 0;
+                    }
+                }
             }
 
-            double delta = 0;
-            for (int i = 0; i < hdArr.Length; i++)
-            {
-                if (i == 0)
-                {
-                    mf.bnd.bndList[0].hdLine.Points.Add(new vec3(hdArr[i].easting, hdArr[i].northing, hdArr[i].heading));
-                    continue;
-                }
-                delta += (hdArr[i - 1].heading - hdArr[i].heading);
-
-                if (Math.Abs(delta) > 0.01)
-                {
-                    vec3 pt = new vec3(hdArr[i].easting, hdArr[i].northing, hdArr[i].heading);
-
-                    mf.bnd.bndList[0].hdLine.Points.Add(pt);
-                    delta = 0;
-                }
-            }
             mf.bnd.bndList[0].hdLine.ResetPoints = true;
-
-           mf.FileSaveHeadland();
+            mf.FileSaveHeadland();
 
             Close();
         }

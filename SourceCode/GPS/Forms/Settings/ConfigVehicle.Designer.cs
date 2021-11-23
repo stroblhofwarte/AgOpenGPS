@@ -109,6 +109,9 @@ namespace AgOpenGPS
                         mf.vehicle = new CVehicle(mf);
                         mf.tool = new CTool(mf);
 
+                        //enable disable manual buttons
+                        mf.LineUpManualBtns();
+
                         //fix the checkboxes on summary
                         //SaveDisplaySettings();
 

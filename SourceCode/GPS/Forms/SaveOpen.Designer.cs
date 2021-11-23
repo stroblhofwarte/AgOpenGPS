@@ -38,7 +38,7 @@ namespace AgOpenGPS
 
                     foreach (CGuidanceLine item in gyd.refList)
                     {
-                        if (item.Mode == Mode.Boundary || item.Mode == Mode.Curve)
+                        if (item.Mode.HasFlag(Mode.Curve))
                         {
                             //write out the Name
                             writer.WriteLine(item.Name);
@@ -75,7 +75,7 @@ namespace AgOpenGPS
             gyd.numCurveLines = 0;
             for (int i = gyd.refList.Count - 1; i >= 0; i--)
             {
-                if (gyd.refList[i].Mode == Mode.Boundary || gyd.refList[i].Mode == Mode.Curve)
+                if (gyd.refList[i].Mode.HasFlag(Mode.Curve))
                     gyd.refList.RemoveAt(i);
             }
 
@@ -123,7 +123,7 @@ namespace AgOpenGPS
                             New.Name = reader.ReadLine();
 
                             if (New.Name == "Boundary Curve")
-                                New.Mode = Mode.Boundary;
+                                New.Mode = Mode.Curve | Mode.Boundary;
 
                             // get the average heading
                             line = reader.ReadLine();
@@ -143,8 +143,6 @@ namespace AgOpenGPS
                                     New.curvePts.Add(vecPt);
                                 }
                                 gyd.numCurveLines++;
-                                if (gyd.selectedCurveLine == null)
-                                    gyd.selectedCurveLine = New;
                                 gyd.refList.Add(New);
                             }
                         }
@@ -158,9 +156,8 @@ namespace AgOpenGPS
                 }
             }
 
-            if (gyd.numCurveLines == 0) gyd.selectedCurveLine = null;
-            else
-                gyd.selectedCurveLine = gyd.refList.Find(x => x.Name == gyd.selectedCurveLine?.Name);
+            if (gyd.selectedLine?.Mode.HasFlag(Mode.Curve) == true)
+                gyd.selectedLine = gyd.refList.Find(x => x.Name == gyd.selectedLine?.Name);
         }
 
         public void FileSaveABLines()
@@ -181,7 +178,7 @@ namespace AgOpenGPS
             {
                 foreach (CGuidanceLine item in gyd.refList)
                 {
-                    if (item.Mode == Mode.AB && item.curvePts.Count > 1)
+                    if (item.Mode.HasFlag(Mode.AB) && item.curvePts.Count > 1)
                     {
                         double heading = Math.Atan2(item.curvePts[1].easting - item.curvePts[0].easting, item.curvePts[1].northing - item.curvePts[0].northing);
 
@@ -205,7 +202,7 @@ namespace AgOpenGPS
 
             for (int i = gyd.refList.Count - 1; i >= 0; i--)
             {
-                if (gyd.refList[i].Mode == Mode.AB)
+                if (gyd.refList[i].Mode.HasFlag(Mode.AB))
                     gyd.refList.RemoveAt(i);
             }
 
@@ -256,8 +253,6 @@ namespace AgOpenGPS
                             New.curvePts.Add(new vec3(origin.easting + Math.Sin(origin.heading), origin.northing + Math.Cos(origin.heading), origin.heading));
 
                             gyd.refList.Add(New);
-                            if (gyd.selectedABLine == null)
-                                gyd.selectedABLine = New;
                             gyd.numABLines++;
                         }
                     }
@@ -269,9 +264,8 @@ namespace AgOpenGPS
                     }
                 }
             }
-            if (gyd.numABLines == 0) gyd.selectedABLine = null;
-            else
-                gyd.selectedABLine = gyd.refList.Find(x => x.Name == gyd.selectedABLine?.Name);
+            if (gyd.selectedLine?.Mode.HasFlag(Mode.AB) == true)
+                gyd.selectedLine = gyd.refList.Find(x => x.Name == gyd.selectedLine?.Name);
         }
 
         //function to open a previously saved field, resume, open exisiting, open named field
@@ -619,7 +613,6 @@ namespace AgOpenGPS
                 {
                     try
                     {
-
                         //read header
                         line = reader.ReadLine();//Boundary
 
@@ -682,16 +675,10 @@ namespace AgOpenGPS
                                         delta = 0;
                                     }
                                 }
-
                                 bnd.bndList.Add(New);
                             }
                         }
-
-                        CalculateMinMax();
-                        bnd.BuildTurnLines();
-                        if (bnd.bndList.Count > 0) btnMakeLinesFromBoundary.Visible = true;
                     }
-
                     catch (Exception e)
                     {
                         var form = new FormTimedMessage(2000, gStr.gsBoundaryLineFilesAreCorrupt, gStr.gsButFieldIsLoaded);
@@ -701,6 +688,10 @@ namespace AgOpenGPS
                 }
             }
 
+            CalculateMinMax();
+            bnd.BuildTurnLines();
+
+            if (bnd.bndList.Count > 0) btnMakeLinesFromBoundary.Visible = true;
             fd.UpdateFieldBoundaryGUIAreas();
 
             // Headland  -------------------------------------------------------------------------------------------------
@@ -721,8 +712,6 @@ namespace AgOpenGPS
 
                             if (bnd.bndList.Count > k)
                             {
-                                bnd.bndList[k].hdLine.Points.Clear();
-
                                 //read the number of points
                                 line = reader.ReadLine();
                                 int numPoints = int.Parse(line);
@@ -744,7 +733,6 @@ namespace AgOpenGPS
                             }
                         }
                     }
-
                     catch (Exception e)
                     {
                         var form = new FormTimedMessage(2000, "Headland File is Corrupt", "But Field is Loaded");
@@ -754,22 +742,8 @@ namespace AgOpenGPS
                 }
             }
 
-            if (bnd.bndList.Count > 0 && bnd.bndList[0].hdLine.Points.Count > 0)
-            {
-                bnd.isHeadlandOn = true;
-                btnHeadlandOnOff.Image = Properties.Resources.HeadlandOn;
-                btnHeadlandOnOff.Visible = true;
-                btnHydLift.Visible = true;
-                btnHydLift.Image = Properties.Resources.HydraulicLiftOff;
-
-            }
-            else
-            {
-                bnd.isHeadlandOn = false;
-                btnHeadlandOnOff.Image = Properties.Resources.HeadlandOff;
-                btnHeadlandOnOff.Visible = false;
-                btnHydLift.Visible = false;
-            }
+            //turn off headland
+            enableHeadlandButton(true);
 
             //trams ---------------------------------------------------------------------------------
             fileAndDirectory = fieldsDirectory + currentFieldDirectory + "\\Tram.txt";
@@ -867,10 +841,6 @@ namespace AgOpenGPS
                     }
                 }
             }
-
-
-            FixPanelsAndMenus(true);
-            SetZoom();
 
             //Recorded Path
             fileAndDirectory = fieldsDirectory + currentFieldDirectory + "\\RecPath.txt";
@@ -1672,7 +1642,7 @@ namespace AgOpenGPS
 
             foreach (CGuidanceLine item in gyd.refList)
             {
-                if (item.Mode == Mode.AB)
+                if (item.Mode.HasFlag(Mode.AB))
                 {
                     kml.WriteStartElement("Placemark");
                     kml.WriteElementString("visibility", "0");
@@ -1715,7 +1685,7 @@ namespace AgOpenGPS
 
             foreach (CGuidanceLine item in gyd.refList)
             {
-                if (item.Mode == Mode.Boundary || item.Mode == Mode.Curve)
+                if (item.Mode.HasFlag(Mode.Curve))
                 {
                     linePts = "";
                     kml.WriteStartElement("Placemark");

@@ -108,33 +108,42 @@ namespace AgOpenGPS
 
         public void CalcHeading()
         {
-            double east, nort;
-
             if (isAB)
             {
-                mf.pn.ConvertWGS84ToLocal((double)nudLatitude.Value, (double)nudLongitude.Value, out nort, out east);
-
-                mf.gyd.desPoint1.easting = east;
-                mf.gyd.desPoint1.northing = nort;
-
-                mf.pn.ConvertWGS84ToLocal((double)nudLatitudeB.Value, (double)nudLongitudeB.Value, out nort, out east);
-                mf.gyd.desPoint2.easting = east;
-                mf.gyd.desPoint2.northing = nort;
+                mf.pn.ConvertWGS84ToLocal((double)nudLatitude.Value, (double)nudLongitude.Value, out double nort, out double east);
+                mf.pn.ConvertWGS84ToLocal((double)nudLatitudeB.Value, (double)nudLongitudeB.Value, out double nort2, out double east2);
 
                 // heading based on AB points
-                desHeading = Math.Atan2(mf.gyd.desPoint2.easting - mf.gyd.desPoint1.easting,
-                    mf.gyd.desPoint2.northing - mf.gyd.desPoint1.northing);
+                desHeading = Math.Atan2(east2 - east, nort2 - nort);
                 if (desHeading < 0) desHeading += glm.twoPI;
+
+                if (mf.gyd.desList.Count > 0)
+                    mf.gyd.desList[0] = new vec3(east, nort, desHeading);
+                else
+                    mf.gyd.desList.Add(new vec3(east, nort, desHeading));
+
+                if (mf.gyd.desList.Count > 1)
+                    mf.gyd.desList[1] = new vec3(east2, nort2, desHeading);
+                else
+                    mf.gyd.desList.Add(new vec3(east2, nort2, desHeading));
 
                 nudHeading.Value = (decimal)(glm.toDegrees(desHeading));
             }
             else
             {
-                mf.pn.ConvertWGS84ToLocal((double)nudLatitude.Value, (double)nudLongitude.Value, out nort, out east);
+                mf.pn.ConvertWGS84ToLocal((double)nudLatitude.Value, (double)nudLongitude.Value, out double nort, out double east);
 
                 desHeading = glm.toRadians((double)nudHeading.Value);
-                mf.gyd.desPoint1.easting = east;
-                mf.gyd.desPoint1.northing = nort;
+
+                if (mf.gyd.desList.Count > 0)
+                    mf.gyd.desList[0] = new vec3(east, nort, desHeading);
+                else
+                    mf.gyd.desList.Add(new vec3(east, nort, desHeading));
+
+                if (mf.gyd.desList.Count > 1)
+                    mf.gyd.desList[1] = new vec3(east + Math.Sin(desHeading), nort + Math.Cos(desHeading), desHeading);
+                else
+                    mf.gyd.desList.Add(new vec3(east + Math.Sin(desHeading), nort + Math.Cos(desHeading), desHeading));
             }
 
             textBox1.Text = "Manual AB " +

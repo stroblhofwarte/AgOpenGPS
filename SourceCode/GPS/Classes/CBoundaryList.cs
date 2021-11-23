@@ -45,8 +45,7 @@ namespace AgOpenGPS
                         Points.Reverse();//force Clockwise rotation
                     }
 
-                    List<vec3> tt = new List<vec3>();
-                    List<List<vec3>> rr = Points.ClipPolyLine(ref tt, true, true);
+                    List<List<vec3>> rr = Points.ClipPolyLine(null, true, true);
                     if (rr.Count > 0)
                     {
                         rr.Sort((x, y) => y.Count.CompareTo(x.Count));
@@ -208,7 +207,7 @@ namespace AgOpenGPS
             return NumCrossings % 2 == 1;
         }
 
-        public static List<List<vec3>> ClipPolyLine(this List<vec3> Points, ref List<vec3> clipPoints, bool Loop, bool ClipWinding = true)
+        public static List<List<vec3>> ClipPolyLine(this List<vec3> Points, List<vec3> clipPoints, bool Loop, bool ClipWinding = true)
         {
             List<List<vec3>> FinalPolyLine = new List<List<vec3>>();
             List<VertexPoint> PolyLine = PolyLineStructure(Points);
@@ -327,7 +326,7 @@ namespace AgOpenGPS
                     CurrentVertex = Polygons[i];
                     StopVertex = CurrentVertex.Prev;
                     bool isInside;
-                    if (ClipWinding && clipPoints != null && clipPoints.Count > 2)
+                    if (ClipWinding && clipPoints?.Count > 2)
                     {
                         isInside = clipPoints.PointInPolygon(CurrentVertex.Coords);
                     }
@@ -347,7 +346,7 @@ namespace AgOpenGPS
                         if (!start && CurrentVertex == StopVertex) break;
                         start = false;
 
-                        if (clipPoints != null && clipPoints.Count > 2)
+                        if (clipPoints?.Count > 2)
                         {
                             List<vec3> Crossings2 = new List<vec3>();
                             int j = clipPoints.Count - 1;

@@ -51,8 +51,8 @@
             this.btnMakeBoundaryCurve = new System.Windows.Forms.Button();
             this.btnDrawSections = new System.Windows.Forms.Button();
             this.btnCancelTouch = new System.Windows.Forms.Button();
-            this.btnDeleteABLine = new System.Windows.Forms.Button();
-            this.btnDeleteCurve = new System.Windows.Forms.Button();
+            this.btnDelete2 = new System.Windows.Forms.Button();
+            this.btnDelete = new System.Windows.Forms.Button();
             this.btnSelectABLine = new System.Windows.Forms.Button();
             this.btnSelectCurve = new System.Windows.Forms.Button();
             this.btnMakeCurve = new System.Windows.Forms.Button();
@@ -215,8 +215,8 @@
             this.tboxNameCurve.Size = new System.Drawing.Size(283, 27);
             this.tboxNameCurve.TabIndex = 10;
             this.tboxNameCurve.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.tboxNameCurve.Enter += new System.EventHandler(this.tboxNameCurve_Enter);
-            this.tboxNameCurve.Leave += new System.EventHandler(this.tboxNameCurve_Leave);
+            this.tboxNameCurve.Click += new System.EventHandler(this.tboxNameCurve_Click);
+            this.tboxNameCurve.TextChanged += new System.EventHandler(this.tboxNameCurve_TextChanged);
             // 
             // tboxNameLine
             // 
@@ -230,8 +230,8 @@
             this.tboxNameLine.Size = new System.Drawing.Size(283, 27);
             this.tboxNameLine.TabIndex = 9;
             this.tboxNameLine.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.tboxNameLine.Enter += new System.EventHandler(this.tboxNameLine_Enter);
-            this.tboxNameLine.Leave += new System.EventHandler(this.tboxNameLine_Leave);
+            this.tboxNameLine.Click += new System.EventHandler(this.tboxNameLine_Click);
+            this.tboxNameLine.TextChanged += new System.EventHandler(this.tboxNameLine_TextChanged);
             // 
             // label4
             // 
@@ -354,41 +354,41 @@
             this.btnCancelTouch.UseVisualStyleBackColor = false;
             this.btnCancelTouch.Click += new System.EventHandler(this.btnCancelTouch_Click);
             // 
-            // btnDeleteABLine
+            // btnDelete2
             // 
-            this.btnDeleteABLine.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeleteABLine.BackColor = System.Drawing.Color.Transparent;
-            this.btnDeleteABLine.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnDeleteABLine.FlatAppearance.BorderColor = System.Drawing.SystemColors.HotTrack;
-            this.btnDeleteABLine.FlatAppearance.BorderSize = 0;
-            this.btnDeleteABLine.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnDeleteABLine.Font = new System.Drawing.Font("Tahoma", 14.25F);
-            this.btnDeleteABLine.Image = global::AgOpenGPS.Properties.Resources.ABLineDelete;
-            this.btnDeleteABLine.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnDeleteABLine.Location = new System.Drawing.Point(934, 497);
-            this.btnDeleteABLine.Name = "btnDeleteABLine";
-            this.btnDeleteABLine.Size = new System.Drawing.Size(70, 68);
-            this.btnDeleteABLine.TabIndex = 7;
-            this.btnDeleteABLine.UseVisualStyleBackColor = false;
-            this.btnDeleteABLine.Click += new System.EventHandler(this.btnDeleteABLine_Click);
+            this.btnDelete2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDelete2.BackColor = System.Drawing.Color.Transparent;
+            this.btnDelete2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.btnDelete2.FlatAppearance.BorderColor = System.Drawing.SystemColors.HotTrack;
+            this.btnDelete2.FlatAppearance.BorderSize = 0;
+            this.btnDelete2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDelete2.Font = new System.Drawing.Font("Tahoma", 14.25F);
+            this.btnDelete2.Image = global::AgOpenGPS.Properties.Resources.ABLineDelete;
+            this.btnDelete2.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.btnDelete2.Location = new System.Drawing.Point(934, 497);
+            this.btnDelete2.Name = "btnDelete2";
+            this.btnDelete2.Size = new System.Drawing.Size(70, 68);
+            this.btnDelete2.TabIndex = 7;
+            this.btnDelete2.UseVisualStyleBackColor = false;
+            this.btnDelete2.Click += new System.EventHandler(this.btnDelete_Click);
             // 
-            // btnDeleteCurve
+            // btnDelete
             // 
-            this.btnDeleteCurve.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeleteCurve.BackColor = System.Drawing.Color.Transparent;
-            this.btnDeleteCurve.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnDeleteCurve.FlatAppearance.BorderColor = System.Drawing.SystemColors.HotTrack;
-            this.btnDeleteCurve.FlatAppearance.BorderSize = 0;
-            this.btnDeleteCurve.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnDeleteCurve.Font = new System.Drawing.Font("Tahoma", 14.25F);
-            this.btnDeleteCurve.Image = global::AgOpenGPS.Properties.Resources.HideContour;
-            this.btnDeleteCurve.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnDeleteCurve.Location = new System.Drawing.Point(934, 327);
-            this.btnDeleteCurve.Name = "btnDeleteCurve";
-            this.btnDeleteCurve.Size = new System.Drawing.Size(70, 68);
-            this.btnDeleteCurve.TabIndex = 6;
-            this.btnDeleteCurve.UseVisualStyleBackColor = false;
-            this.btnDeleteCurve.Click += new System.EventHandler(this.btnDeleteCurve_Click);
+            this.btnDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDelete.BackColor = System.Drawing.Color.Transparent;
+            this.btnDelete.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.btnDelete.FlatAppearance.BorderColor = System.Drawing.SystemColors.HotTrack;
+            this.btnDelete.FlatAppearance.BorderSize = 0;
+            this.btnDelete.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDelete.Font = new System.Drawing.Font("Tahoma", 14.25F);
+            this.btnDelete.Image = global::AgOpenGPS.Properties.Resources.HideContour;
+            this.btnDelete.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.btnDelete.Location = new System.Drawing.Point(934, 327);
+            this.btnDelete.Name = "btnDelete";
+            this.btnDelete.Size = new System.Drawing.Size(70, 68);
+            this.btnDelete.TabIndex = 6;
+            this.btnDelete.UseVisualStyleBackColor = false;
+            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
             // 
             // btnSelectABLine
             // 
@@ -518,8 +518,8 @@
             this.Controls.Add(this.lblCurveSelected);
             this.Controls.Add(this.lblNumAB);
             this.Controls.Add(this.lblNumCu);
-            this.Controls.Add(this.btnDeleteABLine);
-            this.Controls.Add(this.btnDeleteCurve);
+            this.Controls.Add(this.btnDelete2);
+            this.Controls.Add(this.btnDelete);
             this.Controls.Add(this.btnSelectABLine);
             this.Controls.Add(this.btnSelectCurve);
             this.Controls.Add(this.btnMakeCurve);
@@ -552,8 +552,8 @@
         private System.Windows.Forms.Button btnMakeCurve;
         private System.Windows.Forms.Button btnSelectCurve;
         private System.Windows.Forms.Button btnSelectABLine;
-        private System.Windows.Forms.Button btnDeleteCurve;
-        private System.Windows.Forms.Button btnDeleteABLine;
+        private System.Windows.Forms.Button btnDelete;
+        private System.Windows.Forms.Button btnDelete2;
         private System.Windows.Forms.Label lblNumCu;
         private System.Windows.Forms.Label lblNumAB;
         private System.Windows.Forms.Label lblABSelected;

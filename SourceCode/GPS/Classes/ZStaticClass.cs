@@ -125,10 +125,12 @@ namespace AgOpenGPS.Classes
 
             return PolyLine;
         }
+
         public static int Clamp(this int Idx, int Size)
         {
             return (Size + Idx) % Size;
         }
+
         public static bool GetLineIntersection(vec2 PointAA, vec2 PointAB, vec2 PointBA, vec2 PointBB, out vec2 Crossing, out double TimeA, bool Limit = false)
         {
             TimeA = -1;
@@ -182,9 +184,132 @@ namespace AgOpenGPS.Classes
             return NumCrossings % 2 == 1;
         }
 
-        public static List<List<vec2>> ClipPolyLine(this List<vec2> Points, ref List<vec2> clipPoints, bool Loop, bool ClipWinding = true)
+        public static Polyline OffsetAndClipPolylineOne(this Polyline Poly, double width, bool loop, int start = -1, int end = -1, bool add = true)
         {
-            List<List<vec2>> FinalPolyLine = new List<List<vec2>>();
+            List<vec2> OffsetPoints = Poly.Points.OffsetPolyline(width, loop, start, end, add);
+
+            List<Polyline> Output = OffsetPoints.ClipPolyLine(null, loop);
+
+            if (Output.Count > 0)
+                return Output[0];
+            else
+                return new Polyline();
+        }
+
+        public static List<Polyline> OffsetAndClipPolylineMulti(this Polyline Poly, double width, bool loop, int start = -1, int end = -1, bool add = true)
+        {
+            List<vec2> OffsetPoints = Poly.Points.OffsetPolyline(width, loop, start, end, add);
+
+            List<Polyline> Output = OffsetPoints.ClipPolyLine(null, loop);
+
+            return Output;
+        }
+
+        public static List<vec2> OffsetPolyline(this List<vec2> Points, double Distance, bool Loop, int Start = -1, int End = -1, bool Add = true)
+        {
+            List<vec2> OffsetPoints = new List<vec2>();
+            int A, C;
+            double Dx, Dy, Dx1, Dy1, Dx2, Dy2, Length, Northing, Easting;
+            for (int i = 0; i < Points.Count; i++)
+            {
+                if (Start == -1 || (Start > End && (i >= Start || i <= End)) || (Start < End && i >= Start && i <= End))
+                {
+                    A = (i == 0) ? Points.Count - 1 : i - 1;
+                    C = (i + 1 == Points.Count) ? 0 : i + 1;
+
+                    if (!Loop && i == 0)
+                    {
+                        Dx = Points[C].northing - Points[i].northing;
+                        Dy = Points[C].easting - Points[i].easting;
+                        Length = Math.Sqrt((Dx * Dx) + (Dy * Dy));
+                        Northing = Distance * (-Dy / Length);
+                        Easting = Distance * (Dx / Length);
+                        OffsetPoints.Add(new vec2(Points[i].easting + Easting, Points[i].northing + Northing));
+                    }
+                    else if (!Loop && i == Points.Count - 1)
+                    {
+                        Dx = Points[i].northing - Points[A].northing;
+                        Dy = Points[i].easting - Points[A].easting;
+                        Length = Math.Sqrt((Dx * Dx) + (Dy * Dy));
+                        Northing = Distance * (-Dy / Length);
+                        Easting = Distance * (Dx / Length);
+                        OffsetPoints.Add(new vec2(Points[i].easting + Easting, Points[i].northing + Northing));
+                    }
+                    else
+                    {
+                        Dx1 = Points[i].northing - Points[A].northing;
+                        Dy1 = Points[i].easting - Points[A].easting;
+                        Dx2 = Points[i].northing - Points[C].northing;
+                        Dy2 = Points[i].easting - Points[C].easting;
+                        double angle = Math.Atan2(Dy1, Dx1) - Math.Atan2(Dy2, Dx2);
+
+                        if (angle < 0) angle += glm.twoPI;
+                        if (angle > glm.twoPI) angle -= glm.twoPI;
+
+                        double tan = Math.Abs(Math.Tan(angle / 2.0));
+
+                        double segment = Distance / tan;
+                        var p1Cross = Points[i].GetProportionPoint(segment, GetLength(Dx1, Dy1), Dx1, Dy1);
+                        var p2Cross = Points[i].GetProportionPoint(segment, GetLength(Dx2, Dy2), Dx2, Dy2);
+
+                        Dx = Points[i].northing * 2 - p1Cross.northing - p2Cross.northing;
+                        Dy = Points[i].easting * 2 - p1Cross.easting - p2Cross.easting;
+
+                        if (Dx1 == 0 && Dy1 == 0 || Dx2 == 0 && Dy2 == 0) continue;
+
+                        double L = GetLength(Dx, Dy);
+                        double d = GetLength(segment, Distance);
+
+                        if (L > Math.Abs(Distance))
+                        {
+                            continue;
+                        }
+
+                        vec2 circlePoint = Points[i].GetProportionPoint(Math.Abs(angle) > Math.PI ? -d : d, L, Dx, Dy);
+                        OffsetPoints.Add(new vec2(circlePoint.easting, circlePoint.northing));
+                    }
+                }
+                else if (i == Start || i == End)//folow line
+                {
+                    int num = Start < End ? -1 : 1;
+                    if (i == End) num *= -1;
+                    if (Start > End) num *= -1;
+
+                    int j = (i - num).Clamp(Points.Count);
+
+                    Dx = Points[num > 0 ? i : j].northing - Points[num > 0 ? j : i].northing;
+                    Dy = Points[num > 0 ? i : j].easting - Points[num > 0 ? j : i].easting;
+
+                    Length = Math.Sqrt((Dx * Dx) + (Dy * Dy));
+                    vec2 Point = new vec2(Points[i].easting + Distance * (Dx / Length), Points[i].northing + Distance * (-Dy / Length));
+                    vec2 Point2 = new vec2(Points[j].easting + Distance * (Dx / Length), Points[j].northing + Distance * (-Dy / Length));
+
+                    if (GetLineIntersection(Point2, Point, Points[i], Points[(i + num).Clamp(Points.Count)], out vec2 Crossing, out _))
+                        OffsetPoints.Add(Crossing);
+                    else
+                        OffsetPoints.Add(Point);
+                }
+                else if (Add)
+                    OffsetPoints.Add(Points[i]);
+            }
+            return OffsetPoints;
+        }
+
+        public static double GetLength(double dx, double dy)
+        {
+            return Math.Sqrt(dx * dx + dy * dy);
+        }
+
+        public static vec2 GetProportionPoint(this vec2 point, double segment, double length, double dx, double dy)
+        {
+            double factor = segment / length;
+            if (double.IsNaN(factor)) factor = 0;
+            return new vec2(point.easting - dy * factor, point.northing - dx * factor);
+        }
+
+        public static List<Polyline> ClipPolyLine(this List<vec2> Points, List<vec2> clipPoints, bool Loop, bool ClipWinding = true)
+        {
+            List<Polyline> FinalPolyLine = new List<Polyline>();
 
             if (Points.Count < 2) return FinalPolyLine;
 
@@ -317,14 +442,14 @@ namespace AgOpenGPS.Classes
                     CurrentVertex = Polygons[i];
                     StopVertex = CurrentVertex;
                     bool isInside;
-                    if (ClipWinding && clipPoints != null && clipPoints.Count > 2)
+                    if (ClipWinding && clipPoints?.Count > 2)
                     {
                         isInside = clipPoints.PointInPolygon(CurrentVertex.Coords);
                     }
                     else
                         isInside = true;
 
-                    if (isInside) FinalPolyLine.Add(new List<vec2>());
+                    if (isInside) FinalPolyLine.Add(new Polyline());
 
                     safety = 0;
                     start = true;
@@ -332,12 +457,12 @@ namespace AgOpenGPS.Classes
                     {
                         if (isInside)
                         {
-                            FinalPolyLine[FinalPolyLine.Count - 1].Add(CurrentVertex.Coords);
+                            FinalPolyLine[FinalPolyLine.Count - 1].Points.Add(CurrentVertex.Coords);
                         }
                         if (!start && CurrentVertex.Next == StopVertex) break;
                         start = false;
 
-                        if (clipPoints != null && clipPoints.Count > 2)
+                        if (clipPoints?.Count > 2)
                         {
                             List<vec3> Crossings2 = new List<vec3>();
                             int j = clipPoints.Count - 1;
@@ -357,12 +482,12 @@ namespace AgOpenGPS.Classes
                                 {
                                     if (isInside && FinalPolyLine.Count > 0)
                                     {
-                                        FinalPolyLine[FinalPolyLine.Count - 1].Add(new vec2(Crossings2[k].easting, Crossings2[k].northing));
+                                        FinalPolyLine[FinalPolyLine.Count - 1].Points.Add(new vec2(Crossings2[k].easting, Crossings2[k].northing));
                                     }
                                     if (isInside = !isInside)
                                     {
-                                        FinalPolyLine.Add(new List<vec2>());
-                                        FinalPolyLine[FinalPolyLine.Count - 1].Add(new vec2(Crossings2[k].easting, Crossings2[k].northing));
+                                        FinalPolyLine.Add(new Polyline());
+                                        FinalPolyLine[FinalPolyLine.Count - 1].Points.Add(new vec2(Crossings2[k].easting, Crossings2[k].northing));
                                     }
                                 }
                             }
@@ -377,20 +502,20 @@ namespace AgOpenGPS.Classes
             {
                 for (int i = 0; i < Polygons.Count; i++)
                 {
-                    FinalPolyLine.Add(new List<vec2>());
-
+                    FinalPolyLine.Add(new Polyline());
+                    FinalPolyLine[i].Loop = true;
                     start = true;
                     CurrentVertex = Polygons[i];
+
                     StopVertex = CurrentVertex;
                     safety = 0;
-
                     while (true)
                     {
                         if (!start && CurrentVertex == StopVertex)
                             break;
                         start = false;
 
-                        FinalPolyLine[i].Add(CurrentVertex.Coords);
+                        FinalPolyLine[i].Points.Add(CurrentVertex.Coords);
 
                         CurrentVertex = CurrentVertex.Next;
                         if (safety++ > TotalCount) break;
@@ -399,23 +524,45 @@ namespace AgOpenGPS.Classes
 
                 if (ClipWinding)
                 {
-                    int[] Windings = new int[FinalPolyLine.Count];
-
-                    for (int i = 0; i < FinalPolyLine.Count; i++)
+                    for (int i = FinalPolyLine.Count - 1; i >= 0; i--)
                     {
-                        Windings[i] = -1000;
-                        bool inside;
-                        for (int j = 2; j < FinalPolyLine[i].Count; j++)
+                        if (FinalPolyLine[i].Points.Count < 3)
                         {
-                            if (!IsTriangleOrientedClockwise(FinalPolyLine[i][j - 2], FinalPolyLine[i][j - 1], FinalPolyLine[i][j]))
+                            FinalPolyLine.RemoveAt(i);
+                            continue;
+                        }
+
+                        double area = 0;
+                        int o = FinalPolyLine[i].Points.Count - 1;
+                        for (int l = 0; l < FinalPolyLine[i].Points.Count; o = l++)
+                        {
+                            area += (FinalPolyLine[i].Points[o].easting + FinalPolyLine[i].Points[l].easting) * (FinalPolyLine[i].Points[o].northing - FinalPolyLine[i].Points[l].northing);
+                        }
+
+                        if (area < 0)
+                        {
+                            FinalPolyLine.RemoveAt(i);
+                            continue;
+                        }
+                        else
+                            FinalPolyLine[i].area = area;
+
+
+
+
+                        FinalPolyLine[i].winding = -255;
+                        bool inside;
+                        for (int j = 2; j < FinalPolyLine[i].Points.Count; j++)
+                        {
+                            if (!IsTriangleOrientedClockwise(FinalPolyLine[i].Points[j - 2], FinalPolyLine[i].Points[j - 1], FinalPolyLine[i].Points[j]))
                             {
                                 inside = false;
 
                                 for (int k = 0; k < FinalPolyLine.Count; k++)
                                 {
-                                    for (int l = 0; l < FinalPolyLine[k].Count; l++)
+                                    for (int l = 0; l < FinalPolyLine[k].Points.Count; l++)
                                     {
-                                        if (IsPointInTriangle(FinalPolyLine[i][j - 2], FinalPolyLine[i][j - 1], FinalPolyLine[i][j], FinalPolyLine[k][l]))
+                                        if (IsPointInTriangle(FinalPolyLine[i].Points[j - 2], FinalPolyLine[i].Points[j - 1], FinalPolyLine[i].Points[j], FinalPolyLine[k].Points[l]))
                                         {
                                             inside = true;
                                             break;
@@ -427,50 +574,42 @@ namespace AgOpenGPS.Classes
                                 {
                                     int winding_number = 0;
 
-                                    double a = (FinalPolyLine[i][j - 2].northing + FinalPolyLine[i][j - 1].northing + FinalPolyLine[i][j].northing) / 3.0;
-                                    double b = (FinalPolyLine[i][j - 2].easting + FinalPolyLine[i][j - 1].easting + FinalPolyLine[i][j].easting) / 3.0;
+                                    double a = (FinalPolyLine[i].Points[j - 2].northing + FinalPolyLine[i].Points[j - 1].northing + FinalPolyLine[i].Points[j].northing) / 3.0;
+                                    double b = (FinalPolyLine[i].Points[j - 2].easting + FinalPolyLine[i].Points[j - 1].easting + FinalPolyLine[i].Points[j].easting) / 3.0;
 
                                     vec2 test3 = new vec2(b, a);
-
-                                    for (int k = 0; k < FinalPolyLine.Count; k++)
+                                    int l = Points.Count - 1;
+                                    for (int m = 0; m < Points.Count; l = m++)
                                     {
-                                        int l = FinalPolyLine[k].Count - 1;
-                                        for (int m = 0; m < FinalPolyLine[k].Count; l = m++)
+                                        if (Points[l].easting <= test3.easting && Points[m].easting > test3.easting)
                                         {
-                                            if (FinalPolyLine[k][l].easting <= test3.easting && FinalPolyLine[k][m].easting > test3.easting)
+                                            if ((Points[m].northing - Points[l].northing) * (test3.easting - Points[l].easting) -
+                                            (test3.northing - Points[l].northing) * (Points[m].easting - Points[l].easting) > 0)
                                             {
-                                                if ((FinalPolyLine[k][m].northing - FinalPolyLine[k][l].northing) * (test3.easting - FinalPolyLine[k][l].easting) -
-                                                (test3.northing - FinalPolyLine[k][l].northing) * (FinalPolyLine[k][m].easting - FinalPolyLine[k][l].easting) > 0)
-                                                {
-                                                    ++winding_number;
-                                                }
+                                                ++winding_number;
                                             }
-                                            else
+                                        }
+                                        else if (Points[l].easting > test3.easting && Points[m].easting <= test3.easting)
+                                        {
+                                            if ((Points[m].northing - Points[l].northing) * (test3.easting - Points[l].easting) -
+                                            (test3.northing - Points[l].northing) * (Points[m].easting - Points[l].easting) < 0)
                                             {
-                                                if (FinalPolyLine[k][l].easting > test3.easting && FinalPolyLine[k][m].easting <= test3.easting)
-                                                {
-                                                    if ((FinalPolyLine[k][m].northing - FinalPolyLine[k][l].northing) * (test3.easting - FinalPolyLine[k][l].easting) -
-                                                    (test3.northing - FinalPolyLine[k][l].northing) * (FinalPolyLine[k][m].easting - FinalPolyLine[k][l].easting) < 0)
-                                                    {
-                                                        --winding_number;
-                                                    }
-                                                }
+                                                --winding_number;
                                             }
                                         }
                                     }
-                                    Windings[i] = winding_number;
+                                    FinalPolyLine[i].winding = winding_number;
                                     break;
                                 }
                             }
                         }
-                    }
-
-                    for (int i = FinalPolyLine.Count - 1; i >= 0; i--)
-                    {
-                        int aa = Windings[i];
-                        if (Windings[i] != 1)
+                        if (FinalPolyLine[i].winding != 1)
+                        {
                             FinalPolyLine.RemoveAt(i);
+                            continue;
+                        }
                     }
+                    FinalPolyLine.Sort((x, y) => y.area.CompareTo(x.area));
                 }
             }
             return FinalPolyLine;

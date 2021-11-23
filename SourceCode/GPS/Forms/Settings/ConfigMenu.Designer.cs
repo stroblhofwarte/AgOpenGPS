@@ -85,9 +85,6 @@ namespace AgOpenGPS
             //Update the button colors and text
             mf.ManualAllBtnsUpdate();
 
-            //enable disable manual buttons
-            mf.LineUpManualBtns();
-
             ShowSubMenu(panelToolSubMenu, btnTool);
             //tab1.SelectedTab = tabSummary;
             UpdateVehicleListView();

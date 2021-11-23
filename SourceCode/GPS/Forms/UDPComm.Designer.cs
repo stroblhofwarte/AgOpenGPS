@@ -52,7 +52,7 @@ namespace AgOpenGPS
                             if (Lon != double.MaxValue && Lat != double.MaxValue)
                             {
                                 if (timerSim.Enabled)
-                                    DisableSim();
+                                    SetSimStatus(false);
 
                                 pn.longitude = Lon;
                                 pn.latitude = Lat;
@@ -260,6 +260,66 @@ namespace AgOpenGPS
 
                     mc.ssP[mc.swMain] = mc.ss[mc.swMain];
                 }  //Main or Rate SW
+
+
+                int set = 1;
+                int idx1 = mc.swOnGr0;
+                int idx2 = mc.swOffGr0;
+
+                for (int j = 0; j < tool.numOfSections; j++)
+                {
+                    if (j == 8)
+                    {
+                        set = 1;
+                        idx1 = mc.swOnGr1;
+                        idx2 = mc.swOffGr1;
+                    }
+
+                    //do nothing if bit isn't set
+                    btnStates status = section[j].manBtnState;
+
+                    if ((mc.ss[idx1] & set) == set)
+                    {
+                        if (autoBtnState == btnStates.Auto && (mc.ss[idx2] & set) == set)//not sure if we want to force on when auto is off!
+                            status = btnStates.Auto;
+                        else
+                            status = btnStates.On;
+                    }
+                    else if ((mc.ss[idx2] & set) == set)
+                        status = btnStates.Off;
+                    else if ((mc.ss[idx2] & set) != (mc.ssP[idx2] & set))
+                        status = btnStates.Auto;//unlogical! (should change to when both are on)
+
+                    if (section[j].manBtnState != status)
+                    {
+                        if (status == btnStates.Off)
+                            section[j].manBtnState = btnStates.On;
+                        else if (status == btnStates.Auto)
+                            section[j].manBtnState = btnStates.Off;
+                        if (status == btnStates.On)
+                            section[j].manBtnState = btnStates.Auto;
+
+                        Button button = oglPanel.Controls["btnSection" + (j + 1) + "Man"] as Button;
+
+                        if (button != null)
+                            ManualBtnUpdate(j, button);
+                        //off --> auto
+                        //auto -> on
+                        //on ---> off
+                    }
+                    set <<= 1;
+                }
+
+                //only needed for unlogical auto
+                mc.ssP[mc.swOffGr0] = mc.ss[mc.swOffGr0];
+                mc.ssP[mc.swOffGr1] = mc.ss[mc.swOffGr1];
+
+
+                return;
+
+
+
+
 
 
                 if (mc.ss[mc.swOnGr0] != 0)
@@ -562,20 +622,19 @@ namespace AgOpenGPS
             }
         }
 
-        private void DisableSim()
+        private void SetSimStatus(bool status)
         {
             isFirstFixPositionSet = false;
             isGPSPositionInitialized = false;
             isFirstHeadingSet = false;
             startCounter = 0;
-            panelSim.Visible = false;
-            timerSim.Enabled = false;
-            simulatorOnToolStripMenuItem.Checked = false;
+            panelSim.Visible = status;
+            timerSim.Enabled = status;
+            simulatorOnToolStripMenuItem.Checked = status;
             Properties.Settings.Default.setMenu_isSimulatorOn = simulatorOnToolStripMenuItem.Checked;
             Properties.Settings.Default.Save();
-            return;
+            LineUpManualBtns();
         }
-
 
         private void ReceiveAppData(IAsyncResult asyncResult)
         {

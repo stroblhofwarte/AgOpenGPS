@@ -28,9 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormTram));
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.lblSmallSnapRight = new System.Windows.Forms.Label();
             this.nudPasses = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
@@ -89,8 +87,7 @@
             0,
             0,
             0});
-            this.nudPasses.ValueChanged += new System.EventHandler(this.nudPasses_ValueChanged);
-            this.nudPasses.Enter += new System.EventHandler(this.nudPasses_Enter);
+            this.nudPasses.Click += new System.EventHandler(this.nudPasses_Click);
             // 
             // label3
             // 
@@ -387,7 +384,6 @@
         }
 
         #endregion
-        private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Button btnExit;
         private System.Windows.Forms.Button btnAdjLeft;
         private System.Windows.Forms.Button btnAdjRight;

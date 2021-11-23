@@ -266,6 +266,7 @@ namespace AgOpenGPS
             mf.sounds.isHydLiftSoundOn = cboxHydLiftSound.Checked;
 
             Properties.Settings.Default.Save();
+            mf.FieldMenuButtonEnableDisable(mf.isJobStarted);
         }
 
 

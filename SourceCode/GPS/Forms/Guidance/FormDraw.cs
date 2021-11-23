@@ -19,6 +19,7 @@ namespace AgOpenGPS
         private int A, B, C, D, E, start = 99999, end = 99999;
 
         private bool isDrawSections = false;
+        private CGuidanceLine selectedLine;
 
         private vec3[] arr;
         public FormABDraw(Form callingForm)
@@ -65,61 +66,60 @@ namespace AgOpenGPS
 
             nudDistance.Value = (decimal)Math.Round(((mf.tool.toolWidth * mf.m2InchOrCm) * 0.5), 0); // 
             label6.Text = Math.Round((mf.tool.toolWidth * mf.m2InchOrCm), 0).ToString();
-            FixLabelsABLine();
-            FixLabelsCurve();
+            FixLabels();
 
             if (isDrawSections) btnDrawSections.Image = Properties.Resources.MappingOn;
             else btnDrawSections.Image = Properties.Resources.MappingOff;
 
         }
 
-        private void FixLabelsCurve()
+        private void FixLabels()
         {
-            if (mf.gyd.selectedCurveLine != null)
+            if (selectedLine?.Mode.HasFlag(Mode.Curve) == true)
             {
                 int count = 0;
                 for (int i = 0; i < mf.gyd.refList.Count; i++)
                 {
-                    if (mf.gyd.refList[i].Mode == Mode.Boundary || mf.gyd.refList[i].Mode == Mode.Curve)
+                    if (mf.gyd.refList[i].Mode.HasFlag(Mode.Curve))
                         count++;
-                    if (mf.gyd.refList[i] == mf.gyd.selectedABLine) break;
+                    if (mf.gyd.refList[i] == selectedLine) break;
                 }
 
-                tboxNameCurve.Text = mf.gyd.selectedCurveLine.Name.Trim();
+                tboxNameCurve.Text = selectedLine.Name.Trim();
                 tboxNameCurve.Enabled = true;
                 lblCurveSelected.Text = count.ToString();
+                btnDelete.Enabled = true;
             }
             else
             {
                 tboxNameCurve.Text = "***";
                 tboxNameCurve.Enabled = false;
                 lblCurveSelected.Text = "0";
+                btnDelete.Enabled = false;
             }
             lblNumCu.Text = mf.gyd.numCurveLines.ToString();
-        }
 
-        private void FixLabelsABLine()
-        {
-            if (mf.gyd.selectedABLine != null)
+            if (selectedLine?.Mode.HasFlag(Mode.AB) == true)
             {
                 int count = 0;
-
                 for (int i = 0; i < mf.gyd.refList.Count; i++)
                 {
-                    if (mf.gyd.refList[i].Mode == Mode.AB)
+                    if (mf.gyd.refList[i].Mode.HasFlag(Mode.AB))
                         count++;
-                    if (mf.gyd.refList[i] == mf.gyd.selectedABLine) break;
+                    if (mf.gyd.refList[i] == selectedLine) break;
                 }
 
-                tboxNameLine.Text = mf.gyd.selectedABLine.Name.Trim();
+                tboxNameLine.Text = selectedLine.Name.Trim();
                 tboxNameLine.Enabled = true;
                 lblABSelected.Text = count.ToString();
+                btnDelete2.Enabled = true;
             }
             else
             {
                 tboxNameLine.Text = "***";
                 tboxNameLine.Enabled = false;
                 lblABSelected.Text = "0";
+                btnDelete2.Enabled = false;
             }
 
             lblNumAB.Text = mf.gyd.numABLines.ToString();
@@ -127,60 +127,56 @@ namespace AgOpenGPS
 
         private void btnSelectCurve_Click(object sender, EventArgs e)
         {
-            if (mf.gyd.numCurveLines > 0)
+            bool found = !(selectedLine?.Mode.HasFlag(Mode.Curve) == true);
+            bool loop = true;
+            for (int i = 0; i < mf.gyd.refList.Count || loop; i++)
             {
-                bool found = mf.gyd.selectedCurveLine == null;
-                bool loop = true;
-                for (int i = 0; i < mf.gyd.refList.Count || loop; i++)
+                if (i >= mf.gyd.refList.Count)
                 {
-                    if (i >= mf.gyd.refList.Count)
-                    {
-                        loop = false;
-                        i = -1;
-                        if (!found) break;
-                        else continue;
-                    }
-                    if (mf.gyd.refList[i] == mf.gyd.selectedCurveLine)
-                        found = true;
-                    if (found && (mf.gyd.refList[i].Mode == Mode.Boundary || mf.gyd.refList[i].Mode == Mode.Curve))
-                    {
-                        mf.gyd.selectedCurveLine = mf.gyd.refList[i];
-                        break;
-                    }
+                    loop = false;
+                    i = -1;
+                    if (!found) break;
+                    else continue;
+                }
+                if (mf.gyd.refList[i] == selectedLine)
+                    found = true;
+                else if (found && (mf.gyd.refList[i].Mode.HasFlag(Mode.Curve)))
+                {
+                    selectedLine = mf.gyd.refList[i];
+                    break;
                 }
             }
-            else mf.gyd.selectedCurveLine = null;
+            if (!found)
+                selectedLine = null;
 
-            FixLabelsCurve();
+            FixLabels();
         }
 
         private void btnSelectABLine_Click(object sender, EventArgs e)
         {
-            if (mf.gyd.numABLines > 0)
+            bool found = !(selectedLine?.Mode.HasFlag(Mode.AB) == true);
+            bool loop = true;
+            for (int i = 0; i < mf.gyd.refList.Count || loop; i++)
             {
-                bool found = mf.gyd.selectedABLine == null;
-                bool loop = true;
-                for (int i = 0; i < mf.gyd.refList.Count || loop; i++)
+                if (i >= mf.gyd.refList.Count)
                 {
-                    if (i >= mf.gyd.refList.Count)
-                    {
-                        loop = false;
-                        i = -1;
-                        if (!found) break;
-                        else continue;
-                    }
-                    if (mf.gyd.refList[i] == mf.gyd.selectedABLine)
-                        found = true;
-                    else if (found && mf.gyd.refList[i].Mode == Mode.AB)
-                    {
-                        mf.gyd.selectedABLine = mf.gyd.refList[i];
-                        break;
-                    }
+                    loop = false;
+                    i = -1;
+                    if (!found) break;
+                    else continue;
+                }
+                if (mf.gyd.refList[i] == selectedLine)
+                    found = true;
+                else if (found && mf.gyd.refList[i].Mode.HasFlag(Mode.AB))
+                {
+                    selectedLine = mf.gyd.refList[i];
+                    break;
                 }
             }
-            else mf.gyd.selectedABLine = null;
+            if (!found)
+                selectedLine = null;
 
-            FixLabelsABLine();
+            FixLabels();
         }
 
         private void btnCancelTouch_Click(object sender, EventArgs e)
@@ -200,31 +196,29 @@ namespace AgOpenGPS
         {
             mf.KeypadToNUD((NumericUpDown)sender, this);
             btnSelectABLine.Focus();
-
         }
 
-        private void btnDeleteCurve_Click(object sender, EventArgs e)
+        private void btnDelete_Click(object sender, EventArgs e)
         {
-            if (mf.gyd.selectedCurveLine != null)
+            if (selectedLine == mf.gyd.selectedLine)
             {
-                mf.gyd.refList.Remove(mf.gyd.selectedCurveLine);
-                mf.gyd.numCurveLines--;
-                mf.gyd.selectedCurveLine = null;
+                mf.gyd.selectedLine = null;
+                if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
+                if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
+                mf.enableCurveButton(false);
+                mf.enableABLineButton(false);
+            }
+            if (selectedLine != null)
+            {
+                if (selectedLine.Mode.HasFlag(Mode.Curve))
+                    mf.gyd.numCurveLines--;
+                else
+                    mf.gyd.numABLines--;
+                mf.gyd.refList.Remove(selectedLine);
+                selectedLine = null;
             }
 
-            FixLabelsCurve();
-        }
-
-        private void btnDeleteABLine_Click(object sender, EventArgs e)
-        {
-            if (mf.gyd.selectedABLine != null)
-            {
-                mf.gyd.refList.Remove(mf.gyd.selectedABLine);
-                mf.gyd.numABLines--;
-                mf.gyd.selectedABLine = null;
-            }
-
-            FixLabelsABLine();
+            FixLabels();
         }
 
         private void btnDrawSections_Click(object sender, EventArgs e)
@@ -234,75 +228,9 @@ namespace AgOpenGPS
             else btnDrawSections.Image = Properties.Resources.MappingOff;
         }
 
-        public vec3 pint = new vec3(0.0, 1.0, 0.0);
-
-        private void tboxNameCurve_Leave(object sender, EventArgs e)
-        {
-            if (mf.gyd.selectedCurveLine != null)
-            {
-                string text = tboxNameCurve.Text.Trim();
-                while (mf.gyd.refList.Exists(x => x != mf.gyd.selectedCurveLine && x.Name == text))//generate unique name!
-                    text += " ";
-                mf.gyd.selectedCurveLine.Name = text;
-            }
-        }
-
-        private void tboxNameLine_Leave(object sender, EventArgs e)
-        {
-            if (mf.gyd.selectedABLine != null)
-            {
-                string text = tboxNameLine.Text.Trim();
-                while (mf.gyd.refList.Exists(x => x != mf.gyd.selectedABLine && x.Name == text))//generate unique name!
-                    text += " ";
-                mf.gyd.selectedABLine.Name = text;
-            }
-        }
-
         private void btnFlipOffset_Click(object sender, EventArgs e)
         {
             nudDistance.Value *= -1;
-        }
-
-        private void tboxNameCurve_Enter(object sender, EventArgs e)
-        {
-            if (mf.gyd.selectedCurveLine != null)
-            {
-                if (mf.gyd.selectedCurveLine.Name == "Boundary Curve")
-                {
-                    btnExit.Focus();
-                    return;
-                }
-
-                if (mf.isKeyboardOn)
-                {
-                    mf.KeyboardToText((TextBox)sender, this);
-
-                    string text = tboxNameCurve.Text.Trim();
-                    while (mf.gyd.refList.Exists(x => x != mf.gyd.selectedCurveLine && x.Name == text))//generate unique name!
-                        text += " ";
-                    mf.gyd.selectedCurveLine.Name = text;
-
-                    btnExit.Focus();
-                }
-            }
-        }
-
-        private void tboxNameLine_Enter(object sender, EventArgs e)
-        {
-            if (mf.gyd.selectedABLine != null)
-            {
-                if (mf.isKeyboardOn)
-                {
-                    mf.KeyboardToText((TextBox)sender, this);
-
-                    string text = tboxNameLine.Text.Trim();
-                    while (mf.gyd.refList.Exists(x => x != mf.gyd.selectedABLine && x.Name == text))//generate unique name!
-                        text += " ";
-                    mf.gyd.selectedABLine.Name = text;
-
-                    btnExit.Focus();
-                }
-            }
         }
 
         private void oglSelf_MouseDown(object sender, MouseEventArgs e)
@@ -318,19 +246,11 @@ namespace AgOpenGPS
             //Convert to Origin in the center of window, 800 pixels
             fixPt.X = pt.X - 350;
             fixPt.Y = (700 - pt.Y - 350);
-            vec3 plotPt = new vec3
-            {
-                //convert screen coordinates to field coordinates
-                easting = fixPt.X * mf.maxFieldDistance / 632.0,
-                northing = fixPt.Y * mf.maxFieldDistance / 632.0,
-                heading = 0
-            };
-
+            //convert screen coordinates to field coordinates
+            vec2 plotPt = new vec2(fixPt.X * mf.maxFieldDistance / 632.0, fixPt.Y * mf.maxFieldDistance / 632.0);
+            
             plotPt.easting += mf.fieldCenterX;
             plotPt.northing += mf.fieldCenterY;
-
-            pint.easting = plotPt.easting;
-            pint.northing = plotPt.northing;
 
             if (isA)
             {
@@ -344,8 +264,8 @@ namespace AgOpenGPS
                     //find the closest 2 points to current fix
                     for (int t = 0; t < ptCount; t++)
                     {
-                        double dist = ((pint.easting - arr[t].easting) * (pint.easting - arr[t].easting))
-                                        + ((pint.northing - arr[t].northing) * (pint.northing - arr[t].northing));
+                        double dist = ((plotPt.easting - arr[t].easting) * (plotPt.easting - arr[t].easting))
+                                        + ((plotPt.northing - arr[t].northing) * (plotPt.northing - arr[t].northing));
                         if (dist < minDistA)
                         {
                             minDistB = minDistA;
@@ -379,8 +299,8 @@ namespace AgOpenGPS
                     //find the closest 2 points to current point
                     for (int t = 0; t < ptCount; t++)
                     {
-                        double dist = ((pint.easting - arr[t].easting) * (pint.easting - arr[t].easting))
-                                        + ((pint.northing - arr[t].northing) * (pint.northing - arr[t].northing));
+                        double dist = ((plotPt.easting - arr[t].easting) * (plotPt.easting - arr[t].easting))
+                                        + ((plotPt.northing - arr[t].northing) * (plotPt.northing - arr[t].northing));
                         if (dist < minDistA)
                         {
                             minDistB = minDistA;
@@ -420,7 +340,7 @@ namespace AgOpenGPS
 
         private void btnMakeBoundaryCurve_Click(object sender, EventArgs e)
         {
-            CGuidanceLine New = new CGuidanceLine(Mode.Boundary);
+            CGuidanceLine New = new CGuidanceLine(Mode.Curve | Mode.Boundary);
 
             //count the points from the boundary
             int ptCount = mf.bnd.bndList[0].fenceLine.Points.Count;
@@ -498,7 +418,7 @@ namespace AgOpenGPS
                 New.Name = "Boundary Curve";
                 mf.gyd.refList.Add(New);
                 mf.gyd.numCurveLines++;
-                mf.gyd.selectedCurveLine = New;
+                selectedLine = New;
 
                 //update the arrays
                 btnMakeABLine.Enabled = false;
@@ -507,7 +427,7 @@ namespace AgOpenGPS
                 isMakingAB = false;
                 start = 99999; end = 99999;
 
-                FixLabelsCurve();
+                FixLabels();
             }
             btnExit.Focus();
         }
@@ -611,7 +531,7 @@ namespace AgOpenGPS
 
                 mf.gyd.refList.Add(New);
                 mf.gyd.numCurveLines++;
-                mf.gyd.selectedCurveLine = New;
+                selectedLine = New;
 
                 //update the arrays
                 btnMakeABLine.Enabled = false;
@@ -620,7 +540,7 @@ namespace AgOpenGPS
                 isMakingAB = false;
                 start = 99999; end = 99999;
 
-                FixLabelsCurve();
+                FixLabels();
             }
 
             btnExit.Focus();
@@ -653,7 +573,7 @@ namespace AgOpenGPS
 
             mf.gyd.refList.Add(New);
             mf.gyd.numABLines++;
-            mf.gyd.selectedABLine = New;
+            selectedLine = New;
 
             //clean up gui
             btnMakeABLine.Enabled = false;
@@ -663,7 +583,7 @@ namespace AgOpenGPS
             isMakingAB = false;
             start = 99999; end = 99999;
 
-            FixLabelsABLine();
+            FixLabels();
         }
 
         public void CalculateTurnHeadings(CGuidanceLine New)
@@ -684,6 +604,64 @@ namespace AgOpenGPS
                     pt3.heading = Math.Atan2(arr[i + 1].easting - arr[i - 1].easting, arr[i + 1].northing - arr[i - 1].northing);
                     if (pt3.heading < 0) pt3.heading += glm.twoPI;
                     New.curvePts.Add(pt3);
+                }
+            }
+        }
+
+        private void tboxNameLine_Click(object sender, EventArgs e)
+        {
+            if (selectedLine?.Mode.HasFlag(Mode.AB) == true)
+            {
+                if (mf.isKeyboardOn)
+                {
+                    mf.KeyboardToText((TextBox)sender, this);
+
+                    string text = tboxNameLine.Text.Trim();
+                    while (mf.gyd.refList.Exists(x => x != selectedLine && x.Name == text))//generate unique name!
+                        text += " ";
+                    selectedLine.Name = text;
+
+                    btnExit.Focus();
+                }
+            }
+        }
+
+        private void tboxNameLine_TextChanged(object sender, EventArgs e)
+        {
+            if (selectedLine?.Mode.HasFlag(Mode.AB) == true)
+            {
+                string text = tboxNameLine.Text.Trim();
+                while (mf.gyd.refList.Exists(x => x != selectedLine && x.Name == text))//generate unique name!
+                    text += " ";
+                selectedLine.Name = text;
+            }
+        }
+
+        private void tboxNameCurve_TextChanged(object sender, EventArgs e)
+        {
+            if (selectedLine?.Mode.HasFlag(Mode.Curve) == true)
+            {
+                string text = tboxNameCurve.Text.Trim();
+                while (mf.gyd.refList.Exists(x => x != selectedLine && x.Name == text))//generate unique name!
+                    text += " ";
+                selectedLine.Name = text;
+            }
+        }
+
+        private void tboxNameCurve_Click(object sender, EventArgs e)
+        {
+            if (selectedLine?.Mode.HasFlag(Mode.Curve) == true)
+            {
+                if (mf.isKeyboardOn)
+                {
+                    mf.KeyboardToText((TextBox)sender, this);
+
+                    string text = tboxNameCurve.Text.Trim();
+                    while (mf.gyd.refList.Exists(x => x != selectedLine && x.Name == text))//generate unique name!
+                        text += " ";
+                    selectedLine.Name = text;
+
+                    btnExit.Focus();
                 }
             }
         }
@@ -763,7 +741,7 @@ namespace AgOpenGPS
 
                 foreach (CGuidanceLine item in mf.gyd.refList)
                 {
-                    if (item.Mode == Mode.AB && item.curvePts.Count > 1)
+                    if (item.Mode.HasFlag(Mode.AB) && item.curvePts.Count > 1)
                     {
                         double abHead = Math.Atan2(item.curvePts[1].easting - item.curvePts[0].easting, item.curvePts[1].northing - item.curvePts[0].northing);
 
@@ -776,22 +754,22 @@ namespace AgOpenGPS
 
                 GL.Disable(EnableCap.LineStipple);
 
-                if (mf.gyd.selectedABLine != null)
+                if (selectedLine?.Mode.HasFlag(Mode.AB) == true)
                 {
                     GL.Color3(1.0f, 0.0f, 0.0f);
 
                     GL.LineWidth(4);
                     GL.Begin(PrimitiveType.Lines);
 
-                    if (mf.gyd.selectedABLine.curvePts.Count > 1)
+                    if (selectedLine.curvePts.Count > 1)
                     {
-                        double abHead = Math.Atan2(mf.gyd.selectedABLine.curvePts[1].easting - mf.gyd.selectedABLine.curvePts[0].easting,
-                            mf.gyd.selectedABLine.curvePts[1].northing - mf.gyd.selectedABLine.curvePts[0].northing);
+                        double abHead = Math.Atan2(selectedLine.curvePts[1].easting - selectedLine.curvePts[0].easting,
+                            selectedLine.curvePts[1].northing - selectedLine.curvePts[0].northing);
 
-                        GL.Vertex3(mf.gyd.selectedABLine.curvePts[0].easting - (Math.Sin(abHead) * mf.gyd.abLength),
-                            mf.gyd.selectedABLine.curvePts[0].northing - (Math.Cos(abHead) * mf.gyd.abLength), 0);
-                        GL.Vertex3(mf.gyd.selectedABLine.curvePts[0].easting + (Math.Sin(abHead) * mf.gyd.abLength),
-                            mf.gyd.selectedABLine.curvePts[0].northing + (Math.Cos(abHead) * mf.gyd.abLength), 0);
+                        GL.Vertex3(selectedLine.curvePts[0].easting - (Math.Sin(abHead) * mf.gyd.abLength),
+                            selectedLine.curvePts[0].northing - (Math.Cos(abHead) * mf.gyd.abLength), 0);
+                        GL.Vertex3(selectedLine.curvePts[0].easting + (Math.Sin(abHead) * mf.gyd.abLength),
+                            selectedLine.curvePts[0].northing + (Math.Cos(abHead) * mf.gyd.abLength), 0);
                     }
                     GL.End();
                 }
@@ -804,7 +782,7 @@ namespace AgOpenGPS
 
                 foreach (CGuidanceLine item in mf.gyd.refList)
                 {
-                    if (item.Mode == Mode.Boundary || item.Mode == Mode.Curve)
+                    if (item.Mode.HasFlag(Mode.Curve))
                     {
                         GL.LineWidth(2);
                         GL.Color3(0.0f, 1.0f, 0.0f);
@@ -819,12 +797,12 @@ namespace AgOpenGPS
 
                 GL.Disable(EnableCap.LineStipple);
 
-                if (mf.gyd.selectedCurveLine != null)
+                if (selectedLine?.Mode.HasFlag(Mode.Curve) == true)
                 {
                     GL.LineWidth(4);
                     GL.Color3(0.0f, 1.0f, 0.0f);
                     GL.Begin(PrimitiveType.LineStrip);
-                    foreach (vec3 item in mf.gyd.selectedCurveLine.curvePts)
+                    foreach (vec3 item in selectedLine.curvePts)
                     {
                         GL.Vertex3(item.easting, item.northing, 0);
                     }
@@ -889,22 +867,6 @@ namespace AgOpenGPS
 
             mf.FileSaveABLines();
             mf.FileSaveCurveLines();
-
-            if (mf.gyd.isBtnABLineOn && mf.gyd.selectedABLine == null)
-            {
-                if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
-                if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
-                mf.btnABLine.Image = Properties.Resources.ABLineOff;
-                mf.gyd.isBtnABLineOn = false;
-            }
-
-            if (mf.gyd.isBtnCurveOn && mf.gyd.selectedCurveLine == null)
-            {
-                if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
-                if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
-                mf.gyd.isBtnCurveOn = false;
-                mf.btnCurve.Image = Properties.Resources.CurveOff;
-            }
 
             Close();
         }

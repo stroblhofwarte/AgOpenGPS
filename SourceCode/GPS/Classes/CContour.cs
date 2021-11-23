@@ -23,7 +23,7 @@ namespace AgOpenGPS
                 stripNum = -1;
                 for (int s = 0; s < refList.Count; s++)
                 {
-                    if (refList[s].Mode == Mode.BoundaryContour || refList[s].Mode == Mode.Contour)
+                    if (refList[s].Mode.HasFlag(Mode.Contour))
                     {
                         //if making a new strip ignore the last part or it will win always
                         if (refList[s] == ContourIndex)
@@ -269,7 +269,7 @@ namespace AgOpenGPS
                 //count the points from the boundary
                 int ptCount = mf.bnd.bndList[j].fenceLine.Points.Count;
 
-                CGuidanceLine ptList = new CGuidanceLine(Mode.BoundaryContour);
+                CGuidanceLine ptList = new CGuidanceLine(Mode.Contour | Mode.Boundary);
 
                 for (int i = 0; i < ptCount; i++)
                 {
@@ -289,144 +289,13 @@ namespace AgOpenGPS
             mf.TimedMessageBox(1500, "Boundary Contour", "Contour Path Created");
         }
 
-        //draw the red follow me line
-        public void DrawContourLine()
-        {
-            ////draw the guidance line
-            int ptCount = curList.Count;
-            if (ptCount < 2) return;
-            GL.LineWidth(lineWidth);
-            GL.Color3(0.98f, 0.2f, 0.980f);
-            GL.Begin(PrimitiveType.LineStrip);
-            for (int h = 0; h < ptCount; h++) GL.Vertex3(curList[h].easting, curList[h].northing, 0);
-            GL.End();
-
-            GL.Begin(PrimitiveType.Points);
-
-            GL.Color3(0.87f, 08.7f, 0.25f);
-            for (int h = 0; h < ptCount; h++) GL.Vertex3(curList[h].easting, curList[h].northing, 0);
-
-            GL.End();
-
-            //Draw the captured ref strip, red if locked
-            if (isLocked)
-            {
-                GL.Color3(0.983f, 0.2f, 0.20f);
-                GL.LineWidth(4);
-            }
-            else
-            {
-                GL.Color3(0.3f, 0.982f, 0.0f);
-                GL.LineWidth(lineWidth);
-            }
-
-            //GL.PointSize(6.0f);
-            GL.Begin(PrimitiveType.Points);
-            for (int h = 0; h < refList[stripNum].curvePts.Count; h++) GL.Vertex3(refList[stripNum].curvePts[h].easting, refList[stripNum].curvePts[h].northing, 0);
-            GL.End();
-
-            //GL.Begin(PrimitiveType.Points);
-            //GL.Color3(1.0f, 0.95f, 0.095f);
-            //GL.Vertex3(rEastCT, rNorthCT, 0.0);
-            //GL.End();
-            //GL.PointSize(1.0f);
-
-            //GL.Color3(0.98f, 0.98f, 0.50f);
-            //GL.Begin(PrimitiveType.LineStrip);
-            //GL.Vertex3(boxE.easting, boxE.northing, 0);
-            //GL.Vertex3(boxA.easting, boxA.northing, 0);
-            //GL.Vertex3(boxD.easting, boxD.northing, 0);
-            //GL.Vertex3(boxG.easting, boxG.northing, 0);
-            //GL.Vertex3(boxE.easting, boxE.northing, 0);
-            //GL.End();
-
-            //GL.Begin(PrimitiveType.LineStrip);
-            //GL.Vertex3(boxF.easting, boxF.northing, 0);
-            //GL.Vertex3(boxH.easting, boxH.northing, 0);
-            //GL.Vertex3(boxC.easting, boxC.northing, 0);
-            //GL.Vertex3(boxB.easting, boxB.northing, 0);
-            //GL.Vertex3(boxF.easting, boxF.northing, 0);
-            //GL.End();
-
-            ////draw the reference line
-            //GL.PointSize(3.0f);
-            ////if (isContourBtnOn)
-            //{
-            //    ptCount = stripList.Count;
-            //    if (ptCount > 0)
-            //    {
-            //        ptCount = stripList[closestRefPatch].Count;
-            //        GL.Begin(PrimitiveType.Points);
-            //        for (int i = 0; i < ptCount; i++)
-            //        {
-            //            GL.Vertex2(stripList[closestRefPatch][i].easting, stripList[closestRefPatch][i].northing);
-            //        }
-            //        GL.End();
-            //    }
-            //}
-
-            //ptCount = conList.Count;
-            //if (ptCount > 0)
-            //{
-            //    //draw closest point and side of line points
-            //    GL.Color3(0.5f, 0.900f, 0.90f);
-            //    GL.PointSize(4.0f);
-            //    GL.Begin(PrimitiveType.Points);
-            //    for (int i = 0; i < ptCount; i++) GL.Vertex3(conList[i].x, conList[i].z, 0);
-            //    GL.End();
-
-            //    GL.Color3(0.35f, 0.30f, 0.90f);
-            //    GL.PointSize(6.0f);
-            //    GL.Begin(PrimitiveType.Points);
-            //    GL.Vertex3(conList[closestRefPoint].x, conList[closestRefPoint].z, 0);
-            //    GL.End();
-            //}
-
-            if (mf.isPureDisplayOn && distanceFromCurrentLinePivot != 32000 && !mf.isStanleyUsed)
-            {
-                //if (ppRadiusCT < 50 && ppRadiusCT > -50)
-                //{
-                //    const int numSegments = 100;
-                //    double theta = glm.twoPI / numSegments;
-                //    double c = Math.Cos(theta);//precalculate the sine and cosine
-                //    double s = Math.Sin(theta);
-                //    double x = ppRadiusCT;//we start at angle = 0
-                //    double y = 0;
-
-                //    GL.LineWidth(1);
-                //    GL.Color3(0.795f, 0.230f, 0.7950f);
-                //    GL.Begin(PrimitiveType.LineLoop);
-                //    for (int ii = 0; ii < numSegments; ii++)
-                //    {
-                //        //glVertex2f(x + cx, y + cy);//output vertex
-                //        GL.Vertex3(x + radiusPointCT.easting, y + radiusPointCT.northing, 0);//output vertex
-
-                //        //apply the rotation matrix
-                //        double t = x;
-                //        x = (c * x) - (s * y);
-                //        y = (s * t) + (c * y);
-                //    }
-                //    GL.End();
-                //}
-
-                //Draw lookahead Point
-                GL.PointSize(6.0f);
-                GL.Begin(PrimitiveType.Points);
-
-                GL.Color3(1.0f, 0.95f, 0.095f);
-                GL.Vertex3(goalPoint.easting, goalPoint.northing, 0.0);
-                GL.End();
-                GL.PointSize(1.0f);
-            }
-        }
-
         //Reset the contour to zip
         public void ResetContour()
         {
             ContourIndex = null;
             for (int i = refList.Count - 1; i >= 0; i--)
             {
-                if (refList[i].Mode == Mode.BoundaryContour || refList[i].Mode == Mode.Contour)
+                if (refList[i].Mode.HasFlag(Mode.Contour))
                     refList.RemoveAt(i);
             }
         }
