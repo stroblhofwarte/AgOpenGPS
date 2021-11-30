@@ -23,7 +23,6 @@ namespace AgOpenGPS
     public class Polygon
     {
         public List<vec3> Points = new List<vec3>(128);
-        public List<int> Indexer = new List<int>(384);
 
         public bool ResetPoints, ResetIndexer;
         public int BufferPoints = int.MinValue, BufferIndex = int.MinValue, BufferPointsCnt = 0, BufferIndexCnt = 0;
@@ -32,7 +31,7 @@ namespace AgOpenGPS
         {
             if (Points.Count > 0)
             {
-                if (Triangles && BufferIndex == int.MinValue || ResetIndexer || ResetPoints)
+                if (Triangles && (BufferIndex == int.MinValue || ResetIndexer || ResetPoints))
                 {
                     double area = 0;
                     int j = Points.Count - 1;
@@ -75,7 +74,7 @@ namespace AgOpenGPS
                     Points.LangSimplify(0.05);
                     ResetPoints = true;
 
-                    Indexer = Points.TriangulatePolygon();
+                    List<int> Indexer = Points.TriangulatePolygon();
 
                     if (BufferIndex == int.MinValue) GL.GenBuffers(1, out BufferIndex);
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, BufferIndex);

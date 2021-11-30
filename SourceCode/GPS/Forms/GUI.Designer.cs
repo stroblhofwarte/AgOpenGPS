@@ -55,7 +55,6 @@ namespace AgOpenGPS
 
         public bool isUTurnOn = true, isLateralOn = true;
 
-        public btnStates manualBtnState = btnStates.Off;
         public btnStates autoBtnState = btnStates.Off;
 
         public int[] customColorsList = new int[16];
@@ -215,7 +214,7 @@ namespace AgOpenGPS
                 isFlashOnOff = !isFlashOnOff;
 
                 if ((!gyd.isBtnABLineOn && !gyd.isContourBtnOn && !gyd.isBtnCurveOn && isAutoSteerBtnOn))
-                    btnAutoSteer.PerformClick();
+                    enableAutoSteerButton(false);
 
                 //the main formgps window
                 if (isMetric)  //metric or imperial
@@ -317,11 +316,32 @@ namespace AgOpenGPS
 
             startSpeed = Vehicle.Default.setVehicle_startSpeed;
 
+            //load up colors
+
+            //load the string of custom colors
+            string[] words = Properties.Settings.Default.setDisplay_customColors.Split(',');
+            for (int i = 0; i < 16; i++)
+            {
+                Color test;
+                customColorsList[i] = int.Parse(words[i], CultureInfo.InvariantCulture);
+                test = Color.FromArgb(customColorsList[i]).CheckColorFor255();
+                int iCol = (test.A << 24) | (test.R << 16) | (test.G << 8) | test.B;
+                customColorsList[i] = iCol;
+            }
+
+            Properties.Settings.Default.setDisplay_customColors = "";
+            for (int i = 0; i < 15; i++)
+                Properties.Settings.Default.setDisplay_customColors += customColorsList[i].ToString() + ",";
+            Properties.Settings.Default.setDisplay_customColors += customColorsList[15].ToString();
+
             frameDayColor = Properties.Settings.Default.setDisplay_colorDayFrame.CheckColorFor255();
             frameNightColor = Properties.Settings.Default.setDisplay_colorNightFrame.CheckColorFor255();
             sectionColorDay = Properties.Settings.Default.setDisplay_colorSectionsDay.CheckColorFor255();
             fieldColorDay = Properties.Settings.Default.setDisplay_colorFieldDay.CheckColorFor255();
             fieldColorNight = Properties.Settings.Default.setDisplay_colorFieldNight.CheckColorFor255();
+            textColorDay = Settings.Default.setDisplay_colorTextDay.CheckColorFor255();
+            textColorNight = Settings.Default.setDisplay_colorTextNight.CheckColorFor255();
+            vehicleColor = Settings.Default.setDisplay_colorVehicle.CheckColorFor255();
 
             Properties.Settings.Default.setDisplay_colorDayFrame = frameDayColor;
             Properties.Settings.Default.setDisplay_colorNightFrame = frameNightColor;
@@ -354,9 +374,7 @@ namespace AgOpenGPS
             vehicleFileName = Vehicle.Default.setVehicle_vehicleName;
 
             simulatorOnToolStripMenuItem.Checked = Settings.Default.setMenu_isSimulatorOn;
-
-            panelSim.Visible = simulatorOnToolStripMenuItem.Checked;
-            timerSim.Enabled = simulatorOnToolStripMenuItem.Checked;
+            SetSimStatus(simulatorOnToolStripMenuItem.Checked);
 
             if (timerSim.Enabled) fixUpdateHz = 10;
             fixUpdateTime = 1 / (double)fixUpdateHz;
@@ -364,34 +382,6 @@ namespace AgOpenGPS
             //set the flag mark button to red dot
             btnFlag.Image = Properties.Resources.FlagRed;
 
-            //load the string of custom colors
-            string[] words = Properties.Settings.Default.setDisplay_customColors.Split(',');
-            for (int i = 0; i < 16; i++)
-            {
-                Color test;
-                customColorsList[i] = int.Parse(words[i], CultureInfo.InvariantCulture);
-                test = Color.FromArgb(customColorsList[i]).CheckColorFor255();
-                int iCol = (test.A << 24) | (test.R << 16) | (test.G << 8) | test.B;
-                customColorsList[i] = iCol;
-            }
-
-            Properties.Settings.Default.setDisplay_customColors = "";
-            for (int i = 0; i < 15; i++)
-                Properties.Settings.Default.setDisplay_customColors += customColorsList[i].ToString() + ",";
-            Properties.Settings.Default.setDisplay_customColors += customColorsList[15].ToString();
-
-            Properties.Settings.Default.Save();
-
-
-            //load up colors
-            fieldColorDay = (Settings.Default.setDisplay_colorFieldDay.CheckColorFor255());
-            sectionColorDay = (Settings.Default.setDisplay_colorSectionsDay.CheckColorFor255());
-            fieldColorNight = (Settings.Default.setDisplay_colorFieldNight.CheckColorFor255());
-
-            textColorDay = Settings.Default.setDisplay_colorTextDay.CheckColorFor255();
-            textColorNight = Settings.Default.setDisplay_colorTextNight.CheckColorFor255();
-
-            vehicleColor = Settings.Default.setDisplay_colorVehicle.CheckColorFor255();
 
             isLightbarOn = Settings.Default.setMenu_isLightbarOn;
 
@@ -402,11 +392,9 @@ namespace AgOpenGPS
             if (Properties.Settings.Default.setAS_isAutoSteerAutoOn) btnAutoSteer.Text = "R";
             else btnAutoSteer.Text = "M";
 
-            btnChangeMappingColor.BackColor = sectionColorDay;
+            btnChangeMappingColor.Image = ReplaceColor(Resources.SectionMapping, sectionColorDay);
             btnChangeMappingColor.Text = Application.ProductVersion.ToString(CultureInfo.InvariantCulture);
 
-            if (Properties.Settings.Default.setDisplay_isStartFullScreen)
-                this.WindowState = FormWindowState.Maximized;
 
             //is rtk on?
             isRTK = Properties.Settings.Default.setGPS_isRTK;
@@ -440,7 +428,7 @@ namespace AgOpenGPS
             cboxpRowWidth.SelectedIndex = yt.rowSkipsWidth - 1;
             yt.Set_Alternate_skips();
 
-            enableYouTurnButton(false);
+            setYouTurnButtonStatus(false);
 
             //which heading source is being used
             headingFromSource = Settings.Default.setGPS_headingFromWhichSource;
@@ -472,6 +460,9 @@ namespace AgOpenGPS
             {
                 btnStanleyPure.Image = Resources.ModePurePursuit;
             }
+
+            if (Properties.Settings.Default.setDisplay_isStartFullScreen)
+                this.WindowState = FormWindowState.Maximized;
 
             //main window first
             if (Settings.Default.setWindow_Maximized)
@@ -511,29 +502,17 @@ namespace AgOpenGPS
             }
             FieldMenuButtonEnableDisable(isJobStarted);
 
-            camera.camSetDistance = camera.zoomValue * camera.zoomValue * -1;
             SetZoom();
         }
 
         private void ZoomByMouseWheel(object sender, MouseEventArgs e)
         {
-            if (e.Delta < 0)
-            {
-                if (camera.zoomValue <= 20) camera.zoomValue += camera.zoomValue * 0.06;
-                else camera.zoomValue += camera.zoomValue * 0.02;
-                if (camera.zoomValue > 120) camera.zoomValue = 120;
-                camera.camSetDistance = camera.zoomValue * camera.zoomValue * -1;
-                SetZoom();
-            }
+            if (camera.zoomValue <= 20)
+                camera.zoomValue -= Math.Sign(e.Delta) * camera.zoomValue * 0.06;
             else
-            {
-                if (camera.zoomValue <= 20)
-                { if ((camera.zoomValue -= camera.zoomValue * 0.06) < 6.0) camera.zoomValue = 6.0; }
-                else { if ((camera.zoomValue -= camera.zoomValue * 0.02) < 6.0) camera.zoomValue = 6.0; }
+                camera.zoomValue -= Math.Sign(e.Delta) * camera.zoomValue * 0.02;
 
-                camera.camSetDistance = camera.zoomValue * camera.zoomValue * -1;
-                SetZoom();
-            }
+            SetZoom();
         }
 
         public void SwapDayNightMode()
@@ -573,68 +552,27 @@ namespace AgOpenGPS
 
             int buttonMaxWidth = 400;
 
+            int top = oglMain.Height - (panelSim.Visible ? 100 : 70);
 
-            int top = oglMain.Height - 70;
-            if (panelSim.Visible == true)
-            {
-                top = oglMain.Height - 100;
-                panelSim.Top = oglMain.Height - 60;
-            }
-
-
-
-            btnSection1Man.Top = btnSection2Man.Top = btnSection3Man.Top = 
-            btnSection4Man.Top = btnSection5Man.Top = btnSection6Man.Top =
-            btnSection7Man.Top = btnSection8Man.Top = btnSection9Man.Top =
-            btnSection10Man.Top = btnSection11Man.Top = btnSection12Man.Top =
-            btnSection13Man.Top = btnSection14Man.Top =  btnSection15Man.Top =
-            btnSection16Man.Top = top;
+            panelSim.Left = oglCenter - panelSim.Width / 2;
+            panelSim.Top = oglMain.Height - 60;
 
             int oglButtonWidth = oglMain.Width * 3 / 4;
 
             int buttonWidth = oglButtonWidth / tool.numOfSections;
             if (buttonWidth > buttonMaxWidth) buttonWidth = buttonMaxWidth;
 
-            btnSection1Man.Size = btnSection2Man.Size = btnSection3Man.Size = 
-            btnSection4Man.Size = btnSection5Man.Size = btnSection6Man.Size = 
-            btnSection7Man.Size = btnSection8Man.Size = btnSection9Man.Size = 
-            btnSection10Man.Size = btnSection11Man.Size = btnSection12Man.Size = 
-            btnSection13Man.Size = btnSection14Man.Size = btnSection15Man.Size = 
-            btnSection16Man.Size = new System.Drawing.Size(buttonWidth, 25);
+            Size size = new System.Drawing.Size(buttonWidth, 25);
+            int Left = (oglCenter) - (tool.numOfSections * size.Width) / 2;
 
-            btnSection1Man.Left = (oglCenter) - (tool.numOfSections * btnSection1Man.Size.Width) / 2;
-            btnSection2Man.Left = btnSection1Man.Left + btnSection1Man.Size.Width;
-            btnSection3Man.Left = btnSection2Man.Left + btnSection1Man.Size.Width;
-            btnSection4Man.Left = btnSection3Man.Left + btnSection1Man.Size.Width;
-            btnSection5Man.Left = btnSection4Man.Left + btnSection1Man.Size.Width;
-            btnSection6Man.Left = btnSection5Man.Left + btnSection1Man.Size.Width;
-            btnSection7Man.Left = btnSection6Man.Left + btnSection1Man.Size.Width;
-            btnSection8Man.Left = btnSection7Man.Left + btnSection1Man.Size.Width;
-            btnSection9Man.Left = btnSection8Man.Left + btnSection1Man.Size.Width;
-            btnSection10Man.Left = btnSection9Man.Left + btnSection1Man.Size.Width;
-            btnSection11Man.Left = btnSection10Man.Left + btnSection1Man.Size.Width;
-            btnSection12Man.Left = btnSection11Man.Left + btnSection1Man.Size.Width;
-            btnSection13Man.Left = btnSection12Man.Left + btnSection1Man.Size.Width;
-            btnSection14Man.Left = btnSection13Man.Left + btnSection1Man.Size.Width;
-            btnSection15Man.Left = btnSection14Man.Left + btnSection1Man.Size.Width;
-            btnSection16Man.Left = btnSection15Man.Left + btnSection1Man.Size.Width;
-
-            btnSection1Man.Visible = tool.numOfSections > 0;
-            btnSection2Man.Visible = tool.numOfSections > 1;
-            btnSection3Man.Visible = tool.numOfSections > 2;
-            btnSection4Man.Visible = tool.numOfSections > 3;
-            btnSection5Man.Visible = tool.numOfSections > 4;
-            btnSection6Man.Visible = tool.numOfSections > 5;
-            btnSection7Man.Visible = tool.numOfSections > 6;
-            btnSection8Man.Visible = tool.numOfSections > 7;
-            btnSection9Man.Visible = tool.numOfSections > 8;
-            btnSection10Man.Visible = tool.numOfSections > 9;
-            btnSection11Man.Visible = tool.numOfSections > 10;
-            btnSection12Man.Visible = tool.numOfSections > 11;
-            btnSection13Man.Visible = tool.numOfSections > 12;
-            btnSection14Man.Visible = tool.numOfSections > 13;
-            btnSection15Man.Visible = tool.numOfSections > 14;
-            btnSection16Man.Visible = tool.numOfSections > 15;
+            //turn section buttons all On
+            for (int j = 0; j < MAXSECTIONS; j++)
+            {
+                section[j].button.Top = top;
+                section[j].button.Left = Left + size.Width * j;
+                section[j].button.Size = size;
+                section[j].button.Visible = tool.numOfSections > j;
+            }
         }
 
         public void SaveFormGPSWindowSettings()
@@ -666,9 +604,6 @@ namespace AgOpenGPS
             Properties.Settings.Default.setDisplay_camZoom = camera.zoomValue;
 
             Settings.Default.setF_UserTotalArea = fd.workedAreaTotalUser;
-
-            //Settings.Default.setDisplay_panelSnapLocation = panelSnap.Location;
-            Settings.Default.setDisplay_panelSimLocation = panelSim.Location;
 
             Settings.Default.Save();
         }
@@ -712,67 +647,6 @@ namespace AgOpenGPS
                 return (" " +  gStr.gsN_West + " ");
             }
             return (" ?? ");
-        }
-
-        //force all the buttons same according to two main buttons
-        public void ManualAllBtnsUpdate()
-        {
-            for (int j = 0; j < MAXSECTIONS - 1; j++)
-            {
-                Button button = oglPanel.Controls["btnSection" + (j + 1) + "Man"] as Button;
-                if (button != null)
-                    ManualBtnUpdate(j, button);
-            }
-        }
-        //update individual btn based on state after push
-
-        private void ManualBtnUpdate(int sectNumber, Button btn)
-        {
-            switch (section[sectNumber].manBtnState)
-            {
-                case btnStates.Off:
-                    section[sectNumber].manBtnState = btnStates.Auto;
-                    if (isDay)
-                    {
-                        btn.BackColor = Color.Lime;
-                        btn.ForeColor = Color.Black;
-                    }
-                    else
-                    {
-                        btn.BackColor = Color.ForestGreen;
-                        btn.ForeColor = Color.White;
-                    }
-                    break;
-            
-
-                case btnStates.Auto:
-                    section[sectNumber].manBtnState = btnStates.On;
-                    if (isDay)
-                    {
-                        btn.BackColor = Color.Yellow;
-                        btn.ForeColor = Color.Black;
-                    }
-                    else
-                    {
-                        btn.BackColor = Color.DarkGoldenrod;
-                        btn.ForeColor = Color.White;
-                    }
-                    break;
-
-                case btnStates.On:
-                    section[sectNumber].manBtnState = btnStates.Off;
-                    if (isDay)
-                    {
-                        btn.ForeColor = Color.Black;
-                        btn.BackColor = Color.Red;
-                    }
-                    else
-                    {
-                        btn.BackColor = Color.Crimson;
-                        btn.ForeColor = Color.White;
-                    }
-                    break;
-            }
         }
 
         //Mouse Clicks 
@@ -893,30 +767,17 @@ namespace AgOpenGPS
                     return;
                 }
 
-                if (point.X > oglMain.Width - 80)
+                if (point.X > oglMain.Width - 80 && point.Y < 180)
                 {
-                    //---
-                    if (point.Y < 180 && point.Y > 90)
-                    {
-                        if (camera.zoomValue <= 20) camera.zoomValue += camera.zoomValue * 0.2;
-                        else camera.zoomValue += camera.zoomValue * 0.1;
-                        if (camera.zoomValue > 180) camera.zoomValue = 180;
-                        camera.camSetDistance = camera.zoomValue * camera.zoomValue * -1;
-                        SetZoom();
-                        return;
-                    }
+                    int sign = Math.Sign(point.Y - 90);
 
-                    //++
-                    if (point.Y < 90)
-                    {
-                        if (camera.zoomValue <= 20)
-                        { if ((camera.zoomValue -= camera.zoomValue * 0.2) < 6.0) camera.zoomValue = 6.0; }
-                        else { if ((camera.zoomValue -= camera.zoomValue * 0.1) < 6.0) camera.zoomValue = 6.0; }
+                    if (camera.zoomValue <= 20)
+                        camera.zoomValue += sign * camera.zoomValue * 0.2;
+                    else
+                        camera.zoomValue += sign * camera.zoomValue * 0.1;
 
-                        camera.camSetDistance = camera.zoomValue * camera.zoomValue * -1;
-                        SetZoom();
-                        return;
-                    }
+                    SetZoom();
+                    return;
                 }
 
                 //check for help touch on steer circle
@@ -967,14 +828,6 @@ namespace AgOpenGPS
             {
                 for (int i = 0; i < flagCnt; i++) flagPts[i].ID = i + 1;
             }
-        }
-
-        public void enableYouTurnButton(bool isOn)
-        {
-            yt.isYouTurnBtnOn = false;
-            btnAutoYouTurn.Enabled = isOn;
-            btnAutoYouTurn.Image = Properties.Resources.YouTurnNo;
-            yt.ResetYouTurn();
         }
 
         private void ShowNoGPSWarning()

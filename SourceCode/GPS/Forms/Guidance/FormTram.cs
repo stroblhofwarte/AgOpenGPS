@@ -60,13 +60,17 @@ namespace AgOpenGPS
 
         private void btnExit_Click(object sender, EventArgs e)
         {
+            int idx = mf.gyd.refList.FindIndex(x => x.Name == mf.gyd.selectedLine?.Name);
+            if (idx > -1)
+                mf.gyd.refList[idx] = mf.gyd.selectedLine;
+
             if (mode.HasFlag(Mode.AB))
                 mf.FileSaveABLines();
             else
                 mf.FileSaveCurveLines();
 
             mf.panelRight.Enabled = true;
-            mf.panelDrag.Visible = false;
+            mf.enableRecordPanel(false);
             mf.FileSaveTram();
             mf.FixTramModeButton();
             Close();
@@ -149,10 +153,12 @@ namespace AgOpenGPS
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            if (mode.HasFlag(Mode.AB))
-                mf.FileLoadABLines();
+            CGuidanceLine New = mf.gyd.refList.Find(x => x.Name == mf.gyd.selectedLine?.Name);
+            if (New != null)
+                mf.gyd.selectedLine = new CGuidanceLine(New);
             else
-                mf.FileLoadCurveLines();
+                mf.gyd.selectedLine = null;
+
 
             mf.tram.tramList.Clear();
             mf.tram.tramBndOuterArr.Clear();
@@ -161,7 +167,7 @@ namespace AgOpenGPS
             //mf.ABLine.tramPassEvery = 0;
             //mf.ABLine.tramBasedOn = 0;
             mf.panelRight.Enabled = true;
-            mf.panelDrag.Visible = false;
+            mf.enableRecordPanel(false);
 
             mf.tram.displayMode = 0;
             mf.FileSaveTram();

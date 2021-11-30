@@ -90,6 +90,10 @@ namespace AgOpenGPS
 
         private void bntOk_Click(object sender, EventArgs e)
         {
+            int idx = mf.gyd.refList.FindIndex(x => x.Name == mf.gyd.selectedLine?.Name);
+            if (idx > -1)
+                mf.gyd.refList[idx] = mf.gyd.selectedLine;
+
             //save entire list
             if (mode.HasFlag(Mode.AB))
                 mf.FileSaveABLines();
@@ -103,10 +107,11 @@ namespace AgOpenGPS
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            if (mode.HasFlag(Mode.AB))
-                mf.FileLoadABLines();
+            CGuidanceLine New = mf.gyd.refList.Find(x => x.Name == mf.gyd.selectedLine?.Name);
+            if (New != null)
+                mf.gyd.selectedLine = new CGuidanceLine(New);
             else
-                mf.FileLoadCurveLines();
+                mf.gyd.selectedLine = null;
 
             mf.gyd.isValid = false;
             Close();

@@ -245,17 +245,12 @@ namespace AgOpenGPS
                     //Main SW pressed
                     if ((mc.ss[mc.swMain] & 1) == 1)
                     {
-                        //set butto off and then press it = ON
-                        autoBtnState = btnStates.Off;
-                        btnSectionOffAutoOn.PerformClick();
-                    } // if Main SW ON
-
+                        setSectionButtonState(btnStates.On);
+                    }
                     //if Main SW in Arduino is pressed OFF
-                    if ((mc.ss[mc.swMain] & 2) == 2)
+                    else if ((mc.ss[mc.swMain] & 2) == 2)
                     {
-                        //set button on and then press it = OFF
-                        autoBtnState = btnStates.Auto;
-                        btnSectionOffAutoOn.PerformClick();
+                        setSectionButtonState(btnStates.Off);
                     } // if Main SW OFF
 
                     mc.ssP[mc.swMain] = mc.ss[mc.swMain];
@@ -275,21 +270,26 @@ namespace AgOpenGPS
                         idx2 = mc.swOffGr1;
                     }
 
-                    //do nothing if bit isn't set
+                    //do nothing if bit isn't set [only works fully when BBBBB is deleted]
                     btnStates status = section[j].manBtnState;
 
                     if ((mc.ss[idx1] & set) == set)
                     {
-                        if (autoBtnState == btnStates.Auto && (mc.ss[idx2] & set) == set)//not sure if we want to force on when auto is off!
-                            status = btnStates.Auto;
-                        else
+                        if (autoBtnState == btnStates.Auto && (mc.ss[idx2] & set) == set)//AAAAA
+                            status = btnStates.Auto;//not sure if we want to force on when auto is off!
+                        else if (autoBtnState != btnStates.Off)
                             status = btnStates.On;
                     }
                     else if ((mc.ss[idx2] & set) == set)
                         status = btnStates.Off;
-                    else if ((mc.ss[idx2] & set) != (mc.ssP[idx2] & set))
-                        status = btnStates.Auto;//unlogical! (should change to when both are on)
+                    else if ((mc.ss[idx2] & set) != (mc.ssP[idx2] & set) && status == btnStates.Off)//BBBBB
+                                status = btnStates.Auto;//should change to AAAAA (Both on [so that it doesnt change when you send clear bits])
 
+                    set <<= 1;
+
+                    if (section[j].manBtnState != status)
+                        section[j].UpdateButton(status);
+                    /*
                     if (section[j].manBtnState != status)
                     {
                         if (status == btnStates.Off)
@@ -307,21 +307,14 @@ namespace AgOpenGPS
                         //auto -> on
                         //on ---> off
                     }
-                    set <<= 1;
+                    */
                 }
 
                 //only needed for unlogical auto
                 mc.ssP[mc.swOffGr0] = mc.ss[mc.swOffGr0];
                 mc.ssP[mc.swOffGr1] = mc.ss[mc.swOffGr1];
 
-
-                return;
-
-
-
-
-
-
+                /*
                 if (mc.ss[mc.swOnGr0] != 0)
                 {
                     // ON Signal from Arduino 
@@ -586,6 +579,7 @@ namespace AgOpenGPS
                         btnSection9Man.PerformClick();
                     }
                 } // if swOFFHi !=0
+                */
             }//if serial or udp port open
         }
 

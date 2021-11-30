@@ -83,18 +83,6 @@
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.hsbarSteerAngle = new System.Windows.Forms.HScrollBar();
             this.hsbarStepDistance = new System.Windows.Forms.HScrollBar();
-            this.btnSection8Man = new System.Windows.Forms.Button();
-            this.btnSection7Man = new System.Windows.Forms.Button();
-            this.btnSection6Man = new System.Windows.Forms.Button();
-            this.btnSection5Man = new System.Windows.Forms.Button();
-            this.btnSection4Man = new System.Windows.Forms.Button();
-            this.btnSection3Man = new System.Windows.Forms.Button();
-            this.btnSection2Man = new System.Windows.Forms.Button();
-            this.btnSection1Man = new System.Windows.Forms.Button();
-            this.btnSection9Man = new System.Windows.Forms.Button();
-            this.btnSection10Man = new System.Windows.Forms.Button();
-            this.btnSection11Man = new System.Windows.Forms.Button();
-            this.btnSection12Man = new System.Windows.Forms.Button();
             this.oglMain = new OpenTK.GLControl();
             this.oglBack = new OpenTK.GLControl();
             this.lblHz = new System.Windows.Forms.Label();
@@ -129,10 +117,6 @@
             this.recordedPathStripMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.panelSim = new System.Windows.Forms.TableLayoutPanel();
             this.btnSimSetSpeedToZero = new System.Windows.Forms.Button();
-            this.btnSection16Man = new System.Windows.Forms.Button();
-            this.btnSection15Man = new System.Windows.Forms.Button();
-            this.btnSection14Man = new System.Windows.Forms.Button();
-            this.btnSection13Man = new System.Windows.Forms.Button();
             this.panelNavigation = new System.Windows.Forms.TableLayoutPanel();
             this.btnN3D = new System.Windows.Forms.Button();
             this.btn2D = new System.Windows.Forms.Button();
@@ -164,17 +148,17 @@
             this.lbludpWatchCounts = new System.Windows.Forms.Label();
             this.lblAge = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.btnStanleyPure = new System.Windows.Forms.Button();
-            this.btnAutoSteerConfig = new System.Windows.Forms.Button();
-            this.btnMaximizeMainForm = new System.Windows.Forms.Button();
-            this.btnMinimizeMainForm = new System.Windows.Forms.Button();
-            this.pictureboxStart = new System.Windows.Forms.PictureBox();
-            this.btnStartAgIO = new System.Windows.Forms.Button();
-            this.btnShutdown = new System.Windows.Forms.Button();
-            this.btnHelp = new System.Windows.Forms.Button();
             this.mainPanel = new System.Windows.Forms.Panel();
             this.oglPanel = new System.Windows.Forms.Panel();
+            this.pictureboxStart = new System.Windows.Forms.PictureBox();
             this.panelBottom = new System.Windows.Forms.Panel();
+            this.btnStartAgIO = new System.Windows.Forms.Button();
+            this.btnAutoSteerConfig = new System.Windows.Forms.Button();
+            this.btnStanleyPure = new System.Windows.Forms.Button();
+            this.btnMaximizeMainForm = new System.Windows.Forms.Button();
+            this.btnMinimizeMainForm = new System.Windows.Forms.Button();
+            this.btnShutdown = new System.Windows.Forms.Button();
+            this.btnHelp = new System.Windows.Forms.Button();
             this.contextMenuStripOpenGL.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.contextMenuStripFlag.SuspendLayout();
@@ -184,9 +168,9 @@
             this.panelSim.SuspendLayout();
             this.panelNavigation.SuspendLayout();
             this.panelAB.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureboxStart)).BeginInit();
             this.mainPanel.SuspendLayout();
             this.oglPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureboxStart)).BeginInit();
             this.panelBottom.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -539,8 +523,8 @@
             // 
             // cboxpRowWidth
             // 
-            this.cboxpRowWidth.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.cboxpRowWidth.BackColor = System.Drawing.Color.Lavender;
+            this.cboxpRowWidth.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cboxpRowWidth.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboxpRowWidth.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.cboxpRowWidth.Font = new System.Drawing.Font("Tahoma", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -557,10 +541,10 @@
             "8",
             "9",
             "10"});
-            this.cboxpRowWidth.Location = new System.Drawing.Point(687, 21);
-            this.cboxpRowWidth.Margin = new System.Windows.Forms.Padding(2, 15, 2, 3);
+            this.cboxpRowWidth.Location = new System.Drawing.Point(685, 15);
+            this.cboxpRowWidth.Margin = new System.Windows.Forms.Padding(0, 15, 0, 15);
             this.cboxpRowWidth.Name = "cboxpRowWidth";
-            this.cboxpRowWidth.Size = new System.Drawing.Size(61, 41);
+            this.cboxpRowWidth.Size = new System.Drawing.Size(65, 41);
             this.cboxpRowWidth.TabIndex = 247;
             this.cboxpRowWidth.Visible = false;
             this.cboxpRowWidth.SelectedIndexChanged += new System.EventHandler(this.cboxpRowWidth_SelectedIndexChanged);
@@ -593,72 +577,57 @@
             this.panelDrag.Location = new System.Drawing.Point(381, 215);
             this.panelDrag.Name = "panelDrag";
             this.panelDrag.RowCount = 3;
-            this.panelDrag.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.panelDrag.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 68F));
-            this.panelDrag.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 68F));
-            this.panelDrag.Size = new System.Drawing.Size(64, 207);
+            this.panelDrag.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.panelDrag.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.panelDrag.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.panelDrag.Size = new System.Drawing.Size(66, 198);
             this.panelDrag.TabIndex = 445;
             this.panelDrag.Visible = false;
             // 
             // btnPathGoStop
             // 
-            this.btnPathGoStop.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.btnPathGoStop.BackColor = System.Drawing.Color.Transparent;
-            this.btnPathGoStop.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.btnPathGoStop.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
+            this.btnPathGoStop.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnPathGoStop.FlatAppearance.BorderSize = 0;
             this.btnPathGoStop.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnPathGoStop.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnPathGoStop.ForeColor = System.Drawing.Color.DarkGray;
             this.btnPathGoStop.Image = global::AgOpenGPS.Properties.Resources.boundaryPlay;
-            this.btnPathGoStop.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnPathGoStop.Location = new System.Drawing.Point(0, 0);
-            this.btnPathGoStop.Margin = new System.Windows.Forms.Padding(0);
+            this.btnPathGoStop.Location = new System.Drawing.Point(3, 3);
             this.btnPathGoStop.Name = "btnPathGoStop";
-            this.btnPathGoStop.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.btnPathGoStop.Size = new System.Drawing.Size(64, 61);
+            this.btnPathGoStop.Size = new System.Drawing.Size(60, 60);
             this.btnPathGoStop.TabIndex = 468;
             this.btnPathGoStop.UseVisualStyleBackColor = false;
             this.btnPathGoStop.Click += new System.EventHandler(this.btnPathGoStop_Click);
             // 
             // btnPathDelete
             // 
-            this.btnPathDelete.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.btnPathDelete.BackColor = System.Drawing.Color.Transparent;
-            this.btnPathDelete.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.btnPathDelete.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
+            this.btnPathDelete.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnPathDelete.FlatAppearance.BorderSize = 0;
             this.btnPathDelete.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnPathDelete.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnPathDelete.ForeColor = System.Drawing.Color.DarkGray;
             this.btnPathDelete.Image = global::AgOpenGPS.Properties.Resources.Trash;
-            this.btnPathDelete.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnPathDelete.Location = new System.Drawing.Point(0, 142);
-            this.btnPathDelete.Margin = new System.Windows.Forms.Padding(0);
+            this.btnPathDelete.Location = new System.Drawing.Point(3, 135);
             this.btnPathDelete.Name = "btnPathDelete";
-            this.btnPathDelete.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.btnPathDelete.Size = new System.Drawing.Size(64, 61);
+            this.btnPathDelete.Size = new System.Drawing.Size(60, 60);
             this.btnPathDelete.TabIndex = 471;
             this.btnPathDelete.UseVisualStyleBackColor = false;
             this.btnPathDelete.Click += new System.EventHandler(this.btnPathDelete_Click);
             // 
             // btnPathRecordStop
             // 
-            this.btnPathRecordStop.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.btnPathRecordStop.BackColor = System.Drawing.Color.Transparent;
-            this.btnPathRecordStop.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.btnPathRecordStop.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
+            this.btnPathRecordStop.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnPathRecordStop.FlatAppearance.BorderSize = 0;
             this.btnPathRecordStop.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnPathRecordStop.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnPathRecordStop.ForeColor = System.Drawing.Color.DarkGray;
             this.btnPathRecordStop.Image = global::AgOpenGPS.Properties.Resources.BoundaryRecord;
-            this.btnPathRecordStop.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnPathRecordStop.Location = new System.Drawing.Point(0, 74);
-            this.btnPathRecordStop.Margin = new System.Windows.Forms.Padding(0);
+            this.btnPathRecordStop.Location = new System.Drawing.Point(3, 69);
             this.btnPathRecordStop.Name = "btnPathRecordStop";
-            this.btnPathRecordStop.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.btnPathRecordStop.Size = new System.Drawing.Size(64, 61);
+            this.btnPathRecordStop.Size = new System.Drawing.Size(60, 60);
             this.btnPathRecordStop.TabIndex = 470;
             this.btnPathRecordStop.UseVisualStyleBackColor = false;
             this.btnPathRecordStop.Click += new System.EventHandler(this.btnPathRecordStop_Click);
@@ -669,8 +638,7 @@
             this.btnResetSim.ContextMenuStrip = this.contextMenuStripFlag;
             this.btnResetSim.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnResetSim.Font = new System.Drawing.Font("Tahoma", 9.75F);
-            this.btnResetSim.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnResetSim.Location = new System.Drawing.Point(484, 4);
+            this.btnResetSim.Location = new System.Drawing.Point(414, 4);
             this.btnResetSim.Name = "btnResetSim";
             this.btnResetSim.Size = new System.Drawing.Size(50, 31);
             this.btnResetSim.TabIndex = 164;
@@ -684,8 +652,7 @@
             this.btnResetSteerAngle.ContextMenuStrip = this.contextMenuStripFlag;
             this.btnResetSteerAngle.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnResetSteerAngle.Font = new System.Drawing.Font("Tahoma", 9.75F);
-            this.btnResetSteerAngle.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnResetSteerAngle.Location = new System.Drawing.Point(432, 4);
+            this.btnResetSteerAngle.Location = new System.Drawing.Point(362, 4);
             this.btnResetSteerAngle.Name = "btnResetSteerAngle";
             this.btnResetSteerAngle.Size = new System.Drawing.Size(44, 31);
             this.btnResetSteerAngle.TabIndex = 162;
@@ -708,12 +675,11 @@
             // hsbarSteerAngle
             // 
             this.hsbarSteerAngle.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.hsbarSteerAngle.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.hsbarSteerAngle.LargeChange = 20;
-            this.hsbarSteerAngle.Location = new System.Drawing.Point(248, 1);
+            this.hsbarSteerAngle.Location = new System.Drawing.Point(213, 1);
             this.hsbarSteerAngle.Maximum = 800;
             this.hsbarSteerAngle.Name = "hsbarSteerAngle";
-            this.hsbarSteerAngle.Size = new System.Drawing.Size(180, 37);
+            this.hsbarSteerAngle.Size = new System.Drawing.Size(145, 37);
             this.hsbarSteerAngle.TabIndex = 179;
             this.hsbarSteerAngle.Value = 400;
             this.hsbarSteerAngle.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hsbarSteerAngle_Scroll);
@@ -721,229 +687,13 @@
             // hsbarStepDistance
             // 
             this.hsbarStepDistance.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.hsbarStepDistance.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.hsbarStepDistance.LargeChange = 2;
             this.hsbarStepDistance.Location = new System.Drawing.Point(1, 1);
             this.hsbarStepDistance.Minimum = -25;
             this.hsbarStepDistance.Name = "hsbarStepDistance";
-            this.hsbarStepDistance.Size = new System.Drawing.Size(180, 37);
+            this.hsbarStepDistance.Size = new System.Drawing.Size(145, 37);
             this.hsbarStepDistance.TabIndex = 178;
             this.hsbarStepDistance.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hsbarStepDistance_Scroll);
-            // 
-            // btnSection8Man
-            // 
-            this.btnSection8Man.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSection8Man.BackColor = System.Drawing.Color.Silver;
-            this.btnSection8Man.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.btnSection8Man.Enabled = false;
-            this.btnSection8Man.FlatAppearance.BorderColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnSection8Man.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSection8Man.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSection8Man.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnSection8Man.Location = new System.Drawing.Point(646, 365);
-            this.btnSection8Man.Name = "btnSection8Man";
-            this.btnSection8Man.Size = new System.Drawing.Size(34, 25);
-            this.btnSection8Man.TabIndex = 125;
-            this.btnSection8Man.Text = "8";
-            this.btnSection8Man.UseVisualStyleBackColor = false;
-            this.btnSection8Man.Click += new System.EventHandler(this.btnSection8Man_Click);
-            // 
-            // btnSection7Man
-            // 
-            this.btnSection7Man.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSection7Man.BackColor = System.Drawing.Color.Silver;
-            this.btnSection7Man.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.btnSection7Man.Enabled = false;
-            this.btnSection7Man.FlatAppearance.BorderColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnSection7Man.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSection7Man.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSection7Man.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnSection7Man.Location = new System.Drawing.Point(646, 335);
-            this.btnSection7Man.Name = "btnSection7Man";
-            this.btnSection7Man.Size = new System.Drawing.Size(34, 25);
-            this.btnSection7Man.TabIndex = 126;
-            this.btnSection7Man.Text = "7";
-            this.btnSection7Man.UseVisualStyleBackColor = false;
-            this.btnSection7Man.Click += new System.EventHandler(this.btnSection7Man_Click);
-            // 
-            // btnSection6Man
-            // 
-            this.btnSection6Man.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSection6Man.BackColor = System.Drawing.Color.Silver;
-            this.btnSection6Man.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.btnSection6Man.Enabled = false;
-            this.btnSection6Man.FlatAppearance.BorderColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnSection6Man.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSection6Man.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSection6Man.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnSection6Man.Location = new System.Drawing.Point(646, 310);
-            this.btnSection6Man.Name = "btnSection6Man";
-            this.btnSection6Man.Size = new System.Drawing.Size(34, 25);
-            this.btnSection6Man.TabIndex = 127;
-            this.btnSection6Man.Text = "6";
-            this.btnSection6Man.UseVisualStyleBackColor = false;
-            this.btnSection6Man.Click += new System.EventHandler(this.btnSection6Man_Click);
-            // 
-            // btnSection5Man
-            // 
-            this.btnSection5Man.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSection5Man.BackColor = System.Drawing.Color.Silver;
-            this.btnSection5Man.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.btnSection5Man.Enabled = false;
-            this.btnSection5Man.FlatAppearance.BorderColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnSection5Man.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSection5Man.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSection5Man.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnSection5Man.Location = new System.Drawing.Point(646, 283);
-            this.btnSection5Man.Name = "btnSection5Man";
-            this.btnSection5Man.Size = new System.Drawing.Size(34, 25);
-            this.btnSection5Man.TabIndex = 103;
-            this.btnSection5Man.Text = "5";
-            this.btnSection5Man.UseVisualStyleBackColor = false;
-            this.btnSection5Man.Click += new System.EventHandler(this.btnSection5Man_Click);
-            // 
-            // btnSection4Man
-            // 
-            this.btnSection4Man.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSection4Man.BackColor = System.Drawing.Color.Silver;
-            this.btnSection4Man.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.btnSection4Man.Enabled = false;
-            this.btnSection4Man.FlatAppearance.BorderColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnSection4Man.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSection4Man.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSection4Man.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnSection4Man.Location = new System.Drawing.Point(646, 257);
-            this.btnSection4Man.Name = "btnSection4Man";
-            this.btnSection4Man.Size = new System.Drawing.Size(34, 25);
-            this.btnSection4Man.TabIndex = 102;
-            this.btnSection4Man.Text = "4";
-            this.btnSection4Man.UseVisualStyleBackColor = false;
-            this.btnSection4Man.Click += new System.EventHandler(this.btnSection4Man_Click);
-            // 
-            // btnSection3Man
-            // 
-            this.btnSection3Man.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSection3Man.BackColor = System.Drawing.Color.Silver;
-            this.btnSection3Man.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.btnSection3Man.Enabled = false;
-            this.btnSection3Man.FlatAppearance.BorderColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnSection3Man.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSection3Man.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSection3Man.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnSection3Man.Location = new System.Drawing.Point(646, 229);
-            this.btnSection3Man.Margin = new System.Windows.Forms.Padding(0);
-            this.btnSection3Man.Name = "btnSection3Man";
-            this.btnSection3Man.Size = new System.Drawing.Size(34, 25);
-            this.btnSection3Man.TabIndex = 101;
-            this.btnSection3Man.Text = "3";
-            this.btnSection3Man.UseVisualStyleBackColor = false;
-            this.btnSection3Man.Click += new System.EventHandler(this.btnSection3Man_Click);
-            // 
-            // btnSection2Man
-            // 
-            this.btnSection2Man.BackColor = System.Drawing.Color.Silver;
-            this.btnSection2Man.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.btnSection2Man.Enabled = false;
-            this.btnSection2Man.FlatAppearance.BorderColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnSection2Man.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSection2Man.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSection2Man.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnSection2Man.Location = new System.Drawing.Point(646, 208);
-            this.btnSection2Man.Name = "btnSection2Man";
-            this.btnSection2Man.Size = new System.Drawing.Size(34, 25);
-            this.btnSection2Man.TabIndex = 100;
-            this.btnSection2Man.Text = "2";
-            this.btnSection2Man.UseVisualStyleBackColor = false;
-            this.btnSection2Man.Click += new System.EventHandler(this.btnSection2Man_Click);
-            // 
-            // btnSection1Man
-            // 
-            this.btnSection1Man.BackColor = System.Drawing.Color.Silver;
-            this.btnSection1Man.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.btnSection1Man.Enabled = false;
-            this.btnSection1Man.FlatAppearance.BorderColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnSection1Man.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSection1Man.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSection1Man.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnSection1Man.Location = new System.Drawing.Point(646, 178);
-            this.btnSection1Man.Name = "btnSection1Man";
-            this.btnSection1Man.Size = new System.Drawing.Size(34, 25);
-            this.btnSection1Man.TabIndex = 99;
-            this.btnSection1Man.Text = "1";
-            this.btnSection1Man.UseVisualStyleBackColor = false;
-            this.btnSection1Man.Click += new System.EventHandler(this.btnSection1Man_Click);
-            // 
-            // btnSection9Man
-            // 
-            this.btnSection9Man.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSection9Man.BackColor = System.Drawing.Color.Silver;
-            this.btnSection9Man.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.btnSection9Man.Enabled = false;
-            this.btnSection9Man.FlatAppearance.BorderColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnSection9Man.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSection9Man.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSection9Man.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnSection9Man.Location = new System.Drawing.Point(606, 178);
-            this.btnSection9Man.Name = "btnSection9Man";
-            this.btnSection9Man.Size = new System.Drawing.Size(34, 25);
-            this.btnSection9Man.TabIndex = 174;
-            this.btnSection9Man.Text = "9";
-            this.btnSection9Man.UseVisualStyleBackColor = false;
-            this.btnSection9Man.Click += new System.EventHandler(this.btnSection9Man_Click);
-            // 
-            // btnSection10Man
-            // 
-            this.btnSection10Man.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSection10Man.BackColor = System.Drawing.Color.Silver;
-            this.btnSection10Man.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.btnSection10Man.Enabled = false;
-            this.btnSection10Man.FlatAppearance.BorderColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnSection10Man.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSection10Man.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSection10Man.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnSection10Man.Location = new System.Drawing.Point(606, 205);
-            this.btnSection10Man.Name = "btnSection10Man";
-            this.btnSection10Man.Size = new System.Drawing.Size(34, 25);
-            this.btnSection10Man.TabIndex = 175;
-            this.btnSection10Man.Text = "10";
-            this.btnSection10Man.UseVisualStyleBackColor = false;
-            this.btnSection10Man.Click += new System.EventHandler(this.btnSection10Man_Click);
-            // 
-            // btnSection11Man
-            // 
-            this.btnSection11Man.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSection11Man.BackColor = System.Drawing.Color.Silver;
-            this.btnSection11Man.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.btnSection11Man.Enabled = false;
-            this.btnSection11Man.FlatAppearance.BorderColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnSection11Man.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSection11Man.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSection11Man.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnSection11Man.Location = new System.Drawing.Point(606, 232);
-            this.btnSection11Man.Name = "btnSection11Man";
-            this.btnSection11Man.Size = new System.Drawing.Size(34, 25);
-            this.btnSection11Man.TabIndex = 176;
-            this.btnSection11Man.Text = "11";
-            this.btnSection11Man.UseVisualStyleBackColor = false;
-            this.btnSection11Man.Click += new System.EventHandler(this.btnSection11Man_Click);
-            // 
-            // btnSection12Man
-            // 
-            this.btnSection12Man.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSection12Man.BackColor = System.Drawing.Color.Silver;
-            this.btnSection12Man.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.btnSection12Man.Enabled = false;
-            this.btnSection12Man.FlatAppearance.BorderColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnSection12Man.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSection12Man.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSection12Man.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnSection12Man.Location = new System.Drawing.Point(606, 258);
-            this.btnSection12Man.Name = "btnSection12Man";
-            this.btnSection12Man.Size = new System.Drawing.Size(34, 25);
-            this.btnSection12Man.TabIndex = 177;
-            this.btnSection12Man.Text = "12";
-            this.btnSection12Man.UseVisualStyleBackColor = false;
-            this.btnSection12Man.Click += new System.EventHandler(this.btnSection12Man_Click);
             // 
             // oglMain
             // 
@@ -978,14 +728,15 @@
             // 
             // lblHz
             // 
-            this.lblHz.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(50)))));
+            this.lblHz.BackColor = System.Drawing.Color.Transparent;
             this.lblHz.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblHz.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.lblHz.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblHz.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.lblHz.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.lblHz.Location = new System.Drawing.Point(75, 288);
+            this.lblHz.Location = new System.Drawing.Point(69, 267);
+            this.lblHz.Margin = new System.Windows.Forms.Padding(3);
             this.lblHz.Name = "lblHz";
-            this.lblHz.Size = new System.Drawing.Size(73, 76);
+            this.lblHz.Size = new System.Drawing.Size(60, 60);
             this.lblHz.TabIndex = 249;
             this.lblHz.Text = "5 Hz 32\r\nPPS";
             this.lblHz.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -1022,57 +773,48 @@
             // btnCurve
             // 
             this.btnCurve.BackColor = System.Drawing.Color.Transparent;
-            this.btnCurve.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.btnCurve.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnCurve.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
             this.btnCurve.FlatAppearance.BorderSize = 0;
             this.btnCurve.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCurve.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnCurve.Image = global::AgOpenGPS.Properties.Resources.CurveOff;
-            this.btnCurve.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnCurve.Location = new System.Drawing.Point(3, 74);
+            this.btnCurve.Location = new System.Drawing.Point(0, 71);
+            this.btnCurve.Margin = new System.Windows.Forms.Padding(0);
             this.btnCurve.Name = "btnCurve";
-            this.btnCurve.Size = new System.Drawing.Size(64, 70);
+            this.btnCurve.Size = new System.Drawing.Size(70, 76);
             this.btnCurve.TabIndex = 173;
-            this.btnCurve.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnCurve.UseVisualStyleBackColor = false;
             this.btnCurve.Click += new System.EventHandler(this.btnCurve_Click);
             // 
             // btnContour
             // 
             this.btnContour.BackColor = System.Drawing.Color.Transparent;
-            this.btnContour.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.btnContour.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnContour.FlatAppearance.BorderColor = System.Drawing.SystemColors.HotTrack;
             this.btnContour.FlatAppearance.BorderSize = 0;
             this.btnContour.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnContour.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnContour.Image = global::AgOpenGPS.Properties.Resources.ContourOff;
-            this.btnContour.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnContour.Location = new System.Drawing.Point(3, 3);
+            this.btnContour.Location = new System.Drawing.Point(0, 0);
+            this.btnContour.Margin = new System.Windows.Forms.Padding(0);
             this.btnContour.Name = "btnContour";
-            this.btnContour.Size = new System.Drawing.Size(64, 65);
+            this.btnContour.Size = new System.Drawing.Size(70, 71);
             this.btnContour.TabIndex = 105;
-            this.btnContour.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnContour.UseVisualStyleBackColor = false;
             this.btnContour.Click += new System.EventHandler(this.btnContour_Click);
             // 
             // btnABLine
             // 
             this.btnABLine.BackColor = System.Drawing.Color.Transparent;
-            this.btnABLine.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.btnABLine.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnABLine.FlatAppearance.BorderColor = System.Drawing.SystemColors.HotTrack;
             this.btnABLine.FlatAppearance.BorderSize = 0;
             this.btnABLine.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnABLine.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnABLine.Image = global::AgOpenGPS.Properties.Resources.ABLineOff;
-            this.btnABLine.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnABLine.Location = new System.Drawing.Point(3, 150);
+            this.btnABLine.Location = new System.Drawing.Point(0, 147);
+            this.btnABLine.Margin = new System.Windows.Forms.Padding(0);
             this.btnABLine.Name = "btnABLine";
-            this.btnABLine.Size = new System.Drawing.Size(64, 72);
+            this.btnABLine.Size = new System.Drawing.Size(70, 78);
             this.btnABLine.TabIndex = 0;
-            this.btnABLine.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnABLine.UseVisualStyleBackColor = false;
             this.btnABLine.Click += new System.EventHandler(this.btnABLine_Click);
             // 
@@ -1081,75 +823,62 @@
             this.btnAutoYouTurn.BackColor = System.Drawing.Color.Transparent;
             this.btnAutoYouTurn.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnAutoYouTurn.Enabled = false;
-            this.btnAutoYouTurn.FlatAppearance.BorderColor = System.Drawing.SystemColors.HotTrack;
             this.btnAutoYouTurn.FlatAppearance.BorderSize = 0;
             this.btnAutoYouTurn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnAutoYouTurn.Font = new System.Drawing.Font("Tahoma", 14.25F);
             this.btnAutoYouTurn.Image = global::AgOpenGPS.Properties.Resources.YouTurnNo;
-            this.btnAutoYouTurn.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnAutoYouTurn.Location = new System.Drawing.Point(3, 476);
+            this.btnAutoYouTurn.Location = new System.Drawing.Point(0, 473);
+            this.btnAutoYouTurn.Margin = new System.Windows.Forms.Padding(0);
             this.btnAutoYouTurn.Name = "btnAutoYouTurn";
-            this.btnAutoYouTurn.Size = new System.Drawing.Size(64, 73);
+            this.btnAutoYouTurn.Size = new System.Drawing.Size(70, 79);
             this.btnAutoYouTurn.TabIndex = 132;
-            this.btnAutoYouTurn.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnAutoYouTurn.UseVisualStyleBackColor = false;
             this.btnAutoYouTurn.Click += new System.EventHandler(this.btnAutoYouTurn_Click);
             // 
             // btnSectionOffAutoOn
             // 
             this.btnSectionOffAutoOn.BackColor = System.Drawing.Color.Transparent;
-            this.btnSectionOffAutoOn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.btnSectionOffAutoOn.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnSectionOffAutoOn.FlatAppearance.BorderColor = System.Drawing.SystemColors.HotTrack;
             this.btnSectionOffAutoOn.FlatAppearance.BorderSize = 0;
             this.btnSectionOffAutoOn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSectionOffAutoOn.Font = new System.Drawing.Font("Tahoma", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnSectionOffAutoOn.Image = global::AgOpenGPS.Properties.Resources.SectionMasterOff;
-            this.btnSectionOffAutoOn.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.btnSectionOffAutoOn.Location = new System.Drawing.Point(0, 394);
             this.btnSectionOffAutoOn.Margin = new System.Windows.Forms.Padding(0);
             this.btnSectionOffAutoOn.Name = "btnSectionOffAutoOn";
             this.btnSectionOffAutoOn.Size = new System.Drawing.Size(70, 79);
             this.btnSectionOffAutoOn.TabIndex = 152;
-            this.btnSectionOffAutoOn.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-            this.btnSectionOffAutoOn.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.btnSectionOffAutoOn.UseVisualStyleBackColor = false;
             this.btnSectionOffAutoOn.Click += new System.EventHandler(this.btnSectionOffAutoOn_Click);
             // 
             // btnManualOffOn
             // 
             this.btnManualOffOn.BackColor = System.Drawing.Color.Transparent;
-            this.btnManualOffOn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.btnManualOffOn.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnManualOffOn.FlatAppearance.BorderColor = System.Drawing.SystemColors.HotTrack;
             this.btnManualOffOn.FlatAppearance.BorderSize = 0;
             this.btnManualOffOn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnManualOffOn.Font = new System.Drawing.Font("Tahoma", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnManualOffOn.Image = global::AgOpenGPS.Properties.Resources.ManualOff;
-            this.btnManualOffOn.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnManualOffOn.Location = new System.Drawing.Point(3, 307);
+            this.btnManualOffOn.Location = new System.Drawing.Point(0, 304);
+            this.btnManualOffOn.Margin = new System.Windows.Forms.Padding(0);
             this.btnManualOffOn.Name = "btnManualOffOn";
-            this.btnManualOffOn.Size = new System.Drawing.Size(64, 84);
+            this.btnManualOffOn.Size = new System.Drawing.Size(70, 90);
             this.btnManualOffOn.TabIndex = 98;
-            this.btnManualOffOn.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-            this.btnManualOffOn.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.btnManualOffOn.UseVisualStyleBackColor = false;
             this.btnManualOffOn.Click += new System.EventHandler(this.btnManualOffOn_Click);
             // 
             // btnCycleLines
             // 
             this.btnCycleLines.BackColor = System.Drawing.Color.Transparent;
-            this.btnCycleLines.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.btnCycleLines.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnCycleLines.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
             this.btnCycleLines.FlatAppearance.BorderSize = 0;
             this.btnCycleLines.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCycleLines.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnCycleLines.Image = global::AgOpenGPS.Properties.Resources.ABLineCycle;
-            this.btnCycleLines.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnCycleLines.Location = new System.Drawing.Point(3, 228);
+            this.btnCycleLines.Location = new System.Drawing.Point(0, 225);
+            this.btnCycleLines.Margin = new System.Windows.Forms.Padding(0);
             this.btnCycleLines.Name = "btnCycleLines";
-            this.btnCycleLines.Size = new System.Drawing.Size(64, 73);
+            this.btnCycleLines.Size = new System.Drawing.Size(70, 79);
             this.btnCycleLines.TabIndex = 251;
             this.btnCycleLines.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnCycleLines.UseVisualStyleBackColor = false;
@@ -1159,18 +888,15 @@
             // 
             this.btnAutoSteer.BackColor = System.Drawing.Color.Transparent;
             this.btnAutoSteer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnAutoSteer.FlatAppearance.BorderColor = System.Drawing.SystemColors.HotTrack;
             this.btnAutoSteer.FlatAppearance.BorderSize = 0;
             this.btnAutoSteer.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnAutoSteer.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold);
             this.btnAutoSteer.Image = global::AgOpenGPS.Properties.Resources.AutoSteerOff;
-            this.btnAutoSteer.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.btnAutoSteer.Location = new System.Drawing.Point(0, 552);
             this.btnAutoSteer.Margin = new System.Windows.Forms.Padding(0);
             this.btnAutoSteer.Name = "btnAutoSteer";
             this.btnAutoSteer.Size = new System.Drawing.Size(70, 83);
             this.btnAutoSteer.TabIndex = 128;
-            this.btnAutoSteer.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             this.btnAutoSteer.UseVisualStyleBackColor = false;
             this.btnAutoSteer.Click += new System.EventHandler(this.btnAutoSteer_Click);
             // 
@@ -1330,7 +1056,6 @@
             // toolStripBtnField
             // 
             this.toolStripBtnField.AutoSize = false;
-            this.toolStripBtnField.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.toolStripBtnField.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolStripBtnField.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem9,
@@ -1408,7 +1133,6 @@
             // 
             // panelSim
             // 
-            this.panelSim.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.panelSim.BackColor = System.Drawing.Color.Transparent;
             this.panelSim.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Single;
             this.panelSim.ColumnCount = 5;
@@ -1416,7 +1140,7 @@
             this.panelSim.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 65F));
             this.panelSim.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.panelSim.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 51F));
-            this.panelSim.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 116F));
+            this.panelSim.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 186F));
             this.panelSim.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.panelSim.Controls.Add(this.hsbarStepDistance, 0, 0);
             this.panelSim.Controls.Add(this.btnResetSteerAngle, 3, 0);
@@ -1424,6 +1148,8 @@
             this.panelSim.Controls.Add(this.btnSimSetSpeedToZero, 1, 0);
             this.panelSim.Controls.Add(this.btnResetSim, 4, 0);
             this.panelSim.Location = new System.Drawing.Point(61, 490);
+            this.panelSim.Margin = new System.Windows.Forms.Padding(0);
+            this.panelSim.MaximumSize = new System.Drawing.Size(599, 39);
             this.panelSim.Name = "panelSim";
             this.panelSim.RowCount = 1;
             this.panelSim.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -1439,92 +1165,19 @@
             this.btnSimSetSpeedToZero.ContextMenuStrip = this.contextMenuStripFlag;
             this.btnSimSetSpeedToZero.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSimSetSpeedToZero.Font = new System.Drawing.Font("Tahoma", 9.75F);
-            this.btnSimSetSpeedToZero.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnSimSetSpeedToZero.Location = new System.Drawing.Point(185, 4);
+            this.btnSimSetSpeedToZero.Location = new System.Drawing.Point(150, 4);
             this.btnSimSetSpeedToZero.Name = "btnSimSetSpeedToZero";
             this.btnSimSetSpeedToZero.Size = new System.Drawing.Size(59, 31);
             this.btnSimSetSpeedToZero.TabIndex = 453;
             this.btnSimSetSpeedToZero.UseVisualStyleBackColor = false;
             this.btnSimSetSpeedToZero.Click += new System.EventHandler(this.btnSimSetSpeedToZero_Click);
             // 
-            // btnSection16Man
-            // 
-            this.btnSection16Man.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSection16Man.BackColor = System.Drawing.Color.Silver;
-            this.btnSection16Man.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.btnSection16Man.Enabled = false;
-            this.btnSection16Man.FlatAppearance.BorderColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnSection16Man.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSection16Man.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSection16Man.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnSection16Man.Location = new System.Drawing.Point(606, 365);
-            this.btnSection16Man.Name = "btnSection16Man";
-            this.btnSection16Man.Size = new System.Drawing.Size(34, 25);
-            this.btnSection16Man.TabIndex = 448;
-            this.btnSection16Man.Text = "16";
-            this.btnSection16Man.UseVisualStyleBackColor = false;
-            this.btnSection16Man.Click += new System.EventHandler(this.btnSection16Man_Click);
-            // 
-            // btnSection15Man
-            // 
-            this.btnSection15Man.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSection15Man.BackColor = System.Drawing.Color.Silver;
-            this.btnSection15Man.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.btnSection15Man.Enabled = false;
-            this.btnSection15Man.FlatAppearance.BorderColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnSection15Man.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSection15Man.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSection15Man.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnSection15Man.Location = new System.Drawing.Point(606, 338);
-            this.btnSection15Man.Name = "btnSection15Man";
-            this.btnSection15Man.Size = new System.Drawing.Size(34, 25);
-            this.btnSection15Man.TabIndex = 449;
-            this.btnSection15Man.Text = "15";
-            this.btnSection15Man.UseVisualStyleBackColor = false;
-            this.btnSection15Man.Click += new System.EventHandler(this.btnSection15Man_Click);
-            // 
-            // btnSection14Man
-            // 
-            this.btnSection14Man.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSection14Man.BackColor = System.Drawing.Color.Silver;
-            this.btnSection14Man.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.btnSection14Man.Enabled = false;
-            this.btnSection14Man.FlatAppearance.BorderColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnSection14Man.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSection14Man.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSection14Man.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnSection14Man.Location = new System.Drawing.Point(606, 311);
-            this.btnSection14Man.Name = "btnSection14Man";
-            this.btnSection14Man.Size = new System.Drawing.Size(34, 25);
-            this.btnSection14Man.TabIndex = 450;
-            this.btnSection14Man.Text = "14";
-            this.btnSection14Man.UseVisualStyleBackColor = false;
-            this.btnSection14Man.Click += new System.EventHandler(this.btnSection14Man_Click);
-            // 
-            // btnSection13Man
-            // 
-            this.btnSection13Man.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSection13Man.BackColor = System.Drawing.Color.Silver;
-            this.btnSection13Man.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.btnSection13Man.Enabled = false;
-            this.btnSection13Man.FlatAppearance.BorderColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnSection13Man.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSection13Man.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSection13Man.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnSection13Man.Location = new System.Drawing.Point(606, 284);
-            this.btnSection13Man.Name = "btnSection13Man";
-            this.btnSection13Man.Size = new System.Drawing.Size(34, 25);
-            this.btnSection13Man.TabIndex = 451;
-            this.btnSection13Man.Text = "13";
-            this.btnSection13Man.UseVisualStyleBackColor = false;
-            this.btnSection13Man.Click += new System.EventHandler(this.btnSection13Man_Click);
-            // 
             // panelNavigation
             // 
             this.panelNavigation.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(40)))));
             this.panelNavigation.ColumnCount = 2;
-            this.panelNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.panelNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 79F));
+            this.panelNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.panelNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.panelNavigation.Controls.Add(this.btnN3D, 0, 3);
             this.panelNavigation.Controls.Add(this.btn2D, 0, 0);
             this.panelNavigation.Controls.Add(this.btnDayNightMode, 0, 4);
@@ -1543,25 +1196,19 @@
             this.panelNavigation.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.panelNavigation.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.panelNavigation.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.panelNavigation.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.panelNavigation.Size = new System.Drawing.Size(151, 364);
+            this.panelNavigation.Size = new System.Drawing.Size(132, 330);
             this.panelNavigation.TabIndex = 468;
             this.panelNavigation.Visible = false;
             // 
             // btnN3D
             // 
-            this.btnN3D.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnN3D.BackColor = System.Drawing.Color.Transparent;
-            this.btnN3D.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnN3D.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
+            this.btnN3D.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnN3D.FlatAppearance.BorderSize = 0;
             this.btnN3D.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnN3D.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnN3D.Image = global::AgOpenGPS.Properties.Resources.CameraNorth64;
-            this.btnN3D.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnN3D.Location = new System.Drawing.Point(7, 224);
+            this.btnN3D.Location = new System.Drawing.Point(3, 201);
             this.btnN3D.Name = "btnN3D";
-            this.btnN3D.Size = new System.Drawing.Size(57, 55);
+            this.btnN3D.Size = new System.Drawing.Size(60, 60);
             this.btnN3D.TabIndex = 472;
             this.btnN3D.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnN3D.UseVisualStyleBackColor = false;
@@ -1569,18 +1216,13 @@
             // 
             // btn2D
             // 
-            this.btn2D.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btn2D.BackColor = System.Drawing.Color.Transparent;
-            this.btn2D.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btn2D.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
+            this.btn2D.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btn2D.FlatAppearance.BorderSize = 0;
             this.btn2D.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btn2D.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn2D.Image = global::AgOpenGPS.Properties.Resources.Camera2D64;
-            this.btn2D.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btn2D.Location = new System.Drawing.Point(7, 8);
+            this.btn2D.Location = new System.Drawing.Point(3, 3);
             this.btn2D.Name = "btn2D";
-            this.btn2D.Size = new System.Drawing.Size(57, 55);
+            this.btn2D.Size = new System.Drawing.Size(60, 60);
             this.btn2D.TabIndex = 469;
             this.btn2D.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btn2D.UseVisualStyleBackColor = false;
@@ -1588,106 +1230,78 @@
             // 
             // btnDayNightMode
             // 
-            this.btnDayNightMode.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnDayNightMode.BackColor = System.Drawing.Color.Transparent;
-            this.btnDayNightMode.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.btnDayNightMode.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnDayNightMode.FlatAppearance.BorderSize = 0;
             this.btnDayNightMode.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnDayNightMode.Image = global::AgOpenGPS.Properties.Resources.WindowNightMode;
-            this.btnDayNightMode.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnDayNightMode.Location = new System.Drawing.Point(7, 298);
+            this.btnDayNightMode.Location = new System.Drawing.Point(3, 267);
             this.btnDayNightMode.Name = "btnDayNightMode";
-            this.btnDayNightMode.Size = new System.Drawing.Size(57, 55);
+            this.btnDayNightMode.Size = new System.Drawing.Size(60, 60);
             this.btnDayNightMode.TabIndex = 452;
             this.btnDayNightMode.UseVisualStyleBackColor = false;
             this.btnDayNightMode.Click += new System.EventHandler(this.btnDayNightMode_Click);
             // 
             // btnZoomIn
             // 
-            this.btnZoomIn.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnZoomIn.BackColor = System.Drawing.Color.Transparent;
-            this.btnZoomIn.BackgroundImage = global::AgOpenGPS.Properties.Resources.ZoomIn48;
-            this.btnZoomIn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnZoomIn.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlText;
+            this.btnZoomIn.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnZoomIn.FlatAppearance.BorderSize = 0;
             this.btnZoomIn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnZoomIn.Font = new System.Drawing.Font("Tahoma", 12F);
-            this.btnZoomIn.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnZoomIn.Location = new System.Drawing.Point(80, 220);
+            this.btnZoomIn.Image = global::AgOpenGPS.Properties.Resources.ZoomIn48;
+            this.btnZoomIn.Location = new System.Drawing.Point(69, 201);
             this.btnZoomIn.Name = "btnZoomIn";
-            this.btnZoomIn.Size = new System.Drawing.Size(63, 63);
+            this.btnZoomIn.Size = new System.Drawing.Size(60, 60);
             this.btnZoomIn.TabIndex = 120;
             this.btnZoomIn.UseVisualStyleBackColor = false;
             this.btnZoomIn.MouseDown += new System.Windows.Forms.MouseEventHandler(this.btnZoomIn_MouseDown);
             // 
             // btnZoomOut
             // 
-            this.btnZoomOut.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnZoomOut.BackColor = System.Drawing.Color.Transparent;
-            this.btnZoomOut.BackgroundImage = global::AgOpenGPS.Properties.Resources.ZoomOut48;
-            this.btnZoomOut.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnZoomOut.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlText;
+            this.btnZoomOut.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnZoomOut.FlatAppearance.BorderSize = 0;
             this.btnZoomOut.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnZoomOut.Font = new System.Drawing.Font("Tahoma", 12F);
-            this.btnZoomOut.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnZoomOut.Location = new System.Drawing.Point(80, 148);
+            this.btnZoomOut.Image = global::AgOpenGPS.Properties.Resources.ZoomOut48;
+            this.btnZoomOut.Location = new System.Drawing.Point(69, 135);
             this.btnZoomOut.Name = "btnZoomOut";
-            this.btnZoomOut.Size = new System.Drawing.Size(63, 63);
+            this.btnZoomOut.Size = new System.Drawing.Size(60, 60);
             this.btnZoomOut.TabIndex = 119;
             this.btnZoomOut.UseVisualStyleBackColor = false;
             this.btnZoomOut.MouseDown += new System.Windows.Forms.MouseEventHandler(this.btnZoomOut_MouseDown);
             // 
             // btnpTiltDown
             // 
-            this.btnpTiltDown.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnpTiltDown.BackColor = System.Drawing.Color.Transparent;
-            this.btnpTiltDown.BackgroundImage = global::AgOpenGPS.Properties.Resources.TiltDown;
-            this.btnpTiltDown.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnpTiltDown.FlatAppearance.BorderColor = System.Drawing.SystemColors.HotTrack;
+            this.btnpTiltDown.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnpTiltDown.FlatAppearance.BorderSize = 0;
             this.btnpTiltDown.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnpTiltDown.Font = new System.Drawing.Font("Tahoma", 12F);
-            this.btnpTiltDown.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnpTiltDown.Location = new System.Drawing.Point(80, 76);
+            this.btnpTiltDown.Image = global::AgOpenGPS.Properties.Resources.TiltDown;
+            this.btnpTiltDown.Location = new System.Drawing.Point(69, 69);
             this.btnpTiltDown.Name = "btnpTiltDown";
-            this.btnpTiltDown.Size = new System.Drawing.Size(63, 63);
+            this.btnpTiltDown.Size = new System.Drawing.Size(60, 60);
             this.btnpTiltDown.TabIndex = 446;
             this.btnpTiltDown.UseVisualStyleBackColor = false;
             this.btnpTiltDown.MouseDown += new System.Windows.Forms.MouseEventHandler(this.btnpTiltDown_MouseDown);
             // 
             // btnpTiltUp
             // 
-            this.btnpTiltUp.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnpTiltUp.BackColor = System.Drawing.Color.Transparent;
-            this.btnpTiltUp.BackgroundImage = global::AgOpenGPS.Properties.Resources.TiltUp;
-            this.btnpTiltUp.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnpTiltUp.FlatAppearance.BorderColor = System.Drawing.SystemColors.HotTrack;
+            this.btnpTiltUp.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnpTiltUp.FlatAppearance.BorderSize = 0;
             this.btnpTiltUp.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnpTiltUp.Font = new System.Drawing.Font("Tahoma", 12F);
-            this.btnpTiltUp.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnpTiltUp.Location = new System.Drawing.Point(80, 4);
+            this.btnpTiltUp.Image = global::AgOpenGPS.Properties.Resources.TiltUp;
+            this.btnpTiltUp.Location = new System.Drawing.Point(69, 3);
             this.btnpTiltUp.Name = "btnpTiltUp";
-            this.btnpTiltUp.Size = new System.Drawing.Size(63, 63);
+            this.btnpTiltUp.Size = new System.Drawing.Size(60, 60);
             this.btnpTiltUp.TabIndex = 447;
             this.btnpTiltUp.UseVisualStyleBackColor = false;
             this.btnpTiltUp.MouseDown += new System.Windows.Forms.MouseEventHandler(this.btnpTiltUp_MouseDown);
             // 
             // btn3D
             // 
-            this.btn3D.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btn3D.BackColor = System.Drawing.Color.Transparent;
-            this.btn3D.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btn3D.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
+            this.btn3D.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btn3D.FlatAppearance.BorderSize = 0;
             this.btn3D.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btn3D.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn3D.Image = global::AgOpenGPS.Properties.Resources.Camera3D64;
-            this.btn3D.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btn3D.Location = new System.Drawing.Point(7, 80);
+            this.btn3D.Location = new System.Drawing.Point(3, 69);
             this.btn3D.Name = "btn3D";
-            this.btn3D.Size = new System.Drawing.Size(57, 55);
+            this.btn3D.Size = new System.Drawing.Size(60, 60);
             this.btn3D.TabIndex = 471;
             this.btn3D.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btn3D.UseVisualStyleBackColor = false;
@@ -1695,18 +1309,13 @@
             // 
             // btnN2D
             // 
-            this.btnN2D.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnN2D.BackColor = System.Drawing.Color.Transparent;
-            this.btnN2D.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnN2D.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
+            this.btnN2D.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnN2D.FlatAppearance.BorderSize = 0;
             this.btnN2D.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnN2D.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnN2D.Image = global::AgOpenGPS.Properties.Resources.CameraNorth2D;
-            this.btnN2D.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnN2D.Location = new System.Drawing.Point(7, 152);
+            this.btnN2D.Location = new System.Drawing.Point(3, 135);
             this.btnN2D.Name = "btnN2D";
-            this.btnN2D.Size = new System.Drawing.Size(57, 55);
+            this.btnN2D.Size = new System.Drawing.Size(60, 60);
             this.btnN2D.TabIndex = 470;
             this.btnN2D.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnN2D.UseVisualStyleBackColor = false;
@@ -1762,37 +1371,34 @@
             // 
             // btnYouSkipEnable
             // 
-            this.btnYouSkipEnable.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.btnYouSkipEnable.BackColor = System.Drawing.Color.Transparent;
-            this.btnYouSkipEnable.FlatAppearance.BorderColor = System.Drawing.SystemColors.HotTrack;
+            this.btnYouSkipEnable.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnYouSkipEnable.FlatAppearance.BorderSize = 0;
             this.btnYouSkipEnable.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnYouSkipEnable.Font = new System.Drawing.Font("Tahoma", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnYouSkipEnable.Image = global::AgOpenGPS.Properties.Resources.YouSkipOff;
-            this.btnYouSkipEnable.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnYouSkipEnable.Location = new System.Drawing.Point(619, 3);
+            this.btnYouSkipEnable.Location = new System.Drawing.Point(616, 0);
+            this.btnYouSkipEnable.Margin = new System.Windows.Forms.Padding(0);
             this.btnYouSkipEnable.Name = "btnYouSkipEnable";
-            this.btnYouSkipEnable.Size = new System.Drawing.Size(63, 66);
-            this.btnYouSkipEnable.TabIndex = 490;
-            this.btnYouSkipEnable.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+            this.btnYouSkipEnable.Size = new System.Drawing.Size(69, 72);
+            this.btnYouSkipEnable.TabIndex = 0;
             this.btnYouSkipEnable.UseVisualStyleBackColor = false;
             this.btnYouSkipEnable.Visible = false;
             this.btnYouSkipEnable.Click += new System.EventHandler(this.btnYouSkipEnable_Click);
             // 
             // btnHeadlandOnOff
             // 
-            this.btnHeadlandOnOff.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.btnHeadlandOnOff.BackColor = System.Drawing.Color.Transparent;
-            this.btnHeadlandOnOff.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.btnHeadlandOnOff.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnHeadlandOnOff.FlatAppearance.BorderSize = 0;
             this.btnHeadlandOnOff.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnHeadlandOnOff.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnHeadlandOnOff.Image = global::AgOpenGPS.Properties.Resources.HeadlandOff;
-            this.btnHeadlandOnOff.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnHeadlandOnOff.Location = new System.Drawing.Point(3, 3);
+            this.btnHeadlandOnOff.Location = new System.Drawing.Point(0, 0);
+            this.btnHeadlandOnOff.Margin = new System.Windows.Forms.Padding(0);
             this.btnHeadlandOnOff.Name = "btnHeadlandOnOff";
-            this.btnHeadlandOnOff.Size = new System.Drawing.Size(70, 66);
-            this.btnHeadlandOnOff.TabIndex = 447;
+            this.btnHeadlandOnOff.Size = new System.Drawing.Size(77, 72);
+            this.btnHeadlandOnOff.TabIndex = 0;
             this.btnHeadlandOnOff.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnHeadlandOnOff.UseVisualStyleBackColor = false;
             this.btnHeadlandOnOff.Visible = false;
@@ -1800,19 +1406,17 @@
             // 
             // btnHydLift
             // 
-            this.btnHydLift.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.btnHydLift.BackColor = System.Drawing.Color.Transparent;
-            this.btnHydLift.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.btnHydLift.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
+            this.btnHydLift.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnHydLift.FlatAppearance.BorderSize = 0;
             this.btnHydLift.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnHydLift.Font = new System.Drawing.Font("Tahoma", 12F);
             this.btnHydLift.Image = global::AgOpenGPS.Properties.Resources.HydraulicLiftOff;
-            this.btnHydLift.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnHydLift.Location = new System.Drawing.Point(80, 3);
+            this.btnHydLift.Location = new System.Drawing.Point(77, 0);
+            this.btnHydLift.Margin = new System.Windows.Forms.Padding(0);
             this.btnHydLift.Name = "btnHydLift";
-            this.btnHydLift.Size = new System.Drawing.Size(70, 66);
-            this.btnHydLift.TabIndex = 453;
+            this.btnHydLift.Size = new System.Drawing.Size(77, 72);
+            this.btnHydLift.TabIndex = 0;
             this.btnHydLift.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.btnHydLift.UseVisualStyleBackColor = false;
             this.btnHydLift.Visible = false;
@@ -1820,118 +1424,104 @@
             // 
             // btnTramDisplayMode
             // 
-            this.btnTramDisplayMode.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.btnTramDisplayMode.BackColor = System.Drawing.Color.Transparent;
-            this.btnTramDisplayMode.FlatAppearance.BorderColor = System.Drawing.SystemColors.HotTrack;
+            this.btnTramDisplayMode.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnTramDisplayMode.FlatAppearance.BorderSize = 0;
             this.btnTramDisplayMode.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnTramDisplayMode.Font = new System.Drawing.Font("Tahoma", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnTramDisplayMode.Image = global::AgOpenGPS.Properties.Resources.TramOff;
-            this.btnTramDisplayMode.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnTramDisplayMode.Location = new System.Drawing.Point(157, 3);
+            this.btnTramDisplayMode.Location = new System.Drawing.Point(154, 0);
+            this.btnTramDisplayMode.Margin = new System.Windows.Forms.Padding(0);
             this.btnTramDisplayMode.Name = "btnTramDisplayMode";
-            this.btnTramDisplayMode.Size = new System.Drawing.Size(70, 66);
-            this.btnTramDisplayMode.TabIndex = 480;
+            this.btnTramDisplayMode.Size = new System.Drawing.Size(77, 72);
+            this.btnTramDisplayMode.TabIndex = 0;
             this.btnTramDisplayMode.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnTramDisplayMode.UseVisualStyleBackColor = false;
             this.btnTramDisplayMode.Click += new System.EventHandler(this.btnTramDisplayMode_Click);
             // 
             // btnFlag
             // 
-            this.btnFlag.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.btnFlag.BackColor = System.Drawing.Color.Transparent;
             this.btnFlag.ContextMenuStrip = this.contextMenuStripFlag;
-            this.btnFlag.FlatAppearance.BorderColor = System.Drawing.SystemColors.HotTrack;
+            this.btnFlag.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnFlag.FlatAppearance.BorderSize = 0;
             this.btnFlag.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnFlag.Font = new System.Drawing.Font("Tahoma", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnFlag.Image = global::AgOpenGPS.Properties.Resources.FlagRed;
-            this.btnFlag.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnFlag.Location = new System.Drawing.Point(234, 3);
+            this.btnFlag.Location = new System.Drawing.Point(231, 0);
+            this.btnFlag.Margin = new System.Windows.Forms.Padding(0);
             this.btnFlag.Name = "btnFlag";
-            this.btnFlag.Size = new System.Drawing.Size(70, 66);
-            this.btnFlag.TabIndex = 121;
+            this.btnFlag.Size = new System.Drawing.Size(77, 72);
+            this.btnFlag.TabIndex = 0;
             this.btnFlag.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnFlag.UseVisualStyleBackColor = false;
             this.btnFlag.Click += new System.EventHandler(this.btnFlag_Click);
             // 
             // btnChangeMappingColor
             // 
-            this.btnChangeMappingColor.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnChangeMappingColor.BackColor = System.Drawing.Color.SkyBlue;
-            this.btnChangeMappingColor.BackgroundImage = global::AgOpenGPS.Properties.Resources.SectionMapping;
-            this.btnChangeMappingColor.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.btnChangeMappingColor.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
+            this.btnChangeMappingColor.BackColor = System.Drawing.Color.Transparent;
+            this.btnChangeMappingColor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnChangeMappingColor.FlatAppearance.BorderSize = 0;
             this.btnChangeMappingColor.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnChangeMappingColor.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnChangeMappingColor.ForeColor = System.Drawing.Color.Black;
-            this.btnChangeMappingColor.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnChangeMappingColor.Location = new System.Drawing.Point(318, 10);
-            this.btnChangeMappingColor.Margin = new System.Windows.Forms.Padding(10);
+            this.btnChangeMappingColor.Image = global::AgOpenGPS.Properties.Resources.SectionMapping;
+            this.btnChangeMappingColor.Location = new System.Drawing.Point(308, 0);
+            this.btnChangeMappingColor.Margin = new System.Windows.Forms.Padding(0);
             this.btnChangeMappingColor.Name = "btnChangeMappingColor";
-            this.btnChangeMappingColor.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.btnChangeMappingColor.Size = new System.Drawing.Size(57, 52);
-            this.btnChangeMappingColor.TabIndex = 476;
+            this.btnChangeMappingColor.Size = new System.Drawing.Size(77, 72);
+            this.btnChangeMappingColor.TabIndex = 0;
             this.btnChangeMappingColor.UseVisualStyleBackColor = false;
             this.btnChangeMappingColor.Click += new System.EventHandler(this.btnChangeMappingColor_Click);
             // 
             // btnABDraw
             // 
-            this.btnABDraw.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.btnABDraw.BackColor = System.Drawing.Color.Transparent;
-            this.btnABDraw.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.btnABDraw.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
+            this.btnABDraw.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnABDraw.FlatAppearance.BorderSize = 0;
             this.btnABDraw.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnABDraw.Font = new System.Drawing.Font("Tahoma", 12F);
             this.btnABDraw.Image = global::AgOpenGPS.Properties.Resources.PointStart;
-            this.btnABDraw.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnABDraw.Location = new System.Drawing.Point(388, 3);
+            this.btnABDraw.Location = new System.Drawing.Point(385, 0);
+            this.btnABDraw.Margin = new System.Windows.Forms.Padding(0);
             this.btnABDraw.Name = "btnABDraw";
-            this.btnABDraw.Size = new System.Drawing.Size(70, 66);
-            this.btnABDraw.TabIndex = 250;
-            this.btnABDraw.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.btnABDraw.Size = new System.Drawing.Size(77, 72);
+            this.btnABDraw.TabIndex = 0;
             this.btnABDraw.UseVisualStyleBackColor = false;
             this.btnABDraw.Visible = false;
             this.btnABDraw.Click += new System.EventHandler(this.btnABDraw_Click);
             // 
             // btnSnapToPivot
             // 
-            this.btnSnapToPivot.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.btnSnapToPivot.BackColor = System.Drawing.Color.Transparent;
-            this.btnSnapToPivot.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.btnSnapToPivot.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
+            this.btnSnapToPivot.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnSnapToPivot.FlatAppearance.BorderSize = 0;
             this.btnSnapToPivot.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSnapToPivot.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnSnapToPivot.ForeColor = System.Drawing.Color.DarkGray;
             this.btnSnapToPivot.Image = global::AgOpenGPS.Properties.Resources.SnapToPivot;
-            this.btnSnapToPivot.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnSnapToPivot.Location = new System.Drawing.Point(465, 3);
+            this.btnSnapToPivot.Location = new System.Drawing.Point(462, 0);
             this.btnSnapToPivot.Margin = new System.Windows.Forms.Padding(0);
             this.btnSnapToPivot.Name = "btnSnapToPivot";
-            this.btnSnapToPivot.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.btnSnapToPivot.Size = new System.Drawing.Size(70, 66);
-            this.btnSnapToPivot.TabIndex = 477;
+            this.btnSnapToPivot.Size = new System.Drawing.Size(77, 72);
+            this.btnSnapToPivot.TabIndex = 0;
             this.btnSnapToPivot.UseVisualStyleBackColor = false;
             this.btnSnapToPivot.Visible = false;
             this.btnSnapToPivot.Click += new System.EventHandler(this.btnSnapToPivot_Click);
             // 
             // btnEditAB
             // 
-            this.btnEditAB.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.btnEditAB.BackColor = System.Drawing.Color.Transparent;
-            this.btnEditAB.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.btnEditAB.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnEditAB.FlatAppearance.BorderSize = 0;
             this.btnEditAB.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnEditAB.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnEditAB.Image = global::AgOpenGPS.Properties.Resources.ABLineEdit;
-            this.btnEditAB.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnEditAB.Location = new System.Drawing.Point(542, 3);
+            this.btnEditAB.Location = new System.Drawing.Point(539, 0);
+            this.btnEditAB.Margin = new System.Windows.Forms.Padding(0);
             this.btnEditAB.Name = "btnEditAB";
-            this.btnEditAB.Size = new System.Drawing.Size(70, 66);
-            this.btnEditAB.TabIndex = 489;
+            this.btnEditAB.Size = new System.Drawing.Size(77, 72);
+            this.btnEditAB.TabIndex = 0;
             this.btnEditAB.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnEditAB.UseVisualStyleBackColor = false;
             this.btnEditAB.Visible = false;
@@ -1945,8 +1535,7 @@
             this.lblSpeed.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.lblSpeed.Font = new System.Drawing.Font("Tahoma", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblSpeed.ForeColor = System.Drawing.Color.Black;
-            this.lblSpeed.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.lblSpeed.Location = new System.Drawing.Point(558, 17);
+            this.lblSpeed.Location = new System.Drawing.Point(560, 18);
             this.lblSpeed.Margin = new System.Windows.Forms.Padding(0);
             this.lblSpeed.Name = "lblSpeed";
             this.lblSpeed.Size = new System.Drawing.Size(90, 40);
@@ -2003,7 +1592,7 @@
             this.lblFix.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblFix.AutoSize = true;
             this.lblFix.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblFix.Location = new System.Drawing.Point(696, 1);
+            this.lblFix.Location = new System.Drawing.Point(721, 0);
             this.lblFix.Name = "lblFix";
             this.lblFix.Size = new System.Drawing.Size(24, 16);
             this.lblFix.TabIndex = 489;
@@ -2028,7 +1617,7 @@
             this.lblAge.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblAge.AutoSize = true;
             this.lblAge.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblAge.Location = new System.Drawing.Point(642, 1);
+            this.lblAge.Location = new System.Drawing.Point(594, 0);
             this.lblAge.Name = "lblAge";
             this.lblAge.Size = new System.Drawing.Size(34, 16);
             this.lblAge.TabIndex = 493;
@@ -2040,155 +1629,12 @@
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(607, 1);
+            this.label1.Location = new System.Drawing.Point(559, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(39, 16);
             this.label1.TabIndex = 494;
             this.label1.Text = "Age:";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // btnStanleyPure
-            // 
-            this.btnStanleyPure.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnStanleyPure.BackColor = System.Drawing.Color.Transparent;
-            this.btnStanleyPure.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.btnStanleyPure.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
-            this.btnStanleyPure.FlatAppearance.BorderSize = 0;
-            this.btnStanleyPure.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnStanleyPure.Font = new System.Drawing.Font("Tahoma", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnStanleyPure.ForeColor = System.Drawing.Color.Black;
-            this.btnStanleyPure.Image = global::AgOpenGPS.Properties.Resources.ModeStanley;
-            this.btnStanleyPure.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnStanleyPure.Location = new System.Drawing.Point(0, 565);
-            this.btnStanleyPure.Margin = new System.Windows.Forms.Padding(0);
-            this.btnStanleyPure.Name = "btnStanleyPure";
-            this.btnStanleyPure.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.btnStanleyPure.Size = new System.Drawing.Size(70, 70);
-            this.btnStanleyPure.TabIndex = 490;
-            this.btnStanleyPure.UseVisualStyleBackColor = false;
-            this.btnStanleyPure.Click += new System.EventHandler(this.btnStanleyPure_Click);
-            // 
-            // btnAutoSteerConfig
-            // 
-            this.btnAutoSteerConfig.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnAutoSteerConfig.BackColor = System.Drawing.Color.Transparent;
-            this.btnAutoSteerConfig.BackgroundImage = global::AgOpenGPS.Properties.Resources.AutoSteerConf;
-            this.btnAutoSteerConfig.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.btnAutoSteerConfig.FlatAppearance.BorderColor = System.Drawing.Color.SaddleBrown;
-            this.btnAutoSteerConfig.FlatAppearance.BorderSize = 0;
-            this.btnAutoSteerConfig.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnAutoSteerConfig.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnAutoSteerConfig.ForeColor = System.Drawing.Color.Black;
-            this.btnAutoSteerConfig.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnAutoSteerConfig.Location = new System.Drawing.Point(0, 470);
-            this.btnAutoSteerConfig.Name = "btnAutoSteerConfig";
-            this.btnAutoSteerConfig.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.btnAutoSteerConfig.Size = new System.Drawing.Size(70, 70);
-            this.btnAutoSteerConfig.TabIndex = 475;
-            this.btnAutoSteerConfig.Text = "-38.8.";
-            this.btnAutoSteerConfig.UseVisualStyleBackColor = false;
-            this.btnAutoSteerConfig.Click += new System.EventHandler(this.btnAutoSteerConfig_Click);
-            // 
-            // btnMaximizeMainForm
-            // 
-            this.btnMaximizeMainForm.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnMaximizeMainForm.BackColor = System.Drawing.Color.Transparent;
-            this.btnMaximizeMainForm.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.btnMaximizeMainForm.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-            this.btnMaximizeMainForm.FlatAppearance.BorderSize = 0;
-            this.btnMaximizeMainForm.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnMaximizeMainForm.Font = new System.Drawing.Font("Tahoma", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnMaximizeMainForm.Image = global::AgOpenGPS.Properties.Resources.WindowMaximize;
-            this.btnMaximizeMainForm.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnMaximizeMainForm.Location = new System.Drawing.Point(778, 10);
-            this.btnMaximizeMainForm.Name = "btnMaximizeMainForm";
-            this.btnMaximizeMainForm.Size = new System.Drawing.Size(57, 43);
-            this.btnMaximizeMainForm.TabIndex = 482;
-            this.btnMaximizeMainForm.UseVisualStyleBackColor = false;
-            this.btnMaximizeMainForm.Click += new System.EventHandler(this.btnMaximizeMainForm_Click);
-            // 
-            // btnMinimizeMainForm
-            // 
-            this.btnMinimizeMainForm.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnMinimizeMainForm.BackColor = System.Drawing.Color.Transparent;
-            this.btnMinimizeMainForm.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.btnMinimizeMainForm.FlatAppearance.BorderSize = 0;
-            this.btnMinimizeMainForm.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnMinimizeMainForm.Font = new System.Drawing.Font("Tahoma", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnMinimizeMainForm.ForeColor = System.Drawing.Color.DimGray;
-            this.btnMinimizeMainForm.Image = global::AgOpenGPS.Properties.Resources.WindowMinimize;
-            this.btnMinimizeMainForm.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnMinimizeMainForm.Location = new System.Drawing.Point(713, 8);
-            this.btnMinimizeMainForm.Name = "btnMinimizeMainForm";
-            this.btnMinimizeMainForm.Size = new System.Drawing.Size(57, 43);
-            this.btnMinimizeMainForm.TabIndex = 481;
-            this.btnMinimizeMainForm.UseVisualStyleBackColor = false;
-            this.btnMinimizeMainForm.Click += new System.EventHandler(this.btnMinimizeMainForm_Click);
-            // 
-            // pictureboxStart
-            // 
-            this.pictureboxStart.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.pictureboxStart.BackgroundImage = global::AgOpenGPS.Properties.Resources.first;
-            this.pictureboxStart.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.pictureboxStart.Location = new System.Drawing.Point(673, 350);
-            this.pictureboxStart.Name = "pictureboxStart";
-            this.pictureboxStart.Size = new System.Drawing.Size(40, 36);
-            this.pictureboxStart.TabIndex = 473;
-            this.pictureboxStart.TabStop = false;
-            // 
-            // btnStartAgIO
-            // 
-            this.btnStartAgIO.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnStartAgIO.BackColor = System.Drawing.Color.Transparent;
-            this.btnStartAgIO.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.btnStartAgIO.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
-            this.btnStartAgIO.FlatAppearance.BorderSize = 0;
-            this.btnStartAgIO.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnStartAgIO.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnStartAgIO.ForeColor = System.Drawing.Color.DarkGray;
-            this.btnStartAgIO.Image = global::AgOpenGPS.Properties.Resources.AgIO;
-            this.btnStartAgIO.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnStartAgIO.Location = new System.Drawing.Point(0, 390);
-            this.btnStartAgIO.Name = "btnStartAgIO";
-            this.btnStartAgIO.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.btnStartAgIO.Size = new System.Drawing.Size(70, 70);
-            this.btnStartAgIO.TabIndex = 467;
-            this.btnStartAgIO.UseVisualStyleBackColor = false;
-            this.btnStartAgIO.Click += new System.EventHandler(this.btnStartAgIO_Click);
-            // 
-            // btnShutdown
-            // 
-            this.btnShutdown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnShutdown.BackColor = System.Drawing.Color.Transparent;
-            this.btnShutdown.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnShutdown.FlatAppearance.BorderSize = 0;
-            this.btnShutdown.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnShutdown.Image = global::AgOpenGPS.Properties.Resources.WindowClose;
-            this.btnShutdown.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnShutdown.Location = new System.Drawing.Point(828, 8);
-            this.btnShutdown.Name = "btnShutdown";
-            this.btnShutdown.Size = new System.Drawing.Size(57, 43);
-            this.btnShutdown.TabIndex = 447;
-            this.btnShutdown.UseVisualStyleBackColor = false;
-            this.btnShutdown.Click += new System.EventHandler(this.btnShutdown_Click);
-            // 
-            // btnHelp
-            // 
-            this.btnHelp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnHelp.BackColor = System.Drawing.Color.Transparent;
-            this.btnHelp.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.btnHelp.FlatAppearance.BorderSize = 0;
-            this.btnHelp.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnHelp.Font = new System.Drawing.Font("Tahoma", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnHelp.ForeColor = System.Drawing.Color.DimGray;
-            this.btnHelp.Image = global::AgOpenGPS.Properties.Resources.Help;
-            this.btnHelp.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnHelp.Location = new System.Drawing.Point(656, 8);
-            this.btnHelp.Name = "btnHelp";
-            this.btnHelp.Size = new System.Drawing.Size(57, 49);
-            this.btnHelp.TabIndex = 495;
-            this.btnHelp.UseVisualStyleBackColor = false;
-            this.btnHelp.Click += new System.EventHandler(this.btnHelp_Click);
             // 
             // mainPanel
             // 
@@ -2210,22 +1656,6 @@
             // 
             // oglPanel
             // 
-            this.oglPanel.Controls.Add(this.btnSection1Man);
-            this.oglPanel.Controls.Add(this.btnSection2Man);
-            this.oglPanel.Controls.Add(this.btnSection3Man);
-            this.oglPanel.Controls.Add(this.btnSection4Man);
-            this.oglPanel.Controls.Add(this.btnSection5Man);
-            this.oglPanel.Controls.Add(this.btnSection6Man);
-            this.oglPanel.Controls.Add(this.btnSection7Man);
-            this.oglPanel.Controls.Add(this.btnSection8Man);
-            this.oglPanel.Controls.Add(this.btnSection9Man);
-            this.oglPanel.Controls.Add(this.btnSection10Man);
-            this.oglPanel.Controls.Add(this.btnSection11Man);
-            this.oglPanel.Controls.Add(this.btnSection12Man);
-            this.oglPanel.Controls.Add(this.btnSection13Man);
-            this.oglPanel.Controls.Add(this.btnSection14Man);
-            this.oglPanel.Controls.Add(this.btnSection15Man);
-            this.oglPanel.Controls.Add(this.btnSection16Man);
             this.oglPanel.Controls.Add(this.panelSim);
             this.oglPanel.Controls.Add(this.oglMain);
             this.oglPanel.Controls.Add(this.pictureboxStart);
@@ -2237,6 +1667,17 @@
             this.oglPanel.Size = new System.Drawing.Size(750, 635);
             this.oglPanel.TabIndex = 325;
             // 
+            // pictureboxStart
+            // 
+            this.pictureboxStart.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.pictureboxStart.BackgroundImage = global::AgOpenGPS.Properties.Resources.first;
+            this.pictureboxStart.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.pictureboxStart.Location = new System.Drawing.Point(673, 350);
+            this.pictureboxStart.Name = "pictureboxStart";
+            this.pictureboxStart.Size = new System.Drawing.Size(40, 36);
+            this.pictureboxStart.TabIndex = 473;
+            this.pictureboxStart.TabStop = false;
+            // 
             // panelBottom
             // 
             this.panelBottom.Controls.Add(this.panelAB);
@@ -2245,6 +1686,121 @@
             this.panelBottom.Name = "panelBottom";
             this.panelBottom.Size = new System.Drawing.Size(750, 72);
             this.panelBottom.TabIndex = 481;
+            // 
+            // btnStartAgIO
+            // 
+            this.btnStartAgIO.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnStartAgIO.BackColor = System.Drawing.Color.Transparent;
+            this.btnStartAgIO.FlatAppearance.BorderSize = 0;
+            this.btnStartAgIO.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnStartAgIO.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnStartAgIO.ForeColor = System.Drawing.Color.DarkGray;
+            this.btnStartAgIO.Image = global::AgOpenGPS.Properties.Resources.AgIO;
+            this.btnStartAgIO.Location = new System.Drawing.Point(0, 390);
+            this.btnStartAgIO.Name = "btnStartAgIO";
+            this.btnStartAgIO.Size = new System.Drawing.Size(70, 70);
+            this.btnStartAgIO.TabIndex = 467;
+            this.btnStartAgIO.UseVisualStyleBackColor = false;
+            this.btnStartAgIO.Click += new System.EventHandler(this.btnStartAgIO_Click);
+            // 
+            // btnAutoSteerConfig
+            // 
+            this.btnAutoSteerConfig.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnAutoSteerConfig.BackColor = System.Drawing.Color.Transparent;
+            this.btnAutoSteerConfig.FlatAppearance.BorderSize = 0;
+            this.btnAutoSteerConfig.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAutoSteerConfig.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnAutoSteerConfig.ForeColor = System.Drawing.Color.Black;
+            this.btnAutoSteerConfig.Image = global::AgOpenGPS.Properties.Resources.AutoSteerConf;
+            this.btnAutoSteerConfig.Location = new System.Drawing.Point(0, 470);
+            this.btnAutoSteerConfig.Name = "btnAutoSteerConfig";
+            this.btnAutoSteerConfig.Size = new System.Drawing.Size(70, 70);
+            this.btnAutoSteerConfig.TabIndex = 475;
+            this.btnAutoSteerConfig.Text = "-38.8.";
+            this.btnAutoSteerConfig.UseVisualStyleBackColor = false;
+            this.btnAutoSteerConfig.Click += new System.EventHandler(this.btnAutoSteerConfig_Click);
+            // 
+            // btnStanleyPure
+            // 
+            this.btnStanleyPure.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnStanleyPure.BackColor = System.Drawing.Color.Transparent;
+            this.btnStanleyPure.FlatAppearance.BorderSize = 0;
+            this.btnStanleyPure.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnStanleyPure.Font = new System.Drawing.Font("Tahoma", 26.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnStanleyPure.ForeColor = System.Drawing.Color.Black;
+            this.btnStanleyPure.Image = global::AgOpenGPS.Properties.Resources.ModeStanley;
+            this.btnStanleyPure.Location = new System.Drawing.Point(0, 565);
+            this.btnStanleyPure.Margin = new System.Windows.Forms.Padding(0);
+            this.btnStanleyPure.Name = "btnStanleyPure";
+            this.btnStanleyPure.Size = new System.Drawing.Size(70, 70);
+            this.btnStanleyPure.TabIndex = 490;
+            this.btnStanleyPure.UseVisualStyleBackColor = false;
+            this.btnStanleyPure.Click += new System.EventHandler(this.btnStanleyPure_Click);
+            // 
+            // btnMaximizeMainForm
+            // 
+            this.btnMaximizeMainForm.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnMaximizeMainForm.BackColor = System.Drawing.Color.Transparent;
+            this.btnMaximizeMainForm.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.btnMaximizeMainForm.FlatAppearance.BorderSize = 0;
+            this.btnMaximizeMainForm.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnMaximizeMainForm.Font = new System.Drawing.Font("Tahoma", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnMaximizeMainForm.Image = global::AgOpenGPS.Properties.Resources.WindowMaximize;
+            this.btnMaximizeMainForm.Location = new System.Drawing.Point(775, 5);
+            this.btnMaximizeMainForm.Name = "btnMaximizeMainForm";
+            this.btnMaximizeMainForm.Size = new System.Drawing.Size(60, 50);
+            this.btnMaximizeMainForm.TabIndex = 482;
+            this.btnMaximizeMainForm.UseVisualStyleBackColor = false;
+            this.btnMaximizeMainForm.Click += new System.EventHandler(this.btnMaximizeMainForm_Click);
+            // 
+            // btnMinimizeMainForm
+            // 
+            this.btnMinimizeMainForm.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnMinimizeMainForm.BackColor = System.Drawing.Color.Transparent;
+            this.btnMinimizeMainForm.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.btnMinimizeMainForm.FlatAppearance.BorderSize = 0;
+            this.btnMinimizeMainForm.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnMinimizeMainForm.Font = new System.Drawing.Font("Tahoma", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnMinimizeMainForm.ForeColor = System.Drawing.Color.DimGray;
+            this.btnMinimizeMainForm.Image = global::AgOpenGPS.Properties.Resources.WindowMinimize;
+            this.btnMinimizeMainForm.Location = new System.Drawing.Point(715, 5);
+            this.btnMinimizeMainForm.Name = "btnMinimizeMainForm";
+            this.btnMinimizeMainForm.Size = new System.Drawing.Size(60, 50);
+            this.btnMinimizeMainForm.TabIndex = 481;
+            this.btnMinimizeMainForm.UseVisualStyleBackColor = false;
+            this.btnMinimizeMainForm.Click += new System.EventHandler(this.btnMinimizeMainForm_Click);
+            // 
+            // btnShutdown
+            // 
+            this.btnShutdown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnShutdown.BackColor = System.Drawing.Color.Transparent;
+            this.btnShutdown.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.btnShutdown.FlatAppearance.BorderSize = 0;
+            this.btnShutdown.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnShutdown.Image = global::AgOpenGPS.Properties.Resources.WindowClose;
+            this.btnShutdown.Location = new System.Drawing.Point(835, 5);
+            this.btnShutdown.Name = "btnShutdown";
+            this.btnShutdown.Size = new System.Drawing.Size(60, 50);
+            this.btnShutdown.TabIndex = 447;
+            this.btnShutdown.UseVisualStyleBackColor = false;
+            this.btnShutdown.Click += new System.EventHandler(this.btnShutdown_Click);
+            // 
+            // btnHelp
+            // 
+            this.btnHelp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnHelp.BackColor = System.Drawing.Color.Transparent;
+            this.btnHelp.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.btnHelp.FlatAppearance.BorderSize = 0;
+            this.btnHelp.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnHelp.Font = new System.Drawing.Font("Tahoma", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnHelp.ForeColor = System.Drawing.Color.DimGray;
+            this.btnHelp.Image = global::AgOpenGPS.Properties.Resources.Help;
+            this.btnHelp.Location = new System.Drawing.Point(655, 5);
+            this.btnHelp.Name = "btnHelp";
+            this.btnHelp.Size = new System.Drawing.Size(60, 50);
+            this.btnHelp.TabIndex = 495;
+            this.btnHelp.UseVisualStyleBackColor = false;
+            this.btnHelp.Click += new System.EventHandler(this.btnHelp_Click);
             // 
             // FormGPS
             // 
@@ -2292,10 +1848,10 @@
             this.panelSim.ResumeLayout(false);
             this.panelNavigation.ResumeLayout(false);
             this.panelAB.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureboxStart)).EndInit();
             this.mainPanel.ResumeLayout(false);
             this.mainPanel.PerformLayout();
             this.oglPanel.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureboxStart)).EndInit();
             this.panelBottom.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -2306,11 +1862,6 @@
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.Timer tmrWatchdog;
-        private System.Windows.Forms.Button btnSection1Man;
-        private System.Windows.Forms.Button btnSection2Man;
-        private System.Windows.Forms.Button btnSection3Man;
-        private System.Windows.Forms.Button btnSection4Man;
-        private System.Windows.Forms.Button btnSection5Man;
         private System.Windows.Forms.Label lblSpeed;
         private ProXoft.WinForms.RepeatButton btnZoomOut;
         private ProXoft.WinForms.RepeatButton btnZoomIn;
@@ -2321,15 +1872,11 @@
         private System.Windows.Forms.ContextMenuStrip contextMenuStripOpenGL;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripMenuItem googleEarthOpenGLContextMenu;
-        private System.Windows.Forms.Button btnSection8Man;
-        private System.Windows.Forms.Button btnSection7Man;
-        private System.Windows.Forms.Button btnSection6Man;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
         private System.Windows.Forms.Button btnFlag;
         private System.Windows.Forms.Button btnResetSteerAngle;
         private System.Windows.Forms.Button btnResetSim;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
-        public System.Windows.Forms.Button btnSectionOffAutoOn;
         private System.Windows.Forms.ToolStripMenuItem menuLanguageEnglish;
         private System.Windows.Forms.ToolStripMenuItem menuLanguageDeutsch;
         private System.Windows.Forms.ToolStripMenuItem setWorkingDirectoryToolStripMenuItem;
@@ -2342,13 +1889,7 @@
         private System.Windows.Forms.ToolStripMenuItem menuLanguageFrench;
         private System.Windows.Forms.ToolStripMenuItem menuLanguageItalian;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
-        private System.Windows.Forms.Button btnSection9Man;
-        private System.Windows.Forms.Button btnSection10Man;
-        private System.Windows.Forms.Button btnSection11Man;
-        private System.Windows.Forms.Button btnSection12Man;
         private System.Windows.Forms.ToolStripMenuItem enterSimCoordsToolStripMenuItem;
-        public System.Windows.Forms.Button btnAutoYouTurn;
-        public System.Windows.Forms.Button btnAutoSteer;
         private System.Windows.Forms.HScrollBar hsbarStepDistance;
         private System.Windows.Forms.HScrollBar hsbarSteerAngle;
         private OpenTK.GLControl oglZoom;
@@ -2356,23 +1897,15 @@
         private OpenTK.GLControl oglBack;
         private System.Windows.Forms.ComboBox cboxpRowWidth;
         private System.Windows.Forms.Label lblHz;
-        public System.Windows.Forms.Button btnContour;
         public System.Windows.Forms.Timer timerSim;
-        public System.Windows.Forms.Button btnManualOffOn;
-        public System.Windows.Forms.Button btnABDraw;
         public System.Windows.Forms.ToolStripMenuItem menustripLanguage;
         private System.Windows.Forms.StatusStrip statusStripLeft;
         private System.Windows.Forms.TableLayoutPanel panelSim;
         public System.Windows.Forms.TableLayoutPanel panelRight;
-        public System.Windows.Forms.TableLayoutPanel panelDrag;
         private ProXoft.WinForms.RepeatButton btnpTiltDown;
         private ProXoft.WinForms.RepeatButton btnpTiltUp;
         private System.Windows.Forms.Button btnHeadlandOnOff;
         private System.Windows.Forms.Button btnShutdown;
-        private System.Windows.Forms.Button btnSection16Man;
-        private System.Windows.Forms.Button btnSection15Man;
-        private System.Windows.Forms.Button btnSection14Man;
-        private System.Windows.Forms.Button btnSection13Man;
         private System.Windows.Forms.Button btnSimSetSpeedToZero;
         private System.Windows.Forms.ToolStripDropDownButton simplifyToolStrip;
         private System.Windows.Forms.ToolStripMenuItem menuLanguageUkranian;
@@ -2380,13 +1913,8 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator12;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuFlagForm;
         private System.Windows.Forms.ToolStripMenuItem menuLanguageTest;
-        public System.Windows.Forms.Button btnHydLift;
         private System.Windows.Forms.ToolStripMenuItem menuLanguagePolish;
         private System.Windows.Forms.ToolStripDropDownButton distanceToolBtn;
-        public System.Windows.Forms.Button btnDayNightMode;
-        public System.Windows.Forms.Button btnPathDelete;
-        public System.Windows.Forms.Button btnPathRecordStop;
-        public System.Windows.Forms.Button btnPathGoStop;
         private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton4;
         public System.Windows.Forms.ToolStripMenuItem steerChartStripMenu;
         private System.Windows.Forms.ToolStripMenuItem webcamToolStrip;
@@ -2394,10 +1922,6 @@
         private System.Windows.Forms.ToolStripMenuItem deleteForSureToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem offsetFixToolStrip;
         private System.Windows.Forms.TableLayoutPanel panelNavigation;
-        public System.Windows.Forms.Button btnN3D;
-        public System.Windows.Forms.Button btn2D;
-        public System.Windows.Forms.Button btn3D;
-        public System.Windows.Forms.Button btnN2D;
         private System.Windows.Forms.ToolStripDropDownButton toolStripBtnField;
         private System.Windows.Forms.ToolStripMenuItem tramLinesMenuField;
         private System.Windows.Forms.ToolStripMenuItem headlandToolStripMenuItem;
@@ -2409,8 +1933,6 @@
         private System.Windows.Forms.ToolStripMenuItem recordedPathStripMenu;
         private System.Windows.Forms.PictureBox pictureboxStart;
         private System.Windows.Forms.Timer timer2;
-        public System.Windows.Forms.Button btnChangeMappingColor;
-        public System.Windows.Forms.Button btnSnapToPivot;
         private System.Windows.Forms.TableLayoutPanel panelAB;
         private System.Windows.Forms.ToolStripMenuItem colorsToolStripMenuItem1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
@@ -2425,9 +1947,7 @@
         private System.Windows.Forms.Label lblInty;
         private System.Windows.Forms.Label lblCurveLineName;
         private System.Windows.Forms.Label lblCurrentField;
-        public System.Windows.Forms.Button btnTramDisplayMode;
         private System.Windows.Forms.ToolStripDropDownButton stripBtnConfig;
-        public System.Windows.Forms.Button btnYouSkipEnable;
         private System.Windows.Forms.Label lblFix;
         private System.Windows.Forms.ToolStripMenuItem menuLanguageDanish;
         private System.Windows.Forms.ToolStripMenuItem helpMenuItem;
@@ -2448,6 +1968,26 @@
         private System.Windows.Forms.Button btnAutoSteerConfig;
         private System.Windows.Forms.Button btnStanleyPure;
         private System.Windows.Forms.Panel panelBottom;
+        private System.Windows.Forms.Button btnDayNightMode;
+        private System.Windows.Forms.Button btnN3D;
+        private System.Windows.Forms.Button btn2D;
+        private System.Windows.Forms.Button btn3D;
+        private System.Windows.Forms.Button btnN2D;
+        private System.Windows.Forms.TableLayoutPanel panelDrag;
+        private System.Windows.Forms.Button btnPathDelete;
+        private System.Windows.Forms.Button btnPathRecordStop;
+        private System.Windows.Forms.Button btnPathGoStop;
+        private System.Windows.Forms.Button btnSectionOffAutoOn;
+        private System.Windows.Forms.Button btnAutoYouTurn;
+        private System.Windows.Forms.Button btnAutoSteer;
+        private System.Windows.Forms.Button btnContour;
+        private System.Windows.Forms.Button btnManualOffOn;
+        private System.Windows.Forms.Button btnABDraw;
+        private System.Windows.Forms.Button btnHydLift;
+        private System.Windows.Forms.Button btnChangeMappingColor;
+        private System.Windows.Forms.Button btnSnapToPivot;
+        private System.Windows.Forms.Button btnTramDisplayMode;
+        private System.Windows.Forms.Button btnYouSkipEnable;
     }
 }
 

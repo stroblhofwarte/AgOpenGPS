@@ -272,15 +272,18 @@ namespace AgOpenGPS
 
             tool = new CTool(this);
 
-            //enable disable manual buttons
-            LineUpManualBtns();
-
-
             //create a new section and set left and right positions
             //created whether used or not, saves restarting program
 
             section = new CSection[MAXSECTIONS];
-            for (int j = 0; j < MAXSECTIONS; j++) section[j] = new CSection(this);
+            for (int j = 0; j < MAXSECTIONS; j++)
+            {
+                section[j] = new CSection(this, j);
+                oglMain.Controls.Add(section[j].button);
+            }
+
+            //enable disable manual buttons
+            LineUpManualBtns();
 
             //our NMEA parser
             pn = new CNMEA(this);
@@ -433,7 +436,7 @@ namespace AgOpenGPS
         private void lblCurveLineName_Click(object sender, EventArgs e)
         {
             mode += 1;
-            if (mode > 1) mode = 0;
+            if (mode > 2) mode = 0;
         }
 
         //form is closing so tidy up and save settings
@@ -441,20 +444,12 @@ namespace AgOpenGPS
         {
             if (isJobStarted)
             {
-                if (autoBtnState == btnStates.Auto)
+                if (autoBtnState != btnStates.Off)
                 {
                     TimedMessageBox(2000, "Safe Shutdown", "Turn off Auto Section Control");
                     e.Cancel = true;
                     return;
                 }
-
-                if (manualBtnState == btnStates.On)
-                {
-                    TimedMessageBox(2000, "Safe Shutdown", "Turn off Auto Section Control");
-                    e.Cancel = true;
-                    return;
-                }
-
 
                 bool closing = true;
                 int choice = SaveOrNot(closing);
@@ -657,8 +652,8 @@ namespace AgOpenGPS
                 yt.isYouTurnRight = !yt.isYouTurnRight;
                 yt.ResetCreatedYouTurn();
             }
-            else if (yt.isYouTurnBtnOn)
-                btnAutoYouTurn.PerformClick();
+            else
+                enableYouTurnButton(false);
         }
 
         private void BuildMachineByte()
@@ -768,51 +763,21 @@ namespace AgOpenGPS
         public void SectionSetPosition()
         {
             section[0].positionLeft = (double)Vehicle.Default.setSection_position1 + Vehicle.Default.setVehicle_toolOffset;
-            section[0].positionRight = (double)Vehicle.Default.setSection_position2 + Vehicle.Default.setVehicle_toolOffset;
-
-            section[1].positionLeft = (double)Vehicle.Default.setSection_position2 + Vehicle.Default.setVehicle_toolOffset;
-            section[1].positionRight = (double)Vehicle.Default.setSection_position3 + Vehicle.Default.setVehicle_toolOffset;
-
-            section[2].positionLeft = (double)Vehicle.Default.setSection_position3 + Vehicle.Default.setVehicle_toolOffset;
-            section[2].positionRight = (double)Vehicle.Default.setSection_position4 + Vehicle.Default.setVehicle_toolOffset;
-
-            section[3].positionLeft = (double)Vehicle.Default.setSection_position4 + Vehicle.Default.setVehicle_toolOffset;
-            section[3].positionRight = (double)Vehicle.Default.setSection_position5 + Vehicle.Default.setVehicle_toolOffset;
-
-            section[4].positionLeft = (double)Vehicle.Default.setSection_position5 + Vehicle.Default.setVehicle_toolOffset;
-            section[4].positionRight = (double)Vehicle.Default.setSection_position6 + Vehicle.Default.setVehicle_toolOffset;
-
-            section[5].positionLeft = (double)Vehicle.Default.setSection_position6 + Vehicle.Default.setVehicle_toolOffset;
-            section[5].positionRight = (double)Vehicle.Default.setSection_position7 + Vehicle.Default.setVehicle_toolOffset;
-
-            section[6].positionLeft = (double)Vehicle.Default.setSection_position7 + Vehicle.Default.setVehicle_toolOffset;
-            section[6].positionRight = (double)Vehicle.Default.setSection_position8 + Vehicle.Default.setVehicle_toolOffset;
-
-            section[7].positionLeft = (double)Vehicle.Default.setSection_position8 + Vehicle.Default.setVehicle_toolOffset;
-            section[7].positionRight = (double)Vehicle.Default.setSection_position9 + Vehicle.Default.setVehicle_toolOffset;
-
-            section[8].positionLeft = (double)Vehicle.Default.setSection_position9 + Vehicle.Default.setVehicle_toolOffset;
-            section[8].positionRight = (double)Vehicle.Default.setSection_position10 + Vehicle.Default.setVehicle_toolOffset;
-
-            section[9].positionLeft = (double)Vehicle.Default.setSection_position10 + Vehicle.Default.setVehicle_toolOffset;
-            section[9].positionRight = (double)Vehicle.Default.setSection_position11 + Vehicle.Default.setVehicle_toolOffset;
-
-            section[10].positionLeft = (double)Vehicle.Default.setSection_position11 + Vehicle.Default.setVehicle_toolOffset;
-            section[10].positionRight = (double)Vehicle.Default.setSection_position12 + Vehicle.Default.setVehicle_toolOffset;
-
-            section[11].positionLeft = (double)Vehicle.Default.setSection_position12 + Vehicle.Default.setVehicle_toolOffset;
-            section[11].positionRight = (double)Vehicle.Default.setSection_position13 + Vehicle.Default.setVehicle_toolOffset;
-
-            section[12].positionLeft = (double)Vehicle.Default.setSection_position13 + Vehicle.Default.setVehicle_toolOffset;
-            section[12].positionRight = (double)Vehicle.Default.setSection_position14 + Vehicle.Default.setVehicle_toolOffset;
-
-            section[13].positionLeft = (double)Vehicle.Default.setSection_position14 + Vehicle.Default.setVehicle_toolOffset;
-            section[13].positionRight = (double)Vehicle.Default.setSection_position15 + Vehicle.Default.setVehicle_toolOffset;
-
-            section[14].positionLeft = (double)Vehicle.Default.setSection_position15 + Vehicle.Default.setVehicle_toolOffset;
-            section[14].positionRight = (double)Vehicle.Default.setSection_position16 + Vehicle.Default.setVehicle_toolOffset;
-
-            section[15].positionLeft = (double)Vehicle.Default.setSection_position16 + Vehicle.Default.setVehicle_toolOffset;
+            section[1].positionLeft = section[0].positionRight = (double)Vehicle.Default.setSection_position2 + Vehicle.Default.setVehicle_toolOffset;
+            section[2].positionLeft = section[1].positionRight = (double)Vehicle.Default.setSection_position3 + Vehicle.Default.setVehicle_toolOffset;
+            section[3].positionLeft = section[2].positionRight = (double)Vehicle.Default.setSection_position4 + Vehicle.Default.setVehicle_toolOffset;
+            section[4].positionLeft = section[3].positionRight = (double)Vehicle.Default.setSection_position5 + Vehicle.Default.setVehicle_toolOffset;
+            section[5].positionLeft = section[4].positionRight = (double)Vehicle.Default.setSection_position6 + Vehicle.Default.setVehicle_toolOffset;
+            section[6].positionLeft = section[5].positionRight = (double)Vehicle.Default.setSection_position7 + Vehicle.Default.setVehicle_toolOffset;
+            section[7].positionLeft = section[6].positionRight = (double)Vehicle.Default.setSection_position8 + Vehicle.Default.setVehicle_toolOffset;
+            section[8].positionLeft = section[7].positionRight = (double)Vehicle.Default.setSection_position9 + Vehicle.Default.setVehicle_toolOffset;
+            section[9].positionLeft = section[8].positionRight = (double)Vehicle.Default.setSection_position10 + Vehicle.Default.setVehicle_toolOffset;
+            section[10].positionLeft = section[9].positionRight = (double)Vehicle.Default.setSection_position11 + Vehicle.Default.setVehicle_toolOffset;
+            section[11].positionLeft = section[10].positionRight = (double)Vehicle.Default.setSection_position12 + Vehicle.Default.setVehicle_toolOffset;
+            section[12].positionLeft = section[11].positionRight = (double)Vehicle.Default.setSection_position13 + Vehicle.Default.setVehicle_toolOffset;
+            section[13].positionLeft = section[12].positionRight = (double)Vehicle.Default.setSection_position14 + Vehicle.Default.setVehicle_toolOffset;
+            section[14].positionLeft = section[13].positionRight = (double)Vehicle.Default.setSection_position15 + Vehicle.Default.setVehicle_toolOffset;
+            section[15].positionLeft = section[14].positionRight = (double)Vehicle.Default.setSection_position16 + Vehicle.Default.setVehicle_toolOffset;
             section[15].positionRight = (double)Vehicle.Default.setSection_position17 + Vehicle.Default.setVehicle_toolOffset;
         }
 
@@ -857,20 +822,11 @@ namespace AgOpenGPS
             isJobStarted = true;
             startCounter = 0;
 
-            btnSection1Man.BackColor = btnSection2Man.BackColor = btnSection3Man.BackColor = 
-            btnSection4Man.BackColor = btnSection5Man.BackColor = btnSection6Man.BackColor =
-            btnSection7Man.BackColor = btnSection8Man.BackColor = btnSection9Man.BackColor =
-            btnSection10Man.BackColor = btnSection11Man.BackColor = btnSection12Man.BackColor =
-            btnSection13Man.BackColor = btnSection14Man.BackColor = btnSection15Man.BackColor =
-            btnSection16Man.BackColor = Color.Red;
-
-            btnSection1Man.Enabled = btnSection2Man.Enabled = btnSection3Man.Enabled =
-            btnSection4Man.Enabled = btnSection5Man.Enabled = btnSection6Man.Enabled =
-            btnSection7Man.Enabled = btnSection8Man.Enabled = btnSection9Man.Enabled =
-            btnSection10Man.Enabled = btnSection11Man.Enabled = btnSection12Man.Enabled = 
-            btnSection13Man.Enabled = btnSection14Man.Enabled = btnSection15Man.Enabled =
-            btnSection16Man.Enabled = true;
-
+            //turn section buttons all On
+            for (int j = 0; j < MAXSECTIONS; j++)
+            {
+                section[j].UpdateButton(btnStates.Off, true);
+            }
 
             //update the menu
             this.menustripLanguage.Enabled = false;
@@ -923,37 +879,14 @@ namespace AgOpenGPS
 
             menustripLanguage.Enabled = true;
 
+            //fix ManualOffOnAuto buttons
+            setSectionButtonState(btnStates.Off, false);
+
             //turn section buttons all OFF
             for (int j = 0; j < MAXSECTIONS; j++)
             {
-                section[j].manBtnState = btnStates.On;
                 section[j].triangleList.Clear();
             }
-
-            //fix ManualOffOnAuto buttons
-            manualBtnState = btnStates.Off;
-            btnManualOffOn.Image = Properties.Resources.ManualOff;
-
-            //fix auto button
-            autoBtnState = btnStates.Off;
-            btnSectionOffAutoOn.Image = Properties.Resources.SectionMasterOff;
-
-            //Update the button colors and text
-            ManualAllBtnsUpdate();
-
-            btnSection1Man.Enabled = btnSection2Man.Enabled = btnSection3Man.Enabled =
-            btnSection4Man.Enabled = btnSection5Man.Enabled = btnSection6Man.Enabled =
-            btnSection7Man.Enabled = btnSection8Man.Enabled = btnSection9Man.Enabled =
-            btnSection10Man.Enabled = btnSection11Man.Enabled = btnSection12Man.Enabled =
-            btnSection13Man.Enabled = btnSection14Man.Enabled = btnSection15Man.Enabled =
-            btnSection16Man.Enabled = false;
-
-            btnSection1Man.BackColor = btnSection2Man.BackColor = btnSection3Man.BackColor =
-            btnSection4Man.BackColor = btnSection5Man.BackColor = btnSection6Man.BackColor =
-            btnSection7Man.BackColor = btnSection8Man.BackColor = btnSection9Man.BackColor =
-            btnSection10Man.BackColor = btnSection11Man.BackColor = btnSection12Man.BackColor =
-            btnSection13Man.BackColor = btnSection14Man.BackColor = btnSection15Man.BackColor =
-            btnSection16Man.BackColor = Color.Silver;
 
             tool.patchList.Clear();
             //clear the section lists
@@ -968,8 +901,6 @@ namespace AgOpenGPS
             btnContour.Image = Properties.Resources.ContourOff;
             gyd.ContourIndex = null;
 
-            gyd.numABLines = 0;
-            gyd.numCurveLines = 0;
             gyd.selectedLine = null;
             gyd.moveDistance = 0;
             gyd.isValid = false;
@@ -981,18 +912,15 @@ namespace AgOpenGPS
 
             //Buttons
             enableABLineButton(false);
+            enableAutoSteerButton(false);
             enableCurveButton(false);
-            enableYouTurnButton(false);
+            setYouTurnButtonStatus(false);
 
             //turn off headland buttons
             enableHeadlandButton(false);
             enableHydLiftButton(false);
 
             btnCycleLines.Image = Properties.Resources.ABLineCycle;
-
-            //AutoSteer
-            isAutoSteerBtnOn = false;
-            btnAutoSteer.Image = Properties.Resources.AutoSteerOff;
 
 
             //clean up tram
@@ -1010,6 +938,9 @@ namespace AgOpenGPS
 
             displayFieldName = gStr.gsNone;
 
+            panelDrag.Visible = false;
+            recPath.isRecordOn = false;
+            enableRecordPanel(false);
             recPath.recList.Clear();
             recPath.shortestDubinsList.Clear();
             recPath.shuttleDubinsList.Clear();
@@ -1026,7 +957,7 @@ namespace AgOpenGPS
                 {
                     section[j].isSectionOn = true;
 
-                    if (mode == 1)
+                    if (mode == 1 || mode == 2)
                         section[j].sectionOverlapTimer = (int)Math.Max(HzTime * tool.turnOffDelay, 1);
                     else
                     {
@@ -1053,7 +984,7 @@ namespace AgOpenGPS
                 {
                     if (section[j].isMappingOn)
                     {
-                        section[j].TurnMappingOff(j);
+                        section[j].TurnMappingOff();
                         section[j].mappingOnTimer = 1;
                     }
                 }
@@ -1063,7 +994,7 @@ namespace AgOpenGPS
                     {
                         section[j].mappingOnTimer--;
                         if (!section[j].isMappingOn && section[j].mappingOnTimer == 0)
-                            section[j].TurnMappingOn(j);
+                            section[j].TurnMappingOn();
                     }
 
                     if (section[j].mappingOffTimer > 0)
@@ -1073,16 +1004,16 @@ namespace AgOpenGPS
                         {
                             section[j].mappingOnTimer = 0;
                             if (section[j].isMappingOn)
-                                section[j].TurnMappingOff(j);
+                                section[j].TurnMappingOff();
                         }
                     }
                 }
             }
 
             if (tool.isSuperSectionAllowedOn && !section[tool.numOfSections].isMappingOn)
-                section[tool.numOfSections].TurnMappingOn(tool.numOfSections);
+                section[tool.numOfSections].TurnMappingOn();
             else if (!tool.isSuperSectionAllowedOn && section[tool.numOfSections].isMappingOn)
-                section[tool.numOfSections].TurnMappingOff(tool.numOfSections);
+                section[tool.numOfSections].TurnMappingOff();
 
             #region notes
             //Turn ON
@@ -1140,18 +1071,19 @@ namespace AgOpenGPS
         //take the distance from object and convert to camera data
         public void SetZoom()
         {
-            //match grid to cam distance and redo perspective
-            if (camera.camSetDistance <= -20000) camera.gridZoom = 2000;
-            else if (camera.camSetDistance >= -20000 && camera.camSetDistance < -10000) camera.gridZoom = 2012 * 2;
-            else if (camera.camSetDistance >= -10000 && camera.camSetDistance < -5000) camera.gridZoom = 1006 * 2;
-            else if (camera.camSetDistance >= -5000 && camera.camSetDistance < -2000) camera.gridZoom = 503 * 2;
-            else if (camera.camSetDistance >= -2000 && camera.camSetDistance < -1000) camera.gridZoom = 201.2 * 2;
-            else if (camera.camSetDistance >= -1000 && camera.camSetDistance < -500) camera.gridZoom = 100.6 * 2;
-            else if (camera.camSetDistance >= -500 && camera.camSetDistance < -250) camera.gridZoom = 50.3 * 2;
-            else if (camera.camSetDistance >= -250 && camera.camSetDistance < -150) camera.gridZoom = 25.15 * 2;
-            else if (camera.camSetDistance >= -150 && camera.camSetDistance < -50) camera.gridZoom = 10.06 * 2;
-            else if (camera.camSetDistance >= -50 && camera.camSetDistance < -1) camera.gridZoom = 5.03 * 2;
+            if (camera.zoomValue > 180) camera.zoomValue = 180;
+            if (camera.zoomValue < 6.0) camera.zoomValue = 6.0;
 
+            camera.camSetDistance = camera.zoomValue * camera.zoomValue * -1;
+            //match grid to cam distance and redo perspective
+            if (camera.camSetDistance < -10000) camera.gridZoom = 2000;
+            else if (camera.camSetDistance < -5000) camera.gridZoom = 1000;
+            else if (camera.camSetDistance < -2000) camera.gridZoom = 500;
+            else if (camera.camSetDistance < -1000) camera.gridZoom = 200.0;
+            else if (camera.camSetDistance < -500) camera.gridZoom = 100.0;
+            else if (camera.camSetDistance < -250) camera.gridZoom = 50.0;
+            else if (camera.camSetDistance < -150) camera.gridZoom = 20.0;
+            else if (camera.camSetDistance < -50) camera.gridZoom = 10.0;
         }
 
         //All the files that need to be saved when closing field or app
@@ -1164,7 +1096,7 @@ namespace AgOpenGPS
             //turn off all the sections
             for (int j = 0; j < tool.numOfSections + 1; j++)
             {
-                if (section[j].isMappingOn) section[j].TurnMappingOff(j);
+                if (section[j].isMappingOn) section[j].TurnMappingOff();
             }
 
             //FileSaveHeadland();

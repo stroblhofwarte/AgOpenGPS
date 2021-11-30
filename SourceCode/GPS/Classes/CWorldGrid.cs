@@ -73,31 +73,26 @@ namespace AgOpenGPS
 
         public void DrawWorldGrid(double _gridZoom)
         {
-            _gridZoom *= 0.65;
-
             if (mf.isDay)
-            {
                 GL.Color3(0.5, 0.5, 0.5);
-            }
             else
-            {
                 GL.Color3(0.17, 0.17, 0.17);
-            }
+
             GL.LineWidth(1);
             GL.Begin(PrimitiveType.Lines);
             for (double num = Math.Round(eastingMin / _gridZoom, MidpointRounding.AwayFromZero) * _gridZoom; num < eastingMax; num += _gridZoom)
             {
                 if (num < eastingMin) continue;
 
-                GL.Vertex3(num, northingMax, 0.1);
-                GL.Vertex3(num, northingMin, 0.1);
+                GL.Vertex3(num, northingMax, 0.0001);
+                GL.Vertex3(num, northingMin, 0.0001);
             }
             for (double num2 = Math.Round(northingMin / _gridZoom, MidpointRounding.AwayFromZero) * _gridZoom; num2 < northingMax; num2 += _gridZoom)
             {
                 if (num2 < northingMin) continue;
 
-                GL.Vertex3(eastingMax, num2, 0.1);
-                GL.Vertex3(eastingMin, num2, 0.1);
+                GL.Vertex3(eastingMax, num2, 0.0001);
+                GL.Vertex3(eastingMin, num2, 0.0001);
             }
             GL.End();
         }

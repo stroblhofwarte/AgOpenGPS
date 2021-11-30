@@ -72,7 +72,6 @@ namespace AgOpenGPS
         public void FileLoadCurveLines()
         {
             gyd.moveDistance = 0;
-            gyd.numCurveLines = 0;
             for (int i = gyd.refList.Count - 1; i >= 0; i--)
             {
                 if (gyd.refList[i].Mode.HasFlag(Mode.Curve))
@@ -142,7 +141,6 @@ namespace AgOpenGPS
                                         double.Parse(words[2], CultureInfo.InvariantCulture));
                                     New.curvePts.Add(vecPt);
                                 }
-                                gyd.numCurveLines++;
                                 gyd.refList.Add(New);
                             }
                         }
@@ -157,7 +155,13 @@ namespace AgOpenGPS
             }
 
             if (gyd.selectedLine?.Mode.HasFlag(Mode.Curve) == true)
-                gyd.selectedLine = gyd.refList.Find(x => x.Name == gyd.selectedLine?.Name);
+            {
+                CGuidanceLine New = gyd.refList.Find(x => x.Name == gyd.selectedLine.Name);
+                if (New != null)
+                    gyd.selectedLine = new CGuidanceLine(New);
+                else
+                    gyd.selectedLine = null;
+            }
         }
 
         public void FileSaveABLines()
@@ -198,7 +202,6 @@ namespace AgOpenGPS
         public void FileLoadABLines()
         {
             gyd.moveDistance = 0;
-            gyd.numABLines = 0;
 
             for (int i = gyd.refList.Count - 1; i >= 0; i--)
             {
@@ -253,7 +256,6 @@ namespace AgOpenGPS
                             New.curvePts.Add(new vec3(origin.easting + Math.Sin(origin.heading), origin.northing + Math.Cos(origin.heading), origin.heading));
 
                             gyd.refList.Add(New);
-                            gyd.numABLines++;
                         }
                     }
                     catch (Exception er)
@@ -265,7 +267,13 @@ namespace AgOpenGPS
                 }
             }
             if (gyd.selectedLine?.Mode.HasFlag(Mode.AB) == true)
-                gyd.selectedLine = gyd.refList.Find(x => x.Name == gyd.selectedLine?.Name);
+            {
+                CGuidanceLine New = gyd.refList.Find(x => x.Name == gyd.selectedLine.Name);
+                if (New != null)
+                    gyd.selectedLine = new CGuidanceLine(New);
+                else
+                    gyd.selectedLine = null;
+            }
         }
 
         //function to open a previously saved field, resume, open exisiting, open named field
@@ -1113,6 +1121,8 @@ namespace AgOpenGPS
         //save the boundary
         public void FileSaveBoundary()
         {
+            btnABDraw.Visible = bnd.bndList.Count > 0;
+
             //get the directory and make sure it exists, create if not
             string dirField = fieldsDirectory + currentFieldDirectory + "\\";
 

@@ -407,7 +407,8 @@ namespace AgOpenGPS
                         if (pn.fixQuality != 4)
                         {
                             DrawLostRTK();
-                            if (isRTK_KillAutosteer && isAutoSteerBtnOn) btnAutoSteer.PerformClick();
+                            if (isRTK_KillAutosteer)
+                                enableAutoSteerButton(false);
                         }
                     }
 
@@ -430,24 +431,12 @@ namespace AgOpenGPS
 
                     if (leftMouseDownOnOpenGL) MakeFlagMark();
 
-                    if (bbCounter++ > 1) bbCounter = 0;
-
                     //draw the section control window off screen buffer
-                    if (isJobStarted)
+                    if (isJobStarted && mode == 1 || mode == 2 || isFastSections || bbCounter++ > 1)
                     {
-                        if (mode == 1 || isFastSections)
-                        {
-                            oglBack.Refresh();
-                            SendPgnToLoop(p_239.pgn);
-                        }
-                        else
-                        {
-                            if (bbCounter == 0)
-                            {
-                                oglBack.Refresh();
-                                SendPgnToLoop(p_239.pgn);
-                            }
-                        }
+                        bbCounter = 0;
+                        oglBack.Refresh();
+                        SendPgnToLoop(p_239.pgn);
                     }
 
                     //draw the zoom window
@@ -469,8 +458,7 @@ namespace AgOpenGPS
         private void oglBack_Load(object sender, EventArgs e)
         {
             oglBack.MakeCurrent();
-            GL.Enable(EnableCap.CullFace);
-            GL.CullFace(CullFaceMode.Back);
+            GL.Disable(EnableCap.CullFace);
             GL.Enable(EnableCap.Blend);
             GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
             GL.ClearColor((byte)0, (byte)0, (byte)0, (byte)255);
@@ -479,39 +467,66 @@ namespace AgOpenGPS
         private void oglBack_Resize(object sender, EventArgs e)
         {
             oglBack.MakeCurrent();
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadIdentity();
             GL.Viewport(0, 0, 750, 300);
-            Matrix4 mat = Matrix4.CreatePerspectiveFieldOfView(0.06f, 2.5f, 480f, 1520f);
-            GL.LoadMatrix(ref mat);
-            GL.MatrixMode(MatrixMode.Modelview);
+            Matrix4 projection = Matrix4.CreateOrthographicOffCenter(-37.5f, 37.5f, -1.0f, 29.0f, -1000.0f, 1000.0f);
+
+            GL.MatrixMode(MatrixMode.Projection);//set state to load the projection matrix
+            GL.LoadMatrix(ref projection);
+            GL.MatrixMode(MatrixMode.Modelview);//set state to draw global coordinates into clip space;
+            test.Start();
         }
 
-        byte mode = 1;
+        Stopwatch test = new Stopwatch();
+        byte mode = 2;
         double TimeA = -1, TimeB = -1;
+        double percent = 0;
+
         private void oglBack_Paint(object sender, PaintEventArgs e)
         {
-
             oglBack.MakeCurrent();
 
             GL.Disable(EnableCap.Blend);
             GL.BlendEquation(BlendEquationMode.FuncAdd);
             GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.One);
 
-            if (mode == 0)
+            if (mode == 2 || mode == 0)
             {
-                var bb = Stopwatch.StartNew();
+                var timer = test.ElapsedTicks;
+                //determine where the tool is wrt to headland
+                if (bnd.isHeadlandOn) bnd.WhereAreToolCorners();
+
+                //set up the super for youturn
+                section[tool.numOfSections].isInBoundary = true;
+
+                //determine if section is in boundary and headland using the section left/right positions
+                bool isLeftIn = true, isRightIn = true;
+
+                for (int j = 0; j < tool.numOfSections; j++)
+                {
+                    if (bnd.bndList.Count > 0)
+                    {
+                        //only one first left point, the rest are all rights moved over to left
+                        isLeftIn = j == 0 ? bnd.IsPointInsideFenceArea(section[j].leftPoint) : isRightIn;
+                        isRightIn = bnd.IsPointInsideFenceArea(section[j].rightPoint);
+
+                        //merge the two sides into in or out
+                        section[j].isInBoundary = (isLeftIn && isRightIn);
+
+                        section[tool.numOfSections].isInBoundary &= section[j].isInBoundary;
+                    }
+                    else//no boundary created so always inside
+                    {
+                        section[j].isInBoundary = true;
+                    }
+                }
 
                 GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
                 GL.LoadIdentity();                  // Reset The View
 
-                //back the camera up
-                GL.Translate(0, 0, -500);
-
                 //rotate camera so heading matched fix heading in the world
                 GL.Rotate(glm.toDegrees(toolPos.heading), 0, 0, 1);
 
-                GL.Translate(-toolPos.easting - Math.Sin(toolPos.heading) * 15, -toolPos.northing - Math.Cos(toolPos.heading) * 15, 0);
+                GL.Translate(-toolPos.easting, -toolPos.northing, 0);
 
                 //patch color
                 GL.Color3(0.0f, 0.5f, 0.0f);
@@ -587,19 +602,20 @@ namespace AgOpenGPS
                     if (bnd.bndList[0].fenceLine.Points.Count > 3)
                     {
                         GL.LineWidth(3);
+
                         GL.Color3((byte)0, (byte)240, (byte)0);
                         bnd.bndList[0].fenceLine.Points.DrawPolygon();
                     }
 
 
-                //draw 250 green for the headland
-                if (bnd.isHeadlandOn && bnd.isSectionControlledByHeadland)
-                {
-                    GL.LineWidth(3);
-                    GL.Color3((byte)0, (byte)250, (byte)0);
+                    //draw 250 green for the headland
+                    if (bnd.isHeadlandOn && bnd.isSectionControlledByHeadland)
+                    {
+                        GL.LineWidth(3);
+                        GL.Color3((byte)0, (byte)250, (byte)0);
                         bnd.bndList[0].hdLine.Points.DrawPolygon();
+                    }
                 }
-            }
 
                 //finish it up - we need to read the ram of video card
                 GL.Flush();
@@ -622,14 +638,14 @@ namespace AgOpenGPS
                 //10 % min is required for overlap, otherwise it never would be on.
                 int pixLimit = (int)((double)(section[0].rpSectionWidth * rpOnHeight) / (double)(5.0));
                 int rpHeight = 2;
-                if ((rpOnHeight < rpToolHeight && bnd.isHeadlandOn && bnd.isSectionControlledByHeadland)) rpHeight = (int)rpToolHeight + 2;
+                if ((rpOnHeight < rpToolHeight && bnd.isHeadlandOn && vehicle.isHydLiftOn && bnd.isSectionControlledByHeadland)) rpHeight = (int)rpToolHeight + 2;
                 else rpHeight = (int)rpOnHeight + 2;
 
                 if (rpHeight > 290) rpHeight = 290;
                 if (rpHeight < 8) rpHeight = 8;
 
                 //read the whole block of pixels up to max lookahead, one read only
-                GL.ReadPixels(tool.rpXPosition, 0, tool.rpWidth, (int)rpHeight, OpenTK.Graphics.OpenGL.PixelFormat.Green, PixelType.UnsignedByte, grnPixels);
+                GL.ReadPixels(tool.rpXPosition, 10, tool.rpWidth, 10 + rpHeight, OpenTK.Graphics.OpenGL.PixelFormat.Green, PixelType.UnsignedByte, grnPixels);
 
                 //Paint to context for troubleshooting
                 if (DrawBackBuffer)
@@ -772,29 +788,27 @@ namespace AgOpenGPS
                     }
                     tool.isSuperSectionAllowedOn &= section[j].sectionOnRequest;
                 }
-                bb.Stop();
-                if (TimeB < 0) TimeB = bb.ElapsedTicks * 0.1;
-                else TimeB = TimeB * 0.9 + bb.ElapsedTicks * 0.1;
+
+                TimeB = TimeB * 0.9 + (test.ElapsedTicks - timer) * 0.1;
+                TimeB = (test.ElapsedTicks - timer);
             }
-            else
+            if (mode == 2 || mode == 1)
             {
+                var timer = test.ElapsedTicks;
+
                 bool isToolInHeadland = vehicle.isHydLiftOn && bnd.isSectionControlledByHeadland;
                 int taggedHead = 0;
                 int totalHead = 0;
                 bool isSuperSectionAllowedOn = !tool.isMultiColoredSections;
-                var aa = Stopwatch.StartNew();
 
                 GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
                 GL.LoadIdentity();// Reset The View
-
-                //back the camera up
-                GL.Translate(0, 0, -500);
 
                 //rotate camera so heading matched fix heading in the world
                 GL.Rotate(glm.toDegrees(toolPos.heading), 0, 0, 1);
 
                 //translate to that spot in the world
-                GL.Translate(-toolPos.easting - Math.Sin(toolPos.heading) * 14, -toolPos.northing - Math.Cos(toolPos.heading) * 14, 0);
+                GL.Translate(-toolPos.easting, -toolPos.northing, 0);
 
                 GL.Color3((byte)0, (byte)252, (byte)0);
                 GL.Begin(PrimitiveType.TriangleStrip);
@@ -1128,8 +1142,7 @@ namespace AgOpenGPS
                 //set hydraulics based on tool in headland or not
                 bnd.SetHydPosition(totalHead > 0 && taggedHead >= totalHead * 0.999);
 
-                aa.Stop();
-                TimeA = TimeA * 0.9 + aa.ElapsedTicks * 0.1;
+                TimeA = TimeA * 0.9 + (test.ElapsedTicks - timer) * 0.1;
             }
 
 
@@ -1145,7 +1158,17 @@ namespace AgOpenGPS
             //send the byte out to section machines
             BuildMachineByte();
 
-            lblCurveLineName.Text = (mode == 1 ? "On " : "Off ") + TimeA.ToString("0.0") + " *** " + (mode == 0 ? "On " : "Off ") + TimeB.ToString("0.0");
+            test.Restart();
+
+            if (mode == 1)
+                lblCurveLineName.Text = "New " + TimeA.ToString("0.0");
+            else if (mode == 0)
+                lblCurveLineName.Text = "Old " + TimeB.ToString("0.0");
+            else
+            {
+                percent = percent * 0.99 + (100.0 - ((100.0 / TimeB) * TimeA)) * 0.01;
+                lblCurveLineName.Text = "A " + TimeA.ToString("0.0") + " *** " + "B " + TimeB.ToString("0.0") + " original = " + Math.Abs(percent).ToString("0.0") + (percent < 0 ? "% Faster" : "% Slower");
+            }
 
             //if a minute has elapsed save the field in case of crash and to be able to resume            
             if (minuteCounter > 30 && sentenceCounter < 20)
@@ -1213,14 +1236,12 @@ namespace AgOpenGPS
         private void oglZoom_Resize(object sender, EventArgs e)
         {
             oglZoom.MakeCurrent();
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadIdentity();
 
             GL.Viewport(0, 0, oglZoom.Width, oglZoom.Height);
-            //58 degrees view
-            Matrix4 mat = Matrix4.CreatePerspectiveFieldOfView(1.01f, 1.0f, 100.0f, 5000.0f);
-            GL.LoadMatrix(ref mat);
+            Matrix4 projection = Matrix4.CreateOrthographicOffCenter(-minmax, minmax, -minmax, minmax, -1.0f, 1.0f);
 
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadMatrix(ref projection);
             GL.MatrixMode(MatrixMode.Modelview);
         }
 
@@ -1233,8 +1254,6 @@ namespace AgOpenGPS
                 //GL.LoadIdentity();                  // Reset The View
 
                 //CalculateMinMax();
-                ////back the camera up
-                //GL.Translate(0, 0, -maxFieldDistance);
                 //GL.Enable(EnableCap.Blend);
 
                 ////translate to that spot in the world 
@@ -1344,9 +1363,6 @@ namespace AgOpenGPS
                     GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
                     GL.LoadIdentity();                  // Reset The View
 
-                    //back the camera up
-                    GL.Translate(0, 0, -maxFieldDistance);
-
                     //translate to that spot in the world 
                     GL.Translate(-fieldCenterX, -fieldCenterY, 0);
 
@@ -1382,6 +1398,33 @@ namespace AgOpenGPS
                         GL.End();
                     }
 
+                    for (int j = 0; j < tool.numSuperSection; j++)
+                    {
+                        if (section[j].isMappingOn && section[j].triangleList.Count > 0)
+                        {
+                            GL.Color4((byte)section[j].triangleList[0].easting, (byte)section[j].triangleList[0].northing, (byte)section[j].triangleList[0].heading, (byte)(isDay ? 152 : 76));
+
+                            //draw the triangle in each triangle strip
+                            GL.Begin(PrimitiveType.TriangleStrip);
+
+                            for (int i = 1; i < section[j].triangleList.Count; i++)
+                                GL.Vertex3(section[j].triangleList[i].easting, section[j].triangleList[i].northing, 0);
+
+                            //left side of triangle
+                            vec2 pt = new vec2((cosSectionHeading * section[j].positionLeft) + toolPos.easting,
+                                    (sinSectionHeading * section[j].positionLeft) + toolPos.northing);
+
+                            GL.Vertex3(pt.easting, pt.northing, 0);
+
+                            //Right side of triangle
+                            pt = new vec2((cosSectionHeading * section[j].positionRight) + toolPos.easting,
+                               (sinSectionHeading * section[j].positionRight) + toolPos.northing);
+
+                            GL.Vertex3(pt.easting, pt.northing, 0);
+
+                            GL.End();
+                        }
+                    }
                     //draw the ABLine
                     if (gyd.isBtnABLineOn)
                     {
@@ -2301,7 +2344,7 @@ namespace AgOpenGPS
         }
 
         public double maxFieldX, maxFieldY, minFieldX, minFieldY, fieldCenterX, fieldCenterY, maxFieldDistance, maxCrossFieldLength;
-
+        public float minmax = 100;
         //determine mins maxs of patches and whole field.
         public void CalculateMinMax()
         {
@@ -2349,9 +2392,9 @@ namespace AgOpenGPS
             }
 
 
-            if (maxFieldX == -9999999 | minFieldX == 9999999 | maxFieldY == -9999999 | minFieldY == 9999999)
+            if (maxFieldX == -9999999 || minFieldX == 9999999 || maxFieldY == -9999999 || minFieldY == 9999999)
             {
-                maxFieldX = 0; minFieldX = 0; maxFieldY = 0; minFieldY = 0; maxFieldDistance = 1500;
+                maxFieldX = 0; minFieldX = 0; maxFieldY = 0; minFieldY = 0; maxFieldDistance = 100; minmax = 50.0f;
             }
             else
             {
@@ -2364,32 +2407,13 @@ namespace AgOpenGPS
                 if (dist > dist2) maxFieldDistance = (dist);
                 else maxFieldDistance = (dist2);
 
-                if (maxFieldDistance < 100) maxFieldDistance = 100;
-                if (maxFieldDistance > 19900) maxFieldDistance = 19900;
-                //lblMax.Text = ((int)maxFieldDistance).ToString();
+                maxFieldDistance += 100;//border?
+                minmax = (float)(maxFieldDistance / 2);
 
                 fieldCenterX = (maxFieldX + minFieldX) / 2.0;
                 fieldCenterY = (maxFieldY + minFieldY) / 2.0;
             }
-
-            //minFieldX -= 8;
-            //minFieldY -= 8;
-            //maxFieldX += 8;
-            //maxFieldY += 8;
-
-            //if (isMetric)
-            //{
-            //    lblFieldWidthEastWest.Text = Math.Abs((maxFieldX - minFieldX)).ToString("N0") + " m";
-            //    lblFieldWidthNorthSouth.Text = Math.Abs((maxFieldY - minFieldY)).ToString("N0") + " m";
-            //}
-            //else
-            //{
-            //    lblFieldWidthEastWest.Text = Math.Abs((maxFieldX - minFieldX) * glm.m2ft).ToString("N0") + " ft";
-            //    lblFieldWidthNorthSouth.Text = Math.Abs((maxFieldY - minFieldY) * glm.m2ft).ToString("N0") + " ft";
-            //}
-
-            //lblZooom.Text = ((int)(maxFieldDistance)).ToString();
-
+            oglZoom_Resize(null, EventArgs.Empty);
         }
 
         private void DrawFieldText()

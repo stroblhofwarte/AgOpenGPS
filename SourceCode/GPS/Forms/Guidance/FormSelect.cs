@@ -264,12 +264,11 @@ namespace AgOpenGPS
             mf.gyd.isValid = false;
 
             mf.gyd.isOkToAddDesPoints = false;
-            mf.enableYouTurnButton(false);
-            mf.enableCurveButton(false);
-            mf.enableABLineButton(false);
 
-            if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
-            if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
+            mf.enableABLineButton(false);
+            mf.enableAutoSteerButton(false);
+            mf.enableCurveButton(false);
+            mf.setYouTurnButtonStatus(false);
 
             mf.gyd.selectedLine = null;
             Close();
@@ -337,18 +336,12 @@ namespace AgOpenGPS
                     }
 
                     mf.gyd.refList.Add(New);
-                    mf.gyd.selectedLine = New;
+                    mf.gyd.selectedLine = new CGuidanceLine(New);
 
                     if (mode.HasFlag(Mode.AB))
-                    {
-                        mf.gyd.numABLines++;
                         mf.FileSaveABLines();
-                    }
                     else
-                    {
-                        mf.gyd.numCurveLines++;
                         mf.FileSaveCurveLines();
-                    }
 
                     panelPick.Visible = true;
                     panelAPlus.Visible = false;
@@ -372,26 +365,20 @@ namespace AgOpenGPS
                 int idx = lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex;
                 if (idx > -1)
                 {
-                    if (mf.gyd.selectedLine == mf.gyd.refList[idx])
+                    if (mf.gyd.selectedLine?.Name == mf.gyd.refList[idx].Name)
                     {
                         mf.gyd.selectedLine = null;
-                        if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
-                        if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
+                        mf.enableAutoSteerButton(false);
+                        mf.enableYouTurnButton(false);
                     }
 
                     lvLines.SelectedItems[0].Remove();
                     mf.gyd.refList.RemoveAt(idx);
 
                     if (mode.HasFlag(Mode.AB))
-                    {
-                        mf.gyd.numABLines--;
                         mf.FileSaveABLines();
-                    }
                     else
-                    {
-                        mf.gyd.numCurveLines--;
                         mf.FileSaveCurveLines();
-                    }
                 }
             }
 
@@ -407,17 +394,19 @@ namespace AgOpenGPS
 
             if (lvLines.SelectedItems.Count > 0)
             {
-                mf.gyd.selectedLine = mf.gyd.refList[lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex];
-                mf.enableYouTurnButton(true);
+                if (mf.gyd.refList[lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex].Name != mf.gyd.selectedLine?.Name)
+                {
+                    mf.gyd.selectedLine = new CGuidanceLine(mf.gyd.refList[lvLines.Items[lvLines.SelectedIndices[0]].ImageIndex]);
+                    mf.setYouTurnButtonStatus(true);
+                }
             }
             else
             {
                 mf.gyd.isOkToAddDesPoints = false;
-                mf.enableYouTurnButton(false);
-                mf.enableCurveButton(false);
+                mf.enableAutoSteerButton(false);
                 mf.enableABLineButton(false);
-                if (mf.isAutoSteerBtnOn) mf.btnAutoSteer.PerformClick();
-                if (mf.yt.isYouTurnBtnOn) mf.btnAutoYouTurn.PerformClick();
+                mf.enableCurveButton(false);
+                mf.setYouTurnButtonStatus(false);
 
                 mf.gyd.selectedLine = null;
             }

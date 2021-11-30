@@ -2,6 +2,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace AgOpenGPS
 {
@@ -21,7 +23,7 @@ namespace AgOpenGPS
         public bool isSectionOn = false;
 
         public bool sectionOnRequest = false;
-
+        private int index;
         public int sectionOverlapTimer = 0;
 
         //mapping
@@ -54,10 +56,6 @@ namespace AgOpenGPS
         public vec2 leftPoint;
         public vec2 rightPoint;
 
-        //used to determine left and right speed of section
-        public vec2 lastLeftPoint;
-        public vec2 lastRightPoint;
-
         //whether or not this section is in boundary, headland
         public bool isInBoundary = true, isHydLiftInWorkArea = true;
         public bool isInHeadlandArea = true;
@@ -66,18 +64,81 @@ namespace AgOpenGPS
 
         //used to determine state of Manual section button - Off Auto On
         public btnStates manBtnState = btnStates.Off;
+        public Button button;
 
         //simple constructor, position is set in GPSWinForm_Load in FormGPS when creating new object
-        public CSection(FormGPS _f)
+        public CSection(FormGPS _f, int idx)
         {
             //constructor
             mf = _f;
+            index = idx;
+
+            button = new Button();
+
+            button.BackColor = System.Drawing.Color.Silver;
+            button.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            button.Enabled = false;
+            button.FlatAppearance.BorderColor = System.Drawing.SystemColors.ActiveCaptionText;
+            button.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            button.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            button.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            button.Location = new System.Drawing.Point(646, 178);
+            button.Size = new System.Drawing.Size(34, 25);
+            button.Text = (idx + 1).ToString();
+            button.UseVisualStyleBackColor = false;
+            button.Click += new System.EventHandler(this.button_Click);
         }
 
-        public void TurnMappingOn(int j)
+        private void button_Click(object sender, EventArgs e)
         {
-            numTriangles = 0;
+            //if auto is off just have on-off for choices of section buttons
+            if (manBtnState == btnStates.On)
+                UpdateButton(btnStates.Off);
+            else if (manBtnState == btnStates.Off && mf.autoBtnState == btnStates.Auto)
+                UpdateButton(btnStates.Auto);
+            else if (mf.autoBtnState != btnStates.Off)
+                UpdateButton(btnStates.On);
+        }
 
+        public void UpdateButton(btnStates status, bool? enable = null)
+        {
+            if (mf.isDay)
+                button.ForeColor = Color.Black;
+            else
+                button.ForeColor = Color.White;
+
+            manBtnState = status;
+
+            if (enable.HasValue)
+            {
+                button.Enabled = enable.Value;
+                button.BackColor = enable.Value ? Color.Red : Color.Silver;
+            }
+            else if (manBtnState == btnStates.Auto)
+            {
+                if (mf.isDay)
+                    button.BackColor = Color.Lime;
+                else
+                    button.BackColor = Color.ForestGreen;
+            }
+            else if (manBtnState == btnStates.On)
+            {
+                if (mf.isDay)
+                    button.BackColor = Color.Yellow;
+                else
+                    button.BackColor = Color.DarkGoldenrod;
+            }
+            else if (manBtnState == btnStates.Off)
+            {
+                if (mf.isDay)
+                    button.BackColor = Color.Red;
+                else
+                    button.BackColor = Color.Crimson;
+            }
+        }
+        
+        public void TurnMappingOn()
+        {
             //do not tally square meters on inital point, that would be silly
             if (!isMappingOn)
             {
@@ -95,26 +156,19 @@ namespace AgOpenGPS
 
                 else
                 {
-                    vec3 collor = new vec3(mf.tool.secColors[j].R, mf.tool.secColors[j].G, mf.tool.secColors[j].B);
+                    vec3 collor = new vec3(mf.tool.secColors[index].R, mf.tool.secColors[index].G, mf.tool.secColors[index].B);
                     triangleList.Add(collor);
                 }
 
-                //left side of triangle
-                vec3 point = new vec3(leftPoint.easting, leftPoint.northing, 0);
-                triangleList.Add(point);
-
-                //Right side of triangle
-                point = new vec3(rightPoint.easting, rightPoint.northing, 0);
-                triangleList.Add(point);
+                AddMappingPoint();
             }
         }
 
-        public void TurnMappingOff(int j)
+        public void TurnMappingOff()
         {
-            AddMappingPoint(j);
+            AddMappingPoint();
 
             isMappingOn = false;
-            numTriangles = 0;
 
             if (triangleList.Count > 4)
             {
@@ -131,7 +185,7 @@ namespace AgOpenGPS
         //every time a new fix, a new patch point from last point to this point
         //only need prev point on the first points of triangle strip that makes a box (2 triangles)
 
-        public void AddMappingPoint(int j)
+        public void AddMappingPoint()
         {
             //add two triangles for next step.
             //left side
@@ -145,9 +199,6 @@ namespace AgOpenGPS
 
             //add the point to the list
             triangleList.Add(point2);
-
-            //count the triangle pairs
-            numTriangles++;
 
             //quick count
             int c = triangleList.Count - 1;
@@ -175,28 +226,26 @@ namespace AgOpenGPS
                     mf.fd.workedAreaTotal += temp;
                     mf.fd.workedAreaTotalUser += temp;
                 }
-            }
 
-            if (numTriangles > 61)
-            {
-                numTriangles = 0;
+                if (c > 126)
+                {
+                    mf.tool.patchList.Add(triangleList);
 
-                mf.tool.patchList.Add(triangleList);
+                    //save the cutoff patch to be saved later
+                    mf.patchSaveList.Add(triangleList);
 
-                //save the cutoff patch to be saved later
-                mf.patchSaveList.Add(triangleList);
+                    triangleList = new List<vec3>(32);
 
-                triangleList = new List<vec3>(32);
+                    //Add Patch colour
+                    if (!mf.tool.isMultiColoredSections)
+                        triangleList.Add(new vec3(mf.sectionColorDay.R, mf.sectionColorDay.G, mf.sectionColorDay.B));
+                    else
+                        triangleList.Add(new vec3(mf.tool.secColors[index].R, mf.tool.secColors[index].G, mf.tool.secColors[index].B));
 
-                //Add Patch colour
-                if (!mf.tool.isMultiColoredSections)
-                    triangleList.Add(new vec3(mf.sectionColorDay.R, mf.sectionColorDay.G, mf.sectionColorDay.B));
-                else
-                    triangleList.Add(new vec3(mf.tool.secColors[j].R, mf.tool.secColors[j].G, mf.tool.secColors[j].B));
-
-                //add the points to List, yes its more points, but breaks up patches for culling
-                triangleList.Add(point);
-                triangleList.Add(point2);
+                    //add the points to List, yes its more points, but breaks up patches for culling
+                    triangleList.Add(point);
+                    triangleList.Add(point2);
+                }
             }
         }
     }

@@ -65,13 +65,7 @@
             if (mf.ahrs.isAutoSteerAuto && steerSwitchValue != oldsteerSwitchValue)
             {
                 oldsteerSwitchValue = steerSwitchValue;
-                if (steerSwitchValue == 0)
-                {
-                    if (!mf.isAutoSteerBtnOn)
-                        mf.btnAutoSteer.PerformClick();
-                }
-                else if (mf.isAutoSteerBtnOn)
-                    mf.btnAutoSteer.PerformClick();
+                mf.enableAutoSteerButton(steerSwitchValue == 0);
             }
 
             if (workSwitchValue != oldWorkSwitchValue)
@@ -82,21 +76,15 @@
                 {
                     if (isWorkSwitchManual)
                     {
-                        if (mf.manualBtnState != btnStates.On)
-                        {
-                            mf.btnManualOffOn.PerformClick();
-                        }
+                        if (mf.autoBtnState != btnStates.On)
+                            mf.setSectionButtonState(btnStates.On);
                     }
                     else if (mf.autoBtnState != btnStates.Auto)
-                    {
-                        mf.btnSectionOffAutoOn.PerformClick();
-                    }
+                        mf.setSectionButtonState(btnStates.Auto);
                 }
                 //Checks both on-screen buttons, performs click if button is not off
                 else if (mf.autoBtnState != btnStates.Off)
-                    mf.btnSectionOffAutoOn.PerformClick();
-                else if (mf.manualBtnState != btnStates.Off)
-                    mf.btnManualOffOn.PerformClick();
+                    mf.setSectionButtonState(btnStates.Off);
             }
         }
     }

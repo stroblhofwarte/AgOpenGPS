@@ -307,24 +307,10 @@ namespace AgOpenGPS
 
         private void tabTSections_Enter(object sender, EventArgs e)
         {
-            //turn section buttons all OFF
-            for (int j = 0; j < FormGPS.MAXSECTIONS; j++)
-            {
-                mf.section[j].manBtnState = btnStates.On;
-            }
+            //fix ManualOffOnAuto buttons
+            mf.setSectionButtonState(btnStates.Off);
 
             cboxSectionResponse.Checked = Properties.Vehicle.Default.setSection_isFast;
-
-            //fix ManualOffOnAuto buttons
-            mf.manualBtnState = btnStates.Off;
-            mf.btnManualOffOn.Image = Properties.Resources.ManualOff;
-
-            //fix auto button
-            mf.autoBtnState = btnStates.Off;
-            mf.btnSectionOffAutoOn.Image = Properties.Resources.SectionMasterOff;
-
-            //Update the button colors and text
-            mf.ManualAllBtnsUpdate();
 
             nudCutoffSpeed.Value = (decimal)Properties.Vehicle.Default.setVehicle_slowSpeedCutoff;
 
@@ -384,7 +370,7 @@ namespace AgOpenGPS
             Properties.Vehicle.Default.setSection_position17 = sectionPosition17;
 
 
-            if (numberOfSections != mf.tool.numSuperSection)
+            if (numberOfSections != mf.tool.numOfSections)
             {
                 mf.tool.numOfSections = numberOfSections;
                 mf.tool.numSuperSection = numberOfSections + 1;

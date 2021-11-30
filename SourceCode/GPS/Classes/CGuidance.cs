@@ -16,7 +16,7 @@ namespace AgOpenGPS
         public List<vec3> curList = new List<vec3>();
 
         public bool isBtnABLineOn, isBtnCurveOn, isContourBtnOn;
-        public int numABLines = 0, numCurveLines;
+
         public CGuidanceLine selectedLine, ContourIndex;
 
         public bool isSmoothWindowOpen;
@@ -515,7 +515,7 @@ namespace AgOpenGPS
             //update base on autosteer settings and distance from line
             double goalPointDistance = mf.vehicle.UpdateGoalPointDistance() * (mf.yt.isYouTurnTriggered ? 0.8 : 1.0);
 
-            bool ReverseHeading = mf.yt.isYouTurnTriggered ? mf.isReverse : (mf.isReverse ? !isHeadingSameWay : isHeadingSameWay);
+            bool ReverseHeading = mf.yt.isYouTurnTriggered ? !mf.isReverse : (mf.isReverse ? !isHeadingSameWay : isHeadingSameWay);
 
             int count = ReverseHeading ? 1 : -1;
             vec3 start = new vec3(rEastPivot, rNorthPivot, 0);
@@ -1309,6 +1309,13 @@ namespace AgOpenGPS
         public CGuidanceLine(Mode mode)
         {
             Mode = mode;
+        }
+
+        public CGuidanceLine(CGuidanceLine old)
+        {
+            Mode = old.Mode;
+            Name = old.Name;
+            curvePts.AddRange(old.curvePts.ToArray());
         }
     }
 }

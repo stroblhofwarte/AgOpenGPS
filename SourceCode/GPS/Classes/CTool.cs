@@ -198,9 +198,9 @@ namespace AgOpenGPS
                 GL.LineWidth(6);
                 GL.Color3(0, 0, 0);
                 GL.Begin(PrimitiveType.LineStrip);
-                GL.Vertex3(-0.4 + mf.tool.toolOffset, trailingTool, 0);
+                GL.Vertex3(-0.4 + toolOffset, trailingTool, 0);
                 GL.Vertex3(0, 0, 0);
-                GL.Vertex3(0.4 + mf.tool.toolOffset, trailingTool, 0);
+                GL.Vertex3(0.4 + toolOffset, trailingTool, 0);
 
                 GL.End();
 
@@ -208,9 +208,9 @@ namespace AgOpenGPS
                 //draw the rigid hitch
                 GL.Color3(0.7f, 0.4f, 0.2f);
                 GL.Begin(PrimitiveType.LineStrip);
-                GL.Vertex3(-0.4 + mf.tool.toolOffset, trailingTool, 0);
+                GL.Vertex3(-0.4 + toolOffset, trailingTool, 0);
                 GL.Vertex3(0, 0, 0);
-                GL.Vertex3(0.4 + mf.tool.toolOffset, trailingTool, 0);
+                GL.Vertex3(0.4 + toolOffset, trailingTool, 0);
 
                 GL.End();
             }
@@ -223,19 +223,19 @@ namespace AgOpenGPS
 
                 //lookahead section on
                 GL.Color3(0.20f, 0.7f, 0.2f);
-                GL.Vertex3(mf.tool.toolFarLeftPosition, (mf.tool.lookAheadDistanceOnPixelsLeft) * 0.1 + trailingTool, 0);
-                GL.Vertex3(mf.tool.toolFarRightPosition, (mf.tool.lookAheadDistanceOnPixelsRight) * 0.1 + trailingTool, 0);
+                GL.Vertex3(toolFarLeftPosition, (lookAheadDistanceOnPixelsLeft) * 0.1 + trailingTool, 0);
+                GL.Vertex3(toolFarRightPosition, (lookAheadDistanceOnPixelsRight) * 0.1 + trailingTool, 0);
 
                 //lookahead section off
                 GL.Color3(0.70f, 0.2f, 0.2f);
-                GL.Vertex3(mf.tool.toolFarLeftPosition, (mf.tool.lookAheadDistanceOffPixelsLeft) * 0.1 + trailingTool, 0);
-                GL.Vertex3(mf.tool.toolFarRightPosition, (mf.tool.lookAheadDistanceOffPixelsRight) * 0.1 + trailingTool, 0);
+                GL.Vertex3(toolFarLeftPosition, (lookAheadDistanceOffPixelsLeft) * 0.1 + trailingTool, 0);
+                GL.Vertex3(toolFarRightPosition, (lookAheadDistanceOffPixelsRight) * 0.1 + trailingTool, 0);
 
                 if (mf.vehicle.isHydLiftOn)
                 {
                     GL.Color3(0.70f, 0.2f, 0.72f);
                     GL.Vertex3(mf.section[0].positionLeft, (mf.vehicle.hydLiftLookAheadDistanceLeft * 0.1) + trailingTool, 0);
-                    GL.Vertex3(mf.section[mf.tool.numOfSections - 1].positionRight, (mf.vehicle.hydLiftLookAheadDistanceRight * 0.1) + trailingTool, 0);
+                    GL.Vertex3(mf.section[numOfSections - 1].positionRight, (mf.vehicle.hydLiftLookAheadDistanceRight * 0.1) + trailingTool, 0);
                 }
 
                 GL.End();

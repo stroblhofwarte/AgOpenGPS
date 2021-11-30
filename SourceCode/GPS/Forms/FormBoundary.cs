@@ -398,8 +398,6 @@ namespace AgOpenGPS
                         }
                         mf.FileSaveBoundary();
                         mf.bnd.BuildTurnLines();
-                        if (mf.bnd.bndList.Count > 0)
-                            mf.btnABDraw.Visible = true;
                         mf.fd.UpdateFieldBoundaryGUIAreas();
                         UpdateChart();
                     }

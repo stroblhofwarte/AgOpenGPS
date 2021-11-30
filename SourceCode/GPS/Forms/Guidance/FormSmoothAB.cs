@@ -36,7 +36,12 @@ namespace AgOpenGPS
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            mf.FileLoadCurveLines();
+            CGuidanceLine New = mf.gyd.refList.Find(x => x.Name == mf.gyd.selectedLine?.Name);
+            if (New != null)
+                mf.gyd.selectedLine = new CGuidanceLine(New);
+            else
+                mf.gyd.selectedLine = null;
+
             mf.gyd.desList.Clear();
             Close();
         }

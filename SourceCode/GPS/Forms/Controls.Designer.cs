@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using AgOpenGPS.Properties;
@@ -24,7 +25,7 @@ namespace AgOpenGPS
 
             enableABLineButton(false);
             enableCurveButton(false);
-            if (yt.isYouTurnBtnOn) btnAutoYouTurn.PerformClick();
+            setYouTurnButtonStatus(false);
 
             //change image to reflect on off
             gyd.isContourBtnOn = !gyd.isContourBtnOn;
@@ -33,8 +34,6 @@ namespace AgOpenGPS
             if (gyd.isContourBtnOn)
             {
                 btnCycleLines.Image = Properties.Resources.ColorLocked;
-                //turn off youturn...
-                enableYouTurnButton(false);
                 guidanceLookAheadTime = 0.5;
             }
             else
@@ -147,7 +146,7 @@ namespace AgOpenGPS
                 return;
             }
 
-            if (gyd.numABLines == 0 && gyd.numCurveLines == 0) return;
+            if (gyd.selectedLine == null) return;
 
             //reset to generate new reference
             gyd.moveDistance = 0;
@@ -167,11 +166,11 @@ namespace AgOpenGPS
                     if (!found) break;
                     else continue;
                 }
-                if (gyd.refList[i] == gyd.selectedLine)
+                if (gyd.selectedLine?.Name == gyd.refList[i].Name)
                     found = true;
                 else if (found && gyd.refList[i].Mode.HasFlag(mode))
                 {
-                    gyd.selectedLine = gyd.refList[i];
+                    gyd.selectedLine = new CGuidanceLine(gyd.refList[i]);
                     lblCurveLineName.Text = gyd.selectedLine.Name.Trim();
                     break;
                 }
@@ -188,43 +187,10 @@ namespace AgOpenGPS
                 MessageBox.Show(gStr.h_btnManualOffOn, gStr.gsHelp);
                 return;
             }
-            
-            System.Media.SystemSounds.Asterisk.Play();
 
-            switch (manualBtnState)
-            {
-                case btnStates.Off:
-                    manualBtnState = btnStates.On;
-                    btnManualOffOn.Image = Properties.Resources.ManualOn;
-
-                    //if Auto is on, turn it off
-                    autoBtnState = btnStates.Off;
-                    btnSectionOffAutoOn.Image = Properties.Resources.SectionMasterOff;
-
-                    //turn all the sections allowed and update to ON!! Auto changes to ON
-                    for (int j = 0; j < tool.numOfSections; j++)
-                    {
-                        section[j].manBtnState = btnStates.Auto;
-                    }
-
-                    ManualAllBtnsUpdate();
-                    break;
-
-                case btnStates.On:
-                    manualBtnState = btnStates.Off;
-                    btnManualOffOn.Image = Properties.Resources.ManualOff;
-
-                    //turn section buttons all OFF or Auto if SectionAuto was on or off
-                    for (int j = 0; j < tool.numOfSections; j++)
-                    {
-                        section[j].manBtnState = btnStates.On;
-                    }
-
-                    //Update the button colors and text
-                    ManualAllBtnsUpdate();
-                    break;
-            }
+            setSectionButtonState(autoBtnState == btnStates.On ? btnStates.Off : btnStates.On);
         }
+
         private void btnSectionOffAutoOn_Click(object sender, EventArgs e)
         {
             if (isTT)
@@ -232,45 +198,26 @@ namespace AgOpenGPS
                 MessageBox.Show(gStr.h_btnSectionOffAutoOn, gStr.gsHelp);
                 return;
             }
-            
-            System.Media.SystemSounds.Exclamation.Play();
 
-            switch (autoBtnState)
-            {
-                case btnStates.Off:
-
-                    autoBtnState = btnStates.Auto;
-                    btnSectionOffAutoOn.Image = Properties.Resources.SectionMasterOn;
-
-                    //turn off manual if on
-                    manualBtnState = btnStates.Off;
-                    btnManualOffOn.Image = Properties.Resources.ManualOff;
-
-                    //turn all the sections allowed and update to ON!! Auto changes to ON
-                    for (int j = 0; j < tool.numOfSections; j++)
-                    {
-                        section[j].manBtnState = btnStates.Off;
-                    }
-
-                    ManualAllBtnsUpdate();
-                    break;
-
-                case btnStates.Auto:
-                    autoBtnState = btnStates.Off;
-
-                    btnSectionOffAutoOn.Image = Properties.Resources.SectionMasterOff;
-
-                    //turn section buttons all OFF or Auto if SectionAuto was on or off
-                    for (int j = 0; j < tool.numOfSections; j++)
-                    {
-                        section[j].manBtnState = btnStates.On;
-                    }
-
-                    //Update the button colors and text
-                    ManualAllBtnsUpdate();
-                    break;
-            }
+            setSectionButtonState(autoBtnState == btnStates.Auto ? btnStates.Off : btnStates.Auto);
         }
+
+        public void setSectionButtonState(btnStates status, bool? enable = null)
+        {
+            if (status == btnStates.On || (autoBtnState == btnStates.On && status == btnStates.Off))
+                System.Media.SystemSounds.Asterisk.Play();
+            else if (status == btnStates.Auto || (autoBtnState == btnStates.Auto && status == btnStates.Off))
+                System.Media.SystemSounds.Exclamation.Play();
+
+            autoBtnState = status;
+            btnManualOffOn.Image = status == btnStates.On ? Properties.Resources.ManualOn : Properties.Resources.ManualOff;
+            btnSectionOffAutoOn.Image = status == btnStates.Auto ? Properties.Resources.SectionMasterOn : Properties.Resources.SectionMasterOff;
+
+            //set sections buttons to status
+            for (int j = 0; j < tool.numOfSections; j++)
+                section[j].UpdateButton(status, enable);
+        }
+
         private void btnAutoSteer_Click(object sender, EventArgs e)
         {
             if (isTT)
@@ -279,31 +226,38 @@ namespace AgOpenGPS
                 return;
             }
 
-            //new direction so reset where to put turn diagnostic
-            yt.ResetCreatedYouTurn();
+            enableAutoSteerButton(!isAutoSteerBtnOn);
+        }
 
-            if (isAutoSteerBtnOn)
+        public void enableAutoSteerButton(bool status)
+        {
+            if (isAutoSteerBtnOn != status)
             {
-                isAutoSteerBtnOn = false;
-                btnAutoSteer.Image = Properties.Resources.AutoSteerOff;
-                if (yt.isYouTurnBtnOn) btnAutoYouTurn.PerformClick();
-                if (sounds.isSteerSoundOn) CSound.sndAutoSteerOff.Play();
-            }
-            else
-            {
-                if (gyd.isBtnABLineOn || gyd.isContourBtnOn || gyd.isBtnCurveOn)
+                //new direction so reset where to put turn diagnostic
+                yt.ResetCreatedYouTurn();
+
+                if (!status)
+                {
+                    isAutoSteerBtnOn = false;
+                    btnAutoSteer.Image = Properties.Resources.AutoSteerOff;
+                    enableYouTurnButton(false);
+                    if (sounds.isSteerSoundOn) CSound.sndAutoSteerOff.Play();
+                }
+                else if (gyd.isBtnABLineOn || gyd.isContourBtnOn || gyd.isBtnCurveOn)
                 {
                     isAutoSteerBtnOn = true;
                     btnAutoSteer.Image = Properties.Resources.AutoSteerOn;
+
                     if (sounds.isSteerSoundOn) CSound.sndAutoSteerOn.Play();
                 }
                 else
                 {
-                    var form = new FormTimedMessage(2000,(gStr.gsNoGuidanceLines),(gStr.gsTurnOnContourOrMakeABLine));
+                    var form = new FormTimedMessage(2000, (gStr.gsNoGuidanceLines), (gStr.gsTurnOnContourOrMakeABLine));
                     form.Show(this);
                 }
             }
         }
+
         private void btnAutoYouTurn_Click(object sender, EventArgs e)
         {
             if (isTT)
@@ -311,180 +265,37 @@ namespace AgOpenGPS
                 MessageBox.Show(gStr.h_btnAutoYouTurn, gStr.gsHelp);
                 return;
             }
-            
-            yt.isTurnCreationTooClose = false;
 
             if (bnd.bndList.Count == 0)
-            {
                 TimedMessageBox(2000, gStr.gsNoBoundary, gStr.gsCreateABoundaryFirst);
-                return;
-            }
-
-            yt.ResetYouTurn();
-
-            if (!yt.isYouTurnBtnOn)
-            {
-
-                if (gyd.isBtnABLineOn || gyd.isBtnCurveOn)
-                {
-                    if (!isAutoSteerBtnOn) btnAutoSteer.PerformClick();
-                }
-                else return;
-
-                yt.isYouTurnBtnOn = true;
-                yt.isTurnCreationTooClose = false;
-                yt.isTurnCreationNotCrossingError = false;
-                p_239.pgn[p_239.uturn] = 0;
-                btnAutoYouTurn.Image = Properties.Resources.Youturn80;
-            }
             else
+                enableYouTurnButton(!yt.isYouTurnBtnOn);
+        }
+
+        public void enableYouTurnButton(bool status)
+        {
+            if (yt.isYouTurnBtnOn != status)
             {
-                yt.isYouTurnBtnOn = false;
+                yt.isYouTurnBtnOn = status;
+                btnAutoYouTurn.Image = status ? Properties.Resources.Youturn80 : Properties.Resources.YouTurnNo;
+
+                if (status && (gyd.isBtnABLineOn || gyd.isBtnCurveOn))
+                    enableAutoSteerButton(true);
+
+                yt.ResetYouTurn();
+
                 yt.rowSkipsWidth = Properties.Vehicle.Default.set_youSkipWidth;
                 yt.Set_Alternate_skips();
-
-                btnAutoYouTurn.Image = Properties.Resources.YouTurnNo;
-
-                //mc.autoSteerData[mc.sdX] = 0;
-                p_239.pgn[p_239.uturn] = 0;
             }
         }
 
-        #endregion
-
-        #region Section Buttons
-        //individual buttons for sections
-        private void btnSection1Man_Click(object sender, EventArgs e)
+        public void setYouTurnButtonStatus(bool isOn)
         {
-            //if auto is off just have on-off for choices of section buttons
-            if (autoBtnState != btnStates.Auto && section[0].manBtnState == btnStates.Off)
-                section[0].manBtnState = btnStates.Auto;
-
-            ManualBtnUpdate(0, btnSection1Man);
-        }
-        private void btnSection2Man_Click(object sender, EventArgs e)
-        {
-            //if auto is off just have on-off for choices of section buttons
-            if (autoBtnState != btnStates.Auto && section[1].manBtnState == btnStates.Off)
-                section[1].manBtnState = btnStates.Auto;
-
-            ManualBtnUpdate(1, btnSection2Man);
-        }
-        private void btnSection3Man_Click(object sender, EventArgs e)
-        {
-            //if auto is off just have on-off for choices of section buttons
-            if (autoBtnState != btnStates.Auto && section[2].manBtnState == btnStates.Off)
-                section[2].manBtnState = btnStates.Auto;
-
-            ManualBtnUpdate(2, btnSection3Man);
-        }
-        private void btnSection4Man_Click(object sender, EventArgs e)
-        {
-            //if auto is off just have on-off for choices of section buttons
-            if (autoBtnState != btnStates.Auto && section[3].manBtnState == btnStates.Off)
-                section[3].manBtnState = btnStates.Auto;
-
-            ManualBtnUpdate(3, btnSection4Man);
-        }
-        private void btnSection5Man_Click(object sender, EventArgs e)
-        {
-            //if auto is off just have on-off for choices of section buttons
-            if (autoBtnState != btnStates.Auto && section[4].manBtnState == btnStates.Off)
-                section[4].manBtnState = btnStates.Auto;
-
-            ManualBtnUpdate(4, btnSection5Man);
-        }
-        private void btnSection6Man_Click(object sender, EventArgs e)
-        {
-            //if auto is off just have on-off for choices of section buttons
-            if (autoBtnState != btnStates.Auto && section[5].manBtnState == btnStates.Off)
-                section[5].manBtnState = btnStates.Auto;
-
-            ManualBtnUpdate(5, btnSection6Man);
-        }
-        private void btnSection7Man_Click(object sender, EventArgs e)
-        {
-            //if auto is off just have on-off for choices of section buttons
-            if (autoBtnState != btnStates.Auto && section[6].manBtnState == btnStates.Off)
-                section[6].manBtnState = btnStates.Auto;
-
-            ManualBtnUpdate(6, btnSection7Man);
-        }
-        private void btnSection8Man_Click(object sender, EventArgs e)
-        {
-            //if auto is off just have on-off for choices of section buttons
-            if (autoBtnState != btnStates.Auto && section[7].manBtnState == btnStates.Off)
-                section[7].manBtnState = btnStates.Auto;
-
-            ManualBtnUpdate(7, btnSection8Man);
-        }
-        private void btnSection9Man_Click(object sender, EventArgs e)
-        {
-            //if auto is off just have on-off for choices of section buttons
-            if (autoBtnState != btnStates.Auto && section[8].manBtnState == btnStates.Off)
-                section[8].manBtnState = btnStates.Auto;
-
-            ManualBtnUpdate(8, btnSection9Man);
-
-        }
-        private void btnSection10Man_Click(object sender, EventArgs e)
-        {
-            //if auto is off just have on-off for choices of section buttons
-            if (autoBtnState != btnStates.Auto && section[9].manBtnState == btnStates.Off)
-                section[9].manBtnState = btnStates.Auto;
-
-            ManualBtnUpdate(9, btnSection10Man);
-
-        }
-        private void btnSection11Man_Click(object sender, EventArgs e)
-        {
-            //if auto is off just have on-off for choices of section buttons
-            if (autoBtnState != btnStates.Auto && section[10].manBtnState == btnStates.Off)
-                section[10].manBtnState = btnStates.Auto;
-
-            ManualBtnUpdate(10, btnSection11Man);
-
-        }
-        private void btnSection12Man_Click(object sender, EventArgs e)
-        {
-            //if auto is off just have on-off for choices of section buttons
-            if (autoBtnState != btnStates.Auto && section[11].manBtnState == btnStates.Off)
-                section[11].manBtnState = btnStates.Auto;
-
-            ManualBtnUpdate(11, btnSection12Man);
-        }
-        private void btnSection13Man_Click(object sender, EventArgs e)
-        {
-            //if auto is off just have on-off for choices of section buttons
-            if (autoBtnState != btnStates.Auto && section[12].manBtnState == btnStates.Off)
-                section[12].manBtnState = btnStates.Auto;
-
-            ManualBtnUpdate(12, btnSection13Man);
-        }
-        private void btnSection14Man_Click(object sender, EventArgs e)
-        {
-            //if auto is off just have on-off for choices of section buttons
-            if (autoBtnState != btnStates.Auto && section[13].manBtnState == btnStates.Off)
-                section[13].manBtnState = btnStates.Auto;
-
-            ManualBtnUpdate(13, btnSection14Man);
-
-        }
-        private void btnSection15Man_Click(object sender, EventArgs e)
-        {
-            //if auto is off just have on-off for choices of section buttons
-            if (autoBtnState != btnStates.Auto && section[14].manBtnState == btnStates.Off)
-                section[14].manBtnState = btnStates.Auto;
-
-            ManualBtnUpdate(14, btnSection15Man);
-        }
-        private void btnSection16Man_Click(object sender, EventArgs e)
-        {
-            //if auto is off just have on-off for choices of section buttons
-            if (autoBtnState != btnStates.Auto && section[15].manBtnState == btnStates.Off)
-                section[15].manBtnState = btnStates.Auto;
-
-            ManualBtnUpdate(15, btnSection16Man);
+            enableYouTurnButton(false);
+            yt.isYouTurnBtnOn = false;
+            btnAutoYouTurn.Enabled = isOn;
+            btnAutoYouTurn.Image = Properties.Resources.YouTurnNo;
+            yt.ResetYouTurn();
         }
 
         #endregion
@@ -1193,8 +1004,26 @@ namespace AgOpenGPS
             Settings.Default.setDisplay_colorSectionsDay = sectionColorDay;
             Settings.Default.Save();
 
-            btnChangeMappingColor.BackColor = sectionColorDay;
+            btnChangeMappingColor.Image = ReplaceColor(Resources.SectionMapping, sectionColorDay);
+        }
 
+        public Bitmap ReplaceColor(Bitmap _image, Color _colorNew)
+        {
+            Bitmap bmap = (Bitmap)_image.Clone();
+
+            Color cc = Color.FromArgb(255,0,0,0);
+
+            for (int x = 11; x < bmap.Width - 10; x++)
+            {
+                for (int y = 11; y < bmap.Height - 10; y++)
+                {
+                    Color c = bmap.GetPixel(x, y);
+
+                    if (c == cc)
+                        bmap.SetPixel(x, y, Color.FromArgb(c.A, _colorNew.R, _colorNew.G, _colorNew.B));
+                }
+            }
+            return bmap;
         }
 
         //Snaps
@@ -1264,7 +1093,8 @@ namespace AgOpenGPS
                 }
                 yt.Set_Alternate_skips();
                 yt.ResetCreatedYouTurn();
-                if (!yt.isYouTurnBtnOn) btnAutoYouTurn.PerformClick();
+
+                enableYouTurnButton(true);
             }
             else
             {
@@ -1371,9 +1201,12 @@ namespace AgOpenGPS
         {
             if (isJobStarted)
             {
-                if (autoBtnState == btnStates.Off && manualBtnState == btnStates.Off)
+                if (autoBtnState != btnStates.Off)
                 {
-
+                    TimedMessageBox(1500, "Sections are on", "Turn Auto or Manual Off First");
+                }
+                else
+                {
                     DialogResult result3 = MessageBox.Show(gStr.gsDeleteAllContoursAndSections,
                         gStr.gsDeleteForSure,
                         MessageBoxButtons.YesNo,
@@ -1381,24 +1214,12 @@ namespace AgOpenGPS
                         MessageBoxDefaultButton.Button2);
                     if (result3 == DialogResult.Yes)
                     {
-                        //FileCreateElevation();
-
-                        //turn auto button off
-                        autoBtnState = btnStates.Off;
-                        btnSectionOffAutoOn.Image = Properties.Resources.SectionMasterOff;
-
                         //turn section buttons all OFF and zero square meters
                         for (int j = 0; j < MAXSECTIONS; j++)
                         {
-                            section[j].manBtnState = btnStates.On;
+                            section[j].UpdateButton(btnStates.Off);
+                            section[j].triangleList.Clear();
                         }
-
-                        //turn manual button off
-                        manualBtnState = btnStates.Off;
-                        btnManualOffOn.Image = Properties.Resources.ManualOff;
-
-                        //Update the button colors and text
-                        ManualAllBtnsUpdate();
 
                         //clear out the contour Lists
                         gyd.StopContourLine();
@@ -1406,25 +1227,15 @@ namespace AgOpenGPS
                         fd.workedAreaTotal = 0;
 
                         tool.patchList.Clear();
-                        //clear the section lists
-                        for (int j = 0; j < MAXSECTIONS; j++)
-                        {
-                            section[j].triangleList.Clear();
-                        }
                         patchSaveList.Clear();
 
                         FileCreateContour();
                         FileCreateSections();
-
                     }
                     else
                     {
                         TimedMessageBox(1500, gStr.gsNothingDeleted, gStr.gsActionHasBeenCancelled);
                     }
-                }
-                else
-                {
-                   TimedMessageBox(1500, "Sections are on", "Turn Auto or Manual Off First");
                 }
             }
         }
@@ -1544,9 +1355,10 @@ namespace AgOpenGPS
             //    return;
             //}
             if (camera.zoomValue <= 20)
-            { if ((camera.zoomValue -= camera.zoomValue * 0.1) < 3.0) camera.zoomValue = 3.0; }
-            else { if ((camera.zoomValue -= camera.zoomValue * 0.05) < 3.0) camera.zoomValue = 3.0; }
-            camera.camSetDistance = camera.zoomValue * camera.zoomValue * -1;
+                camera.zoomValue -= camera.zoomValue * 0.1;
+            else
+                camera.zoomValue -= camera.zoomValue * 0.05;
+
             SetZoom();
             navPanelCounter = 2;
         }
@@ -1558,10 +1370,10 @@ namespace AgOpenGPS
             //    isTT = false;
             //    return;
             //}
-            if (camera.zoomValue <= 20) camera.zoomValue += camera.zoomValue * 0.1;
-            else camera.zoomValue += camera.zoomValue * 0.05;
-            if (camera.zoomValue > 220) camera.zoomValue = 220;
-            camera.camSetDistance = camera.zoomValue * camera.zoomValue * -1;
+            if (camera.zoomValue <= 20)
+                camera.zoomValue += camera.zoomValue * 0.1;
+            else
+                camera.zoomValue += camera.zoomValue * 0.05;
             SetZoom();
             navPanelCounter = 2;
         }
@@ -1632,13 +1444,7 @@ namespace AgOpenGPS
         {
             //bring up dialog if no job active, close job if one is
 
-            if (autoBtnState == btnStates.Auto)
-            {
-                TimedMessageBox(2000, "Safe Shutdown", "Turn off Auto Section Control");
-                return;
-            }
-
-            if (manualBtnState == btnStates.On)
+            if (autoBtnState != btnStates.Off)
             {
                 TimedMessageBox(2000, "Safe Shutdown", "Turn off Auto Section Control");
                 return;
@@ -1736,12 +1542,10 @@ namespace AgOpenGPS
             #region Turn off Guidance
             //if contour is on, turn it off
             if (gyd.isContourBtnOn) btnContour.PerformClick();
-            if (yt.isYouTurnBtnOn) btnAutoYouTurn.PerformClick();
-            if (isAutoSteerBtnOn) btnAutoSteer.PerformClick();
-
-            enableYouTurnButton(false);
             enableABLineButton(false);
+            enableAutoSteerButton(false);
             enableCurveButton(false);
+            setYouTurnButtonStatus(false);
 
             #endregion
 
@@ -1749,29 +1553,23 @@ namespace AgOpenGPS
             if (recPath.isDrivingRecordedPath)
             {
                 recPath.StopDrivingRecordedPath();
-                btnPathGoStop.Image = Properties.Resources.boundaryPlay;
-                btnPathRecordStop.Enabled = true;
-                btnPathDelete.Enabled = true;
-                return;
             }
-
             //start the recorded path driving process
-            if (!recPath.StartDrivingRecordedPath())
+            else if (!recPath.StartDrivingRecordedPath())
             {
                 //Cancel the recPath - something went seriously wrong
                 recPath.StopDrivingRecordedPath();
                 TimedMessageBox(1500, gStr.gsProblemMakingPath, gStr.gsCouldntGenerateValidPath);
-                btnPathGoStop.Image = Properties.Resources.boundaryPlay;
-                btnPathRecordStop.Enabled = true;
-                btnPathDelete.Enabled = true;
-                return;
             }
             else
-            {
-                btnPathGoStop.Image = Properties.Resources.boundaryStop;
-                btnPathRecordStop.Enabled = false;
-                btnPathDelete.Enabled = false;
-            }
+                enableRecordButton(false);
+        }
+
+        public void enableRecordButton(bool isOn)
+        {
+            btnPathGoStop.Image = isOn ? Properties.Resources.boundaryPlay : Properties.Resources.boundaryStop;
+            btnPathRecordStop.Enabled = isOn;
+            btnPathDelete.Enabled = isOn;
         }
 
         private void btnPathRecordStop_Click(object sender, EventArgs e)
@@ -1804,20 +1602,16 @@ namespace AgOpenGPS
         private void recordedPathStripMenu_Click(object sender, EventArgs e)
         {
             if (isJobStarted)
-            {
-                if (panelDrag.Visible)
-                {
-                    panelDrag.Visible = false;
-                }
-                else
-                {
-                    panelDrag.Visible = true;
-                }
-            }
+                enableRecordPanel(panelDrag.Visible = !panelDrag.Visible);
             else
-            {
-             TimedMessageBox(3000, gStr.gsFieldNotOpen, gStr.gsStartNewField); 
-            }
+                TimedMessageBox(3000, gStr.gsFieldNotOpen, gStr.gsStartNewField); 
+        }
+        
+        public void enableRecordPanel(bool isOn)
+        {
+            btnPathGoStop.Image = isOn ? Properties.Resources.boundaryPlay : Properties.Resources.boundaryStop;
+            btnPathRecordStop.Enabled = isOn;
+            btnPathDelete.Enabled = isOn;
         }
 
         #endregion

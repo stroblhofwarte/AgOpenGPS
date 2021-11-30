@@ -104,7 +104,6 @@ namespace AgOpenGPS
             return true;
         }
 
-        public bool trig;
         public double north;
         public int pathCount = 0;
 
@@ -153,8 +152,8 @@ namespace AgOpenGPS
 
                     //section control - only if different click the button
                     bool autoBtn = (mf.autoBtnState == btnStates.Auto);
-                    trig = autoBtn;
-                    if (autoBtn != recList[C].autoBtnState) mf.btnSectionOffAutoOn.PerformClick();
+                    if (autoBtn != recList[C].autoBtnState)
+                        mf.setSectionButtonState(recList[C].autoBtnState ? btnStates.Auto : btnStates.Off);
                 }
                 else
                 {
@@ -208,10 +207,7 @@ namespace AgOpenGPS
             shortestDubinsList.Clear();
             mf.sim.stepDistance = 0;
             isDrivingRecordedPath = false;
-            mf.btnPathGoStop.Image = Properties.Resources.boundaryPlay;
-            mf.btnPathRecordStop.Enabled = true;
-            mf.btnPathDelete.Enabled = true;
-
+            mf.enableRecordButton(true);
         }
 
         private void GetDubinsPath(vec3 goal)
