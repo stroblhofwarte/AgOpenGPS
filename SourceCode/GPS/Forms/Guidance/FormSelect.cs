@@ -11,6 +11,7 @@ namespace AgOpenGPS
         private bool editName = false;
         private Mode mode;
         private double desHeading = 0;
+        private bool isClosing;
 
         public FormABCurve(Form _mf, Mode mode2)
         {
@@ -260,17 +261,6 @@ namespace AgOpenGPS
 
         private void btnCancelMain_Click(object sender, EventArgs e)
         {
-            mf.gyd.moveDistance = 0;
-            mf.gyd.isValid = false;
-
-            mf.gyd.isOkToAddDesPoints = false;
-
-            mf.enableABLineButton(false);
-            mf.enableAutoSteerButton(false);
-            mf.enableCurveButton(false);
-            mf.setYouTurnButtonStatus(false);
-
-            mf.gyd.selectedLine = null;
             Close();
         }
 
@@ -388,6 +378,7 @@ namespace AgOpenGPS
 
         private void btnListUse_Click(object sender, EventArgs e)
         {
+            isClosing = true;
             //reset to generate new reference
             mf.gyd.isValid = false;
             mf.gyd.moveDistance = 0;
@@ -623,5 +614,101 @@ namespace AgOpenGPS
                     btnCancelCurve.PerformClick();
             }
         }
+
+        private void FormSelect_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (!isClosing)
+            {
+                mf.gyd.moveDistance = 0;
+                mf.gyd.isValid = false;
+
+                mf.gyd.isOkToAddDesPoints = false;
+
+                mf.enableABLineButton(false);
+                mf.enableAutoSteerButton(false);
+                mf.enableCurveButton(false);
+                mf.setYouTurnButtonStatus(false);
+
+                mf.gyd.selectedLine = null;
+            }
+        }
+
+        #region Help
+
+        private void btnListDelete_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.ha_btnListDelete, gStr.gsHelp);
+        }
+
+        private void btnCancelMain_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.ha_btnCancel, gStr.gsHelp);
+        }
+
+        private void btnNewCurve_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.ha_btnNewABLine, gStr.gsHelp);
+        }
+
+        private void btnListUse_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.ha_btnListUse, gStr.gsHelp);
+        }
+
+        private void btnSwapAB_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.ht_btnSwapAB, gStr.gsHelp);
+        }
+
+        private void btnEditName_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.hd_tboxNameLine, gStr.gsHelp);
+        }
+
+        private void btnDuplicate_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.ha_btnDuplicate, gStr.gsHelp);
+        }
+
+        private void btnAddTime_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.ha_btnAddTime, gStr.gsHelp);
+        }
+
+        private void btnCancel_Name_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.ha_btnCancelCreate, gStr.gsHelp);
+        }
+
+        private void btnCancelCurve_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.ha_btnCancelCreate, gStr.gsHelp);
+        }
+
+        private void btnAdd_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.ha_btnEnterContinue, gStr.gsHelp);
+        }
+
+        private void btnAPoint_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.hcur_btnAPoint, gStr.gsHelp);
+        }
+
+        private void btnBPoint_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.hcur_btnBPoint, gStr.gsHelp);
+        }
+
+        private void btnPausePlay_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.hcur_btnPausePlay, gStr.gsHelp);
+        }
+
+        private void textBox1_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.ha_textBox1, gStr.gsHelp);
+        }
+        #endregion 
     }
 }

@@ -433,6 +433,12 @@ namespace AgOpenGPS
             udpWatch.Start();
         }
 
+        private void btnVideoHelpRecPath_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(gStr.v_RecordedPathForm))
+                System.Diagnostics.Process.Start(gStr.v_RecordedPathForm);
+        }
+
         private void lblCurveLineName_Click(object sender, EventArgs e)
         {
             mode += 1;

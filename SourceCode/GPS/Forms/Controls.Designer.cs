@@ -20,6 +20,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnContour, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
 
@@ -48,6 +49,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnCurve, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
             
@@ -93,6 +95,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnABLine, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
 
@@ -137,6 +140,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnCycleLines, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
             
@@ -185,6 +189,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnManualOffOn, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
 
@@ -196,6 +201,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnSectionOffAutoOn, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
 
@@ -223,6 +229,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnAutoSteer, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
 
@@ -263,6 +270,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnAutoYouTurn, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
 
@@ -306,6 +314,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnDistanceArea, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
             fd.distanceUser = 0;
@@ -363,6 +372,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnConfig, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
             using (FormConfig form = new FormConfig(this))
@@ -376,6 +386,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnStanleyPure, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
             isStanleyUsed = !isStanleyUsed;
@@ -391,6 +402,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnFlag, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
 
@@ -420,6 +432,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnStartAgIO, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
             Process[] processName = Process.GetProcessesByName("AgIO");
@@ -456,6 +469,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnAutoSteerConfig, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
             //check if window already exists
@@ -481,6 +495,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_lblSpeed, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
             
@@ -645,80 +660,10 @@ namespace AgOpenGPS
 
         private void helpMenuItem_Click(object sender, EventArgs e)
         {
-            bool notFound = false;
-            try
+
+             using (var form = new Form_Help(this))
             {
-                switch (Settings.Default.setF_culture)
-                {
-                    case "en":
-                        System.Diagnostics.Process.Start("Manual.pdf");
-                        break;
-
-                    case "ru":
-                        System.Diagnostics.Process.Start("Manual.ru.pdf");
-                        break;
-
-                    case "da":
-                        System.Diagnostics.Process.Start("Manual.da.pdf");
-                        break;
-
-                    case "de":
-                        System.Diagnostics.Process.Start("Manual.de.pdf");
-                        break;
-
-                    case "nl":
-                        System.Diagnostics.Process.Start("Manual.nl.pdf");
-                        break;
-
-                    case "it":
-                        System.Diagnostics.Process.Start("Manual.it.pdf");
-                        break;
-
-                    case "es":
-                        System.Diagnostics.Process.Start("Manual.es.pdf");
-                        break;
-
-                    case "fr":
-                        System.Diagnostics.Process.Start("Manual.fr.pdf");
-                        break;
-
-                    case "uk":
-                        System.Diagnostics.Process.Start("Manual.uk.pdf");
-                        break;
-
-                    case "sk":
-                        System.Diagnostics.Process.Start("Manual.sk.pdf");
-                        break;
-
-                    case "pl":
-                        System.Diagnostics.Process.Start("Manual.pl.pdf");
-                        break;
-
-                    case "af":
-                        System.Diagnostics.Process.Start("Manual.af.pdf");
-                        break;
-
-                    default:
-                        System.Diagnostics.Process.Start("Manual.pdf");
-                        break;
-                }
-
-            }
-            catch
-            {
-                notFound = true;
-            }
-
-            if (notFound)
-            {
-                try
-                {
-                    System.Diagnostics.Process.Start("Manual.pdf");
-                }
-                catch
-                {
-                    TimedMessageBox(2000, "No File Found", "Can't Find Manual.pdf");
-                }
+                form.ShowDialog(this);
             }
         }
 
@@ -918,6 +863,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnEditAB, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
 
@@ -977,6 +923,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnTramDisplayMode, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
 
@@ -990,6 +937,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnChangeMappingColor, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
 
@@ -1032,6 +980,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnSnapToPivot, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
 
@@ -1049,6 +998,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnABDraw, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
             if (gyd.isContourBtnOn)
@@ -1078,6 +1028,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnYouSkipEnable, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
             
@@ -1116,6 +1067,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnHeadlandOnOff, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
             enableHeadlandButton(!bnd.isHeadlandOn);
@@ -1146,6 +1098,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnHydLift, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
             enableHydLiftButton(!vehicle.isHydLiftOn);
@@ -1290,6 +1243,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btn2D, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
 
@@ -1303,6 +1257,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btn3D, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
             camera.camFollowing = true;
@@ -1315,6 +1270,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnN2D, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
             camera.camFollowing = false;
@@ -1327,6 +1283,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnN3D, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
             camera.camPitch = -73;
@@ -1339,6 +1296,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnDayNightMode, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
             SwapDayNightMode();
@@ -1677,6 +1635,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_lbludpWatchCounts, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
         }
@@ -1686,6 +1645,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_lblIntegral, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
         }
@@ -1695,6 +1655,7 @@ namespace AgOpenGPS
             if (isTT)
             {
                 MessageBox.Show(gStr.h_btnRowWidthSkips, gStr.gsHelp);
+                ResetHelpBtn();
                 return;
             }
         }
@@ -1736,6 +1697,12 @@ namespace AgOpenGPS
                 btnHelp.Image = Resources.Help;
                 isTT = false;
             }
+        }
+
+        private void ResetHelpBtn()
+        {
+            isTT = false;
+            btnHelp.Image = Resources.Help;
         }
     }//end class
 }//end namespace

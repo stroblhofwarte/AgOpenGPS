@@ -10,6 +10,7 @@ namespace AgOpenGPS
         private double snapAdj = 0;
         private double heading = 0;
         private Mode mode;
+        private bool isClosing;
 
         public FormEditAB(Form callingForm, Mode mode2)
         {
@@ -90,6 +91,7 @@ namespace AgOpenGPS
 
         private void bntOk_Click(object sender, EventArgs e)
         {
+            isClosing = true;
             int idx = mf.gyd.refList.FindIndex(x => x.Name == mf.gyd.selectedLine?.Name);
             if (idx > -1)
                 mf.gyd.refList[idx] = mf.gyd.selectedLine;
@@ -107,13 +109,6 @@ namespace AgOpenGPS
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            CGuidanceLine New = mf.gyd.refList.Find(x => x.Name == mf.gyd.selectedLine?.Name);
-            if (New != null)
-                mf.gyd.selectedLine = new CGuidanceLine(New);
-            else
-                mf.gyd.selectedLine = null;
-
-            mf.gyd.isValid = false;
             Close();
         }
 
@@ -162,6 +157,7 @@ namespace AgOpenGPS
 
         private void btnNoSave_Click(object sender, EventArgs e)
         {
+            isClosing = true;
             mf.gyd.isValid = false;
             Close();
         }
@@ -171,6 +167,40 @@ namespace AgOpenGPS
             double heading = glm.toRadians(double.Parse(cboxDegrees.SelectedItem.ToString()));
             mf.gyd.SetABLineByHeading(heading);
             tboxHeading.Text = Math.Round(glm.toDegrees(heading), 5).ToString();
+        }
+
+        private void FormEdit_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (!isClosing)
+            {
+                CGuidanceLine New = mf.gyd.refList.Find(x => x.Name == mf.gyd.selectedLine?.Name);
+                if (New != null)
+                    mf.gyd.selectedLine = new CGuidanceLine(New);
+                else
+                    mf.gyd.selectedLine = null;
+
+                mf.gyd.isValid = false;
+            }
+        }
+
+        private void btnCancel_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.ha_btnCancel, gStr.gsHelp);
+        }
+
+        private void btnNoSave_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.he_btnNoSave, gStr.gsHelp);
+        }
+
+        private void btnOK_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.he_btnOK, gStr.gsHelp);
+        }
+
+        private void btnContourPriority_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.h_btnSnapToPivot, gStr.gsHelp);
         }
     }
 }

@@ -151,6 +151,7 @@
             this.btnAddTime.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnAddTime.UseVisualStyleBackColor = false;
             this.btnAddTime.Click += new System.EventHandler(this.btnAddTime_Click);
+            this.btnAddTime.HelpRequested += new System.Windows.Forms.HelpEventHandler(this.btnAddTime_HelpRequested);
             // 
             // btnAdd
             // 
@@ -168,6 +169,7 @@
             this.btnAdd.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnAdd.UseVisualStyleBackColor = false;
             this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
+            this.btnAdd.HelpRequested += new System.Windows.Forms.HelpEventHandler(this.btnAdd_HelpRequested);
             // 
             // btnCancel_Name
             // 
@@ -185,6 +187,7 @@
             this.btnCancel_Name.TabIndex = 423;
             this.btnCancel_Name.UseVisualStyleBackColor = false;
             this.btnCancel_Name.Click += new System.EventHandler(this.btnCancelCurve_Click);
+            this.btnCancel_Name.HelpRequested += new System.Windows.Forms.HelpEventHandler(this.btnCancel_Name_HelpRequested);
             // 
             // textBox1
             // 
@@ -199,6 +202,7 @@
             this.textBox1.Size = new System.Drawing.Size(204, 77);
             this.textBox1.TabIndex = 145;
             this.textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.textBox1.HelpRequested += new System.Windows.Forms.HelpEventHandler(this.textBox1_HelpRequested);
             this.textBox1.Click += new System.EventHandler(this.textBox1_Click);
             // 
             // panelPick
@@ -229,6 +233,7 @@
             this.btnSwapAB.TabIndex = 426;
             this.btnSwapAB.UseVisualStyleBackColor = true;
             this.btnSwapAB.Click += new System.EventHandler(this.btnSwapAB_Click);
+            this.btnSwapAB.HelpRequested += new System.Windows.Forms.HelpEventHandler(this.btnSwapAB_HelpRequested);
             // 
             // btnEditName
             // 
@@ -245,6 +250,7 @@
             this.btnEditName.TabIndex = 425;
             this.btnEditName.UseVisualStyleBackColor = false;
             this.btnEditName.Click += new System.EventHandler(this.btnEditName_Click);
+            this.btnEditName.HelpRequested += new System.Windows.Forms.HelpEventHandler(this.btnEditName_HelpRequested);
             // 
             // btnDuplicate
             // 
@@ -261,6 +267,7 @@
             this.btnDuplicate.TabIndex = 424;
             this.btnDuplicate.UseVisualStyleBackColor = false;
             this.btnDuplicate.Click += new System.EventHandler(this.btnDuplicate_Click);
+            this.btnDuplicate.HelpRequested += new System.Windows.Forms.HelpEventHandler(this.btnDuplicate_HelpRequested);
             // 
             // btnCancelMain
             // 
@@ -278,6 +285,7 @@
             this.btnCancelMain.TabIndex = 422;
             this.btnCancelMain.UseVisualStyleBackColor = false;
             this.btnCancelMain.Click += new System.EventHandler(this.btnCancelMain_Click);
+            this.btnCancelMain.HelpRequested += new System.Windows.Forms.HelpEventHandler(this.btnCancelMain_HelpRequested);
             // 
             // btnNewCurve
             // 
@@ -295,6 +303,7 @@
             this.btnNewCurve.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnNewCurve.UseVisualStyleBackColor = false;
             this.btnNewCurve.Click += new System.EventHandler(this.btnNewCurve_Click);
+            this.btnNewCurve.HelpRequested += new System.Windows.Forms.HelpEventHandler(this.btnNewCurve_HelpRequested);
             // 
             // btnListDelete
             // 
@@ -312,6 +321,7 @@
             this.btnListDelete.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnListDelete.UseVisualStyleBackColor = false;
             this.btnListDelete.Click += new System.EventHandler(this.btnListDelete_Click);
+            this.btnListDelete.HelpRequested += new System.Windows.Forms.HelpEventHandler(this.btnListDelete_HelpRequested);
             // 
             // btnListUse
             // 
@@ -330,6 +340,7 @@
             this.btnListUse.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnListUse.UseVisualStyleBackColor = false;
             this.btnListUse.Click += new System.EventHandler(this.btnListUse_Click);
+            this.btnListUse.HelpRequested += new System.Windows.Forms.HelpEventHandler(this.btnListUse_HelpRequested);
             // 
             // panelAPlus
             // 
@@ -400,6 +411,7 @@
             this.btnCancelCurve.TabIndex = 423;
             this.btnCancelCurve.UseVisualStyleBackColor = false;
             this.btnCancelCurve.Click += new System.EventHandler(this.btnCancelCurve_Click);
+            this.btnCancelCurve.HelpRequested += new System.Windows.Forms.HelpEventHandler(this.btnCancelCurve_HelpRequested);
             // 
             // btnAPoint
             // 
@@ -416,6 +428,7 @@
             this.btnAPoint.TabIndex = 63;
             this.btnAPoint.UseVisualStyleBackColor = false;
             this.btnAPoint.Click += new System.EventHandler(this.btnAPoint_Click);
+            this.btnAPoint.HelpRequested += new System.Windows.Forms.HelpEventHandler(this.btnAPoint_HelpRequested);
             // 
             // btnBPoint
             // 
@@ -433,6 +446,7 @@
             this.btnBPoint.TabIndex = 64;
             this.btnBPoint.UseVisualStyleBackColor = false;
             this.btnBPoint.Click += new System.EventHandler(this.btnBPoint_Click);
+            this.btnBPoint.HelpRequested += new System.Windows.Forms.HelpEventHandler(this.btnBPoint_HelpRequested);
             // 
             // btnPausePlay
             // 
@@ -451,6 +465,7 @@
             this.btnPausePlay.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.btnPausePlay.UseVisualStyleBackColor = false;
             this.btnPausePlay.Click += new System.EventHandler(this.btnPausePlay_Click);
+            this.btnPausePlay.HelpRequested += new System.Windows.Forms.HelpEventHandler(this.btnPausePlay_HelpRequested);
             // 
             // FormABCurve
             // 
@@ -458,18 +473,20 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.WhiteSmoke;
             this.ClientSize = new System.Drawing.Size(946, 323);
-            this.ControlBox = false;
             this.Controls.Add(this.panelAPlus);
             this.Controls.Add(this.panelPick);
             this.Controls.Add(this.panelName);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.HelpButton = true;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "FormABCurve";
             this.Padding = new System.Windows.Forms.Padding(2);
+            this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "AB Curve";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormSelect_FormClosing);
             this.Load += new System.EventHandler(this.FormABCurve_Load);
             this.panelName.ResumeLayout(false);
             this.panelName.PerformLayout();

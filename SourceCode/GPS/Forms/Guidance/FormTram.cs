@@ -8,6 +8,7 @@ namespace AgOpenGPS
         //access to the main GPS form and all its variables
         private readonly FormGPS mf = null;
         private Mode mode;
+        private bool isClosing;
 
         public FormTram(Form callingForm, Mode mode2)
         {
@@ -73,6 +74,7 @@ namespace AgOpenGPS
             mf.enableRecordPanel(false);
             mf.FileSaveTram();
             mf.FixTramModeButton();
+            isClosing = true;
             Close();
         }
 
@@ -153,25 +155,6 @@ namespace AgOpenGPS
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            CGuidanceLine New = mf.gyd.refList.Find(x => x.Name == mf.gyd.selectedLine?.Name);
-            if (New != null)
-                mf.gyd.selectedLine = new CGuidanceLine(New);
-            else
-                mf.gyd.selectedLine = null;
-
-
-            mf.tram.tramList.Clear();
-            mf.tram.tramBndOuterArr.Clear();
-            mf.tram.tramBndInnerArr.Clear();
-
-            //mf.ABLine.tramPassEvery = 0;
-            //mf.ABLine.tramBasedOn = 0;
-            mf.panelRight.Enabled = true;
-            mf.enableRecordPanel(false);
-
-            mf.tram.displayMode = 0;
-            mf.FileSaveTram();
-            mf.FixTramModeButton();
             Close();
         }
 
@@ -205,5 +188,91 @@ namespace AgOpenGPS
             mf.KeypadToNUD((NumericUpDown)sender, this);
             btnCancel.Focus();
         }
+
+        private void FormTram_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (!isClosing)
+            {
+                CGuidanceLine New = mf.gyd.refList.Find(x => x.Name == mf.gyd.selectedLine?.Name);
+                if (New != null)
+                    mf.gyd.selectedLine = new CGuidanceLine(New);
+                else
+                    mf.gyd.selectedLine = null;
+
+                mf.tram.tramList.Clear();
+                mf.tram.tramBndOuterArr.Clear();
+                mf.tram.tramBndInnerArr.Clear();
+
+                mf.panelRight.Enabled = true;
+                mf.enableRecordPanel(false);
+
+                mf.tram.displayMode = 0;
+                mf.FileSaveTram();
+                mf.FixTramModeButton();
+            }
+        }
+
+        #region Help
+        private void btnAdjLeft_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.ht_btnAdjHalfToolWidth, gStr.gsHelp);
+        }
+
+        private void btnAdjRight_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.ht_btnAdjHalfToolWidth, gStr.gsHelp);
+        }
+
+        private void btnLeft_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.ht_btnLeftRightNudge, gStr.gsHelp);
+        }
+
+        private void btnRight_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.ht_btnLeftRightNudge, gStr.gsHelp);
+        }
+
+        private void btnSwapAB_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.ht_btnSwapAB, gStr.gsHelp);
+        }
+
+        private void btnMode_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.h_btnTramDisplayMode, gStr.gsHelp);
+        }
+
+        private void nudPasses_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.ht_nudPasses, gStr.gsHelp);
+        }
+
+        private void btnCancel_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.ht_btnCancel, gStr.gsHelp);
+        }
+
+        private void btnExit_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.ht_btnSave, gStr.gsHelp);
+        }
+
+        #endregion
     }
 }
+
+
+/*
+            
+            MessageBox.Show(gStr, gStr.gsHelp);
+
+            DialogResult result2 = MessageBox.Show(gStr, gStr.gsHelp,
+                MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+
+            if (result2 == DialogResult.Yes)
+            {
+                System.Diagnostics.Process.Start("https://www.youtube.com/watch?v=rsJMRZrcuX4");
+            }
+
+*/

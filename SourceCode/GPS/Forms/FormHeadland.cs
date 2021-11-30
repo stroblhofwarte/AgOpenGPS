@@ -12,7 +12,7 @@ namespace AgOpenGPS
         //access to the main GPS form and all its variables
         private readonly FormGPS mf = null;
 
-        private bool isA, isSet, reset;
+        private bool isA, isSet, reset, isClosing;
         private int start = -1, end = -1;
         private double totalHeadlandWidth = 0;
 
@@ -42,6 +42,16 @@ namespace AgOpenGPS
             else
                 BuildHeadLineTemplate(false);
             mf.CloseTopMosts();
+        }
+
+        private void FormHeadland_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (!isClosing)
+            {
+                mf.bnd.bndList[0].hdLine.Points.Clear();
+                mf.bnd.bndList[0].hdLine.ResetPoints = true;
+                mf.FileSaveHeadland();
+            }
         }
 
         public void BuildHeadLineTemplate(bool fromHdLine)
@@ -370,16 +380,12 @@ namespace AgOpenGPS
 
             mf.bnd.bndList[0].hdLine.ResetPoints = true;
             mf.FileSaveHeadland();
-
+            isClosing = true;
             Close();
         }
 
         private void btnTurnOffHeadland_Click(object sender, EventArgs e)
         {
-            mf.bnd.bndList[0].hdLine.Points.Clear();
-            mf.bnd.bndList[0].hdLine.ResetPoints = true;
-            mf.FileSaveHeadland();
-
             Close();
         }
 
@@ -419,5 +425,71 @@ namespace AgOpenGPS
             GL.LoadMatrix(ref projection);
             GL.MatrixMode(MatrixMode.Modelview);//set state to draw global coordinates into clip space;
         }
+
+        #region Help
+        private void cboxToolWidths_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.hh_cboxToolWidths, gStr.gsHelp);
+        }
+
+        private void nudDistance_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.hh_nudDistance, gStr.gsHelp);
+        }
+
+        private void btnMakeFixedHeadland_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.hh_btnMakeFixedHeadland, gStr.gsHelp);
+        }
+
+        private void nudSetDistance_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.hh_nudSetDistance, gStr.gsHelp);
+        }
+
+        private void btnSetDistance_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.hh_btnSetDistance, gStr.gsHelp);
+        }
+
+        private void btnDeletePoints_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.hh_btnDeletePoints, gStr.gsHelp);
+        }
+
+        private void cboxIsSectionControlled_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.hh_cboxIsSectionControlled, gStr.gsHelp);
+        }
+
+        private void btnReset_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.hh_btnReset, gStr.gsHelp);
+        }
+
+        private void btnTurnOffHeadland_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.hh_btnTurnOffHeadland, gStr.gsHelp);
+        }
+
+        private void btnExit_HelpRequested(object sender, HelpEventArgs hlpevent)
+        {
+            MessageBox.Show(gStr.hh_btnExit, gStr.gsHelp);
+        }
+        #endregion
     }
 }
+
+/*
+            
+            MessageBox.Show(gStr, gStr.gsHelp);
+
+            DialogResult result2 = MessageBox.Show(gStr, gStr.gsHelp,
+                MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+
+            if (result2 == DialogResult.Yes)
+            {
+                System.Diagnostics.Process.Start("https://www.youtube.com/watch?v=rsJMRZrcuX4");
+            }
+
+*/
