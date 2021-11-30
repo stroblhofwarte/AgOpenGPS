@@ -1,7 +1,7 @@
   /*
-   * UDP Autosteer code for ENC28J60 module
+   * UDP Autosteer code for Teensy 4.1
    * For AgOpenGPS
-   * 4 Feb 2021, Brian Tischler
+   * 24 Nov 2021
    * Like all Arduino code - copied from somewhere else :)
    * So don't claim it as your own
    */
@@ -59,10 +59,13 @@
   #include <EEPROM.h> 
  #include "zADS1115.h"
   ADS1115_lite adc(ADS1115_DEFAULT_ADDRESS);     // Use this for the 16-bit version ADS1115 
-  
-  #include "EtherCard_AOG.h"
+
   #include <IPAddress.h>
   #include "BNO08x_AOG.h"
+
+  // ethernet
+  #include <NativeEthernet.h>
+  #include <NativeEthernetUdp.h>
   
   // ethernet interface ip address
   static uint8_t myip[] = { 192,168,1,73 };
@@ -82,7 +85,8 @@
   // ethernet mac address - must be unique on your network
   static uint8_t mymac[] = { 0x70,0x69,0x69,0x2D,0x30,0x31 };
   
-  uint8_t Ethernet::buffer[200]; // udp send and receive buffer
+  //uint8_t Ethernet::buffer[200]; // udp send and receive buffer
+  uint8_t data[UDP_TX_PACKET_MAX_SIZE];  // Buffer For Receiving UDP Data
     
   //loop time variables in microseconds  
   const uint16_t LOOP_TIME = 25;  //40Hz    
