@@ -105,11 +105,11 @@ namespace AgOpenGPS
 
             //make sure free drive is off
             btnFreeDrive.Image = Properties.Resources.SteerDriveOff;
-            mf.vehicle.ast.isInFreeDriveMode = false;
+            mf.mc.isInFreeDriveMode = false;
             btnSteerAngleDown.Enabled = false;
             btnSteerAngleUp.Enabled = false;
             //hSBarFreeDrive.Value = 0;
-            mf.vehicle.ast.driveFreeSteerAngle = 0;
+            mf.mc.driveFreeSteerAngle = 0;
 
             toSend = false;
 
@@ -199,7 +199,7 @@ namespace AgOpenGPS
 
         private void FormSteer_FormClosing(object sender, FormClosingEventArgs e)
         {
-            mf.vehicle.ast.isInFreeDriveMode = false;
+            mf.mc.isInFreeDriveMode = false;
 
             Properties.Vehicle.Default.setVehicle_goalPointLookAhead = mf.vehicle.goalPointLookAhead;
             Properties.Vehicle.Default.stanleyHeadingErrorGain = mf.vehicle.stanleyHeadingErrorGain;
@@ -520,50 +520,50 @@ namespace AgOpenGPS
         #region Free Drive
         private void btnFreeDrive_Click(object sender, EventArgs e)
         {
-            if (mf.vehicle.ast.isInFreeDriveMode)
+            if (mf.mc.isInFreeDriveMode)
             {
                 //turn OFF free drive mode
                 btnFreeDrive.Image = Properties.Resources.SteerDriveOff;
                 btnFreeDrive.BackColor = Color.FromArgb(50, 50, 70);
-                mf.vehicle.ast.isInFreeDriveMode = false;
+                mf.mc.isInFreeDriveMode = false;
                 btnSteerAngleDown.Enabled = false;
                 btnSteerAngleUp.Enabled = false;
                 //hSBarFreeDrive.Value = 0;
-                mf.vehicle.ast.driveFreeSteerAngle = 0;
+                mf.mc.driveFreeSteerAngle = 0;
             }
             else
             {
                 //turn ON free drive mode
                 btnFreeDrive.Image = Properties.Resources.SteerDriveOn;
                 btnFreeDrive.BackColor = Color.LightGreen;
-                mf.vehicle.ast.isInFreeDriveMode = true;
+                mf.mc.isInFreeDriveMode = true;
                 btnSteerAngleDown.Enabled = true;
                 btnSteerAngleUp.Enabled = true;
                 //hSBarFreeDrive.Value = 0;
-                mf.vehicle.ast.driveFreeSteerAngle = 0;
+                mf.mc.driveFreeSteerAngle = 0;
                 lblSteerAngle.Text = "0";
             }
         }
 
         private void btnFreeDriveZero_Click(object sender, EventArgs e)
         {
-            if (mf.vehicle.ast.driveFreeSteerAngle == 0)
-                mf.vehicle.ast.driveFreeSteerAngle = 5;
-            else mf.vehicle.ast.driveFreeSteerAngle = 0;
+            if (mf.mc.driveFreeSteerAngle == 0)
+                mf.mc.driveFreeSteerAngle = 5;
+            else mf.mc.driveFreeSteerAngle = 0;
             //hSBarFreeDrive.Value = mf.ast.driveFreeSteerAngle;
         }
 
 
         private void btnSteerAngleUp_MouseDown(object sender, MouseEventArgs e)
         {
-            mf.vehicle.ast.driveFreeSteerAngle++;
-            if (mf.vehicle.ast.driveFreeSteerAngle > 40) mf.vehicle.ast.driveFreeSteerAngle = 40;
+            mf.mc.driveFreeSteerAngle++;
+            if (mf.mc.driveFreeSteerAngle > 40) mf.mc.driveFreeSteerAngle = 40;
         }
 
         private void btnSteerAngleDown_MouseDown(object sender, MouseEventArgs e)
         {
-            mf.vehicle.ast.driveFreeSteerAngle--;
-            if (mf.vehicle.ast.driveFreeSteerAngle < -40) mf.vehicle.ast.driveFreeSteerAngle = -40;
+            mf.mc.driveFreeSteerAngle--;
+            if (mf.mc.driveFreeSteerAngle < -40) mf.mc.driveFreeSteerAngle = -40;
         }
         #endregion
     }

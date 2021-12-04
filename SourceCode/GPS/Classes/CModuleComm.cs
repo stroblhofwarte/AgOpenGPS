@@ -8,10 +8,6 @@
         //Critical Safety Properties
         public bool isOutOfBounds = true;
 
-        //receive strings
-        public string serialRecvAutoSteerStr;
-        public string serialRecvMachineStr;
-
         // ---- Section control switches to AOG  ---------------------------------------------------------
         //PGN - 32736 - 127.249 0x7FF9
         public byte[] ss = new byte[9];
@@ -28,12 +24,6 @@
             swOffGr1 = 8;
 
 
-        //LIDAR
-        //UDP sentence just rec'd
-        public string recvUDPSentence = "Inital UDP";
-
-        public int lidarDistance;
-
         public int pwmDisplay = 0;
         public double actualSteerAngleDegrees = 0;
         public int actualSteerAngleChart = 0;
@@ -43,6 +33,12 @@
         public bool isWorkSwitchActiveLow, isWorkSwitchEnabled, isWorkSwitchManual, isSteerControlsManual;
 
         public int workSwitchValue, oldWorkSwitchValue, steerSwitchValue = 0, oldsteerSwitchValue;
+
+        //flag for free drive window to control autosteer
+        public bool isInFreeDriveMode;
+
+        //the trackbar angle for free drive
+        public double driveFreeSteerAngle = 0;
 
         //constructor
         public CModuleComm(FormGPS _f)
@@ -54,6 +50,7 @@
 
             //does a low, grounded out, mean on
             isWorkSwitchActiveLow = true;
+            isInFreeDriveMode = false;
         }
 
         //Called from "OpenGL.Designer.cs" when requied

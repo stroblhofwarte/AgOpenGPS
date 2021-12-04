@@ -574,7 +574,7 @@ namespace AgOpenGPS
             if (recPath.isDrivingRecordedPath) recPath.UpdatePosition();
 
             // If Drive button off - normal autosteer 
-            if (!vehicle.ast.isInFreeDriveMode)
+            if (!mc.isInFreeDriveMode)
             {
                 //fill up0 the appropriate arrays with new values
                 p_254.pgn[p_254.speedHi] = unchecked((byte)((int)(Math.Abs(pn.speed) * 10.0) >> 8));
@@ -625,11 +625,7 @@ namespace AgOpenGPS
                     p_254.pgn[p_254.steerAngleHi] = unchecked((byte)(guidanceLineSteerAngle >> 8));
                     p_254.pgn[p_254.steerAngleLo] = unchecked((byte)(guidanceLineSteerAngle));
                 }
-
-                //for now if backing up, turn off autosteer
-                //if (isReverse) p_254.pgn[p_254.status] = 0;
             }
-
             else //Drive button is on
             {
                 //fill up the auto steer array with free drive values
@@ -640,11 +636,11 @@ namespace AgOpenGPS
                 p_254.pgn[p_254.status] = 1;
 
                 //send the steer angle
-                guidanceLineSteerAngle = (Int16)(vehicle.ast.driveFreeSteerAngle * 100);
+                guidanceLineSteerAngle = (Int16)(mc.driveFreeSteerAngle * 100);
 
                 if (isAngVelGuidance)
                 {
-                    setAngVel = 0.277777 * avgSpeed * (Math.Tan(glm.toRadians(vehicle.ast.driveFreeSteerAngle))) / vehicle.wheelbase;
+                    setAngVel = 0.277777 * avgSpeed * (Math.Tan(glm.toRadians(mc.driveFreeSteerAngle))) / vehicle.wheelbase;
                     setAngVel = glm.toDegrees(setAngVel) * 100;
 
                     errorAngVel = (short)(((int)(setAngVel) - ahrs.angVel));
@@ -652,12 +648,10 @@ namespace AgOpenGPS
                     p_254.pgn[p_254.steerAngleHi] = unchecked((byte)(errorAngVel >> 8));
                     p_254.pgn[p_254.steerAngleLo] = unchecked((byte)(errorAngVel));
                 }
-
                 else
                 {
                     p_254.pgn[p_254.steerAngleHi] = unchecked((byte)(guidanceLineSteerAngle >> 8));
                     p_254.pgn[p_254.steerAngleLo] = unchecked((byte)(guidanceLineSteerAngle));
-
                 }
             }
 

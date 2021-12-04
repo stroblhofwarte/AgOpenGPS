@@ -165,6 +165,14 @@ namespace AgOpenGPS
             {
                 if (isGPSPositionInitialized)
                 {
+                    //draw the section control window off screen buffer
+                    if (isJobStarted && mode == 1 || mode == 2 || isFastSections || bbCounter++ > 1)
+                    {
+                        bbCounter = 0;
+                        oglBack.Refresh();
+                        SendPgnToLoop(p_239.pgn);
+                    }
+                    
                     oglMain.MakeCurrent();
 
                     //  Clear the color and depth buffer.
@@ -431,14 +439,6 @@ namespace AgOpenGPS
 
                     if (leftMouseDownOnOpenGL) MakeFlagMark();
 
-                    //draw the section control window off screen buffer
-                    if (isJobStarted && mode == 1 || mode == 2 || isFastSections || bbCounter++ > 1)
-                    {
-                        bbCounter = 0;
-                        oglBack.Refresh();
-                        SendPgnToLoop(p_239.pgn);
-                    }
-
                     //draw the zoom window
                     if (isJobStarted && oglZoom.Width != 400)
                     {
@@ -644,6 +644,8 @@ namespace AgOpenGPS
                 if (rpHeight > 290) rpHeight = 290;
                 if (rpHeight < 8) rpHeight = 8;
 
+                int grnPixelsLength = tool.rpWidth * rpHeight;
+
                 //read the whole block of pixels up to max lookahead, one read only
                 GL.ReadPixels(tool.rpXPosition, 10, tool.rpWidth, 10 + rpHeight, OpenTK.Graphics.OpenGL.PixelFormat.Green, PixelType.UnsignedByte, grnPixels);
 
@@ -705,7 +707,7 @@ namespace AgOpenGPS
                 if (bnd.isHeadlandOn && bnd.isSectionControlledByHeadland) bnd.WhereAreToolLookOnPoints();
 
                 ///////////////////////////////////////////   Section control        ssssssssssssssssssssss
-                
+
                 tool.isSuperSectionAllowedOn = !tool.isMultiColoredSections;
 
                 for (int j = 0; j < tool.numOfSections; j++)
@@ -753,17 +755,20 @@ namespace AgOpenGPS
 
                                 for (int a = startHeight; a <= endHeight; a += tool.rpWidth)
                                 {
-                                    totalPixel++;
-                                    if (grnPixels[a] == 0) tagged++;
-
-                                    if (!isHeadlandInLookOn && grnPixels[a] == 250)
+                                    if (a > 0 && a < grnPixelsLength)
                                     {
-                                        isHeadlandInLookOn = true;
+                                        totalPixel++;
+                                        if (grnPixels[a] == 0) tagged++;
+
+                                        if (!isHeadlandInLookOn && grnPixels[a] == 250)
+                                        {
+                                            isHeadlandInLookOn = true;
+                                        }
                                     }
                                 }
                             }
 
-                            if ((tagged * 100) / totalPixel > (100 - tool.minCoverage))
+                            if (tagged > 0 && (tagged * 100) / totalPixel > (100 - tool.minCoverage))
                             {
                                 if (bnd.isHeadlandOn && bnd.isSectionControlledByHeadland)
                                 {

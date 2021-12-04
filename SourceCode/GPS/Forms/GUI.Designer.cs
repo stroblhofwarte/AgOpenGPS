@@ -428,7 +428,7 @@ namespace AgOpenGPS
             cboxpRowWidth.SelectedIndex = yt.rowSkipsWidth - 1;
             yt.Set_Alternate_skips();
 
-            setYouTurnButtonStatus(false);
+            enableYouTurnButton(false);
 
             //which heading source is being used
             headingFromSource = Settings.Default.setGPS_headingFromWhichSource;

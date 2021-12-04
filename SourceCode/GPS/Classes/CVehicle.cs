@@ -36,13 +36,10 @@ namespace AgOpenGPS
         public bool isHydLiftOn;
         public double stanleyIntegralDistanceAwayTriggerAB, stanleyIntegralGainAB, purePursuitIntegralGain;
 
-        public CAutoSteer ast;
-
         public CVehicle(FormGPS _f)
         {
             //constructor
             mf = _f;
-            ast = new CAutoSteer();
 
             isPivotBehindAntenna = Properties.Vehicle.Default.setVehicle_isPivotBehindAntenna;
             antennaHeight = Properties.Vehicle.Default.setVehicle_antennaHeight;
