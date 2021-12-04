@@ -36,7 +36,6 @@ namespace AgOpenGPS
 
         public double hitchLength;
 
-
         //how many individual sections
         public int numOfSections;
 
@@ -45,8 +44,6 @@ namespace AgOpenGPS
         //used for super section off on
         public int minCoverage;
 
-        public bool isSuperSectionAllowedOn;
-        public bool areAllSectionBtnsOn = true;
 
         public bool isLeftSideInHeadland = true, isRightSideInHeadland = true;
 
@@ -250,7 +247,7 @@ namespace AgOpenGPS
             {
                 for (int j = 0; j < numOfSections; j++)
                 {
-                    if (mf.section[j].sectionOnRequest || mf.section[numOfSections].sectionOnRequest)
+                    if (mf.section[j].sectionOnRequest)
                     {
                         if (mf.section[j].isMappingOn || mf.section[numOfSections].isMappingOn)
                         {
@@ -312,7 +309,7 @@ namespace AgOpenGPS
 
                     GL.Begin(PrimitiveType.LineLoop);
                     {
-                        GL.Color3(0.0, 0.0, 0.0);
+                        GL.Color3(0.0f, 0.0f, 0.0f);
                         GL.Vertex3(mf.section[j].positionLeft, trailingTool, 0);
                         GL.Vertex3(mf.section[j].positionLeft, trailingTool - hite, 0);
 

@@ -807,7 +807,7 @@ namespace AgOpenGPS
         }
         private void oglZoom_MouseClick(object sender, MouseEventArgs e)
         {
-            if ((sender as Control).IsDragging()) return;
+            if (initialControlLocation != (sender as Control).Location) return;
 
             if (oglZoom.Width == 180)
             {

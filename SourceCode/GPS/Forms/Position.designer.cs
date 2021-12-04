@@ -1042,16 +1042,15 @@ namespace AgOpenGPS
                     left = section[j].leftPoint - lastLeftPoint;
 
                     //get the speed for left side only once
-                    leftSpeed = left.GetLength() / fixUpdateTime * 10;
+                    leftSpeed = left.GetLength() / fixUpdateTime;
+                    if (leftSpeed > 27.7778) leftSpeed = 27.7778;
 
                     //Is section outer going forward or backward
-                    double head2 = left.HeadingXZ();
-                    if (Math.PI - Math.Abs(Math.Abs(head2 - toolPos.heading) - Math.PI) > glm.PIBy2)
+                    if (Math.PI - Math.Abs(Math.Abs(left.HeadingXZ() - toolPos.heading) - Math.PI) > glm.PIBy2)
                     {
                         if (leftSpeed > 0) leftSpeed *= -1;
                     }
-
-                    tool.toolFarLeftSpeed = tool.toolFarLeftSpeed * 0.9 + (leftSpeed * 0.1) * 0.1;
+                    tool.toolFarLeftSpeed = tool.toolFarLeftSpeed * 0.9 + leftSpeed * 0.1;
                 }
                 else
                 {
@@ -1068,49 +1067,45 @@ namespace AgOpenGPS
                 right = section[j].rightPoint - lastRightPoint;
 
                 //grab vector length and convert to meters/sec/10 pixels per meter                
-                rightSpeed = right.GetLength() / fixUpdateTime * 10;
+                rightSpeed = right.GetLength() / fixUpdateTime;
+                if (rightSpeed > 27.7778) rightSpeed = 27.7778;
 
                 if (Math.PI - Math.Abs(Math.Abs(right.HeadingXZ() - toolPos.heading) - Math.PI) > glm.PIBy2)
                     if (rightSpeed > 0) rightSpeed *= -1;
 
-                double sped = 0;
                 //save the far left and right speed in m/sec averaged over 20%
                 if (j == tool.numOfSections - 1)
-                {
-                    sped = (rightSpeed * 0.1);
-                    tool.toolFarRightSpeed = tool.toolFarRightSpeed * 0.9 + sped * 0.1;
-                }
+                    tool.toolFarRightSpeed = tool.toolFarRightSpeed * 0.9 + rightSpeed * 0.1;
 
-                //choose fastest speed
-                if (leftSpeed > rightSpeed)
-                    sped = leftSpeed;
-                else
-                    sped = rightSpeed;
-                section[j].speedPixels = section[j].speedPixels * 0.9 + sped * 0.1;
+                double sped = (leftSpeed > rightSpeed) ? leftSpeed : rightSpeed; //choose fastest speed
+                section[j].speedPixels = section[j].speedPixels * 0.9 + sped;
             }
 
             //fill in tool positions
             section[tool.numOfSections].leftPoint = section[0].leftPoint;
             section[tool.numOfSections].rightPoint = section[tool.numOfSections-1].rightPoint;
 
-            if (tool.toolFarLeftSpeed < 0.1) tool.toolFarLeftSpeed = 0.1;
-            if (tool.toolFarRightSpeed < 0.1) tool.toolFarRightSpeed = 0.1;
+            if (tool.toolFarLeftSpeed < 0.0) tool.toolFarLeftSpeed = 0.0;
+            if (tool.toolFarRightSpeed < 0.0) tool.toolFarRightSpeed = 0.0;
+
+            double oneFrameLeft = tool.toolFarLeftSpeed * fixUpdateTime * 10;
+            double oneFrameRight = tool.toolFarRightSpeed * fixUpdateTime * 10;
 
             //set the look ahead for hyd Lift in pixels per second
-            vehicle.hydLiftLookAheadDistanceLeft = tool.toolFarLeftSpeed * vehicle.hydLiftLookAheadTime * 10;
-            vehicle.hydLiftLookAheadDistanceRight = tool.toolFarRightSpeed * vehicle.hydLiftLookAheadTime * 10;
+            vehicle.hydLiftLookAheadDistanceLeft = oneFrameLeft + tool.toolFarLeftSpeed * vehicle.hydLiftLookAheadTime * HzTime;
+            vehicle.hydLiftLookAheadDistanceRight = oneFrameRight + tool.toolFarRightSpeed * vehicle.hydLiftLookAheadTime * HzTime;
 
             if (vehicle.hydLiftLookAheadDistanceLeft > 200) vehicle.hydLiftLookAheadDistanceLeft = 200;
             if (vehicle.hydLiftLookAheadDistanceRight > 200) vehicle.hydLiftLookAheadDistanceRight = 200;
 
-            tool.lookAheadDistanceOnPixelsLeft = tool.toolFarLeftSpeed * tool.lookAheadOnSetting * 10;
-            tool.lookAheadDistanceOnPixelsRight = tool.toolFarRightSpeed * tool.lookAheadOnSetting * 10;
+            tool.lookAheadDistanceOnPixelsLeft = oneFrameLeft + tool.toolFarLeftSpeed * tool.lookAheadOnSetting * HzTime;
+            tool.lookAheadDistanceOnPixelsRight = oneFrameRight + tool.toolFarRightSpeed * tool.lookAheadOnSetting * HzTime;
 
             if (tool.lookAheadDistanceOnPixelsLeft > 200) tool.lookAheadDistanceOnPixelsLeft = 200;
             if (tool.lookAheadDistanceOnPixelsRight > 200) tool.lookAheadDistanceOnPixelsRight = 200;
 
-            tool.lookAheadDistanceOffPixelsLeft = tool.toolFarLeftSpeed * tool.lookAheadOffSetting * 10;
-            tool.lookAheadDistanceOffPixelsRight = tool.toolFarRightSpeed * tool.lookAheadOffSetting * 10;
+            tool.lookAheadDistanceOffPixelsLeft = tool.toolFarLeftSpeed * tool.lookAheadOffSetting * HzTime;
+            tool.lookAheadDistanceOffPixelsRight = tool.toolFarRightSpeed * tool.lookAheadOffSetting * HzTime;
 
             if (tool.lookAheadDistanceOffPixelsLeft > 160) tool.lookAheadDistanceOffPixelsLeft = 160;
             if (tool.lookAheadDistanceOffPixelsRight > 160) tool.lookAheadDistanceOffPixelsRight = 160;

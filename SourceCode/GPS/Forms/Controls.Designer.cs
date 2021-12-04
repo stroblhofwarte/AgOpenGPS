@@ -14,6 +14,42 @@ namespace AgOpenGPS
     {
         public bool isTT;
 
+        #region Draggable Control
+        private Size mouseOffset;
+        private Point initialControlLocation;
+        private bool dragging;
+
+        public void Draggable(Control control)
+        {
+            control.MouseDown += new MouseEventHandler(control_MouseDown);
+            control.MouseUp += new MouseEventHandler(control_MouseUp);
+            control.MouseMove += new MouseEventHandler(control_MouseMove);
+        }
+
+        private void control_MouseDown(object sender, MouseEventArgs e)
+        {
+            mouseOffset = new Size(e.Location);
+            dragging = true;
+            initialControlLocation = ((Control)sender).Location;
+        }
+
+        private void control_MouseUp(object sender, MouseEventArgs e)
+        {
+            dragging = false;
+        }
+
+        private void control_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (dragging)
+            {
+                Point point = e.Location - mouseOffset;
+                ((Control)sender).Left += point.X;
+                ((Control)sender).Top += point.Y;
+            }
+        }
+
+        #endregion
+
         #region Right Menu
         private void btnContour_Click(object sender, EventArgs e)
         {

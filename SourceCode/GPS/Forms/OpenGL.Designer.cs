@@ -708,7 +708,7 @@ namespace AgOpenGPS
 
                 ///////////////////////////////////////////   Section control        ssssssssssssssssssssss
 
-                tool.isSuperSectionAllowedOn = !tool.isMultiColoredSections;
+                section[tool.numOfSections].sectionOnRequest = !tool.isMultiColoredSections;
 
                 for (int j = 0; j < tool.numOfSections; j++)
                 {
@@ -791,7 +791,7 @@ namespace AgOpenGPS
                                 section[j].sectionOnRequest = false;
                         }
                     }
-                    tool.isSuperSectionAllowedOn &= section[j].sectionOnRequest;
+                    section[tool.numOfSections].sectionOnRequest &= section[j].sectionOnRequest;
                 }
 
                 TimeB = TimeB * 0.9 + (test.ElapsedTicks - timer) * 0.1;
@@ -940,8 +940,8 @@ namespace AgOpenGPS
                 GL.Flush();
 
                 //determine farthest ahead lookahead - is the height of the readpixel line
-                int rpHeight = (int)(Math.Max(Math.Max((vehicle.isHydLiftOn ? Math.Max(vehicle.hydLiftLookAheadDistanceRight, vehicle.hydLiftLookAheadDistanceLeft) : 0), Math.Max(tool.lookAheadDistanceOnPixelsRight, tool.lookAheadDistanceOnPixelsLeft)), 2) + 0.5);
-                int rpHeight2 = (int)(Math.Max(Math.Min(tool.lookAheadDistanceOffPixelsRight, tool.lookAheadDistanceOffPixelsLeft), 0) + 0.5);
+                int rpHeight = (int)(Math.Max(Math.Max((vehicle.isHydLiftOn ? Math.Max(vehicle.hydLiftLookAheadDistanceRight, vehicle.hydLiftLookAheadDistanceLeft) : 0), Math.Max(tool.lookAheadDistanceOnPixelsRight, tool.lookAheadDistanceOnPixelsLeft) + 1), 1) + 0.5);
+                int rpHeight2 = (int)(Math.Max(Math.Min(tool.lookAheadDistanceOffPixelsRight, tool.lookAheadDistanceOffPixelsLeft), -1) - 1.5);
 
                 int grnPixelsLength = tool.rpWidth * (rpHeight - rpHeight2);
                 //read the whole block of pixels up to max lookahead, one read only
@@ -1071,7 +1071,7 @@ namespace AgOpenGPS
                     {
                         section[j].sectionOnRequest = false;
                         if (section[j].sectionOverlapTimer > 0) section[j].sectionOverlapTimer = 1;
-                        isSuperSectionAllowedOn = false;
+                        isSuperSectionAllowedOn = section[j].mappingOffTimer > 1;
                     }
                     else if (section[j].manBtnState == btnStates.Auto)
                     {
@@ -1102,16 +1102,16 @@ namespace AgOpenGPS
 
                             for (int pos = start; pos < end; pos++)
                             {
-                                int StartHeight = (int)Math.Round((tool.lookAheadDistanceOffPixelsLeft - rpHeight2) + (mOff * pos), MidpointRounding.AwayFromZero) * tool.rpWidth + pos;
+                                int StartHeight = (int)Math.Round((tool.lookAheadDistanceOffPixelsLeft - (rpHeight2 + 1)) + (mOff * pos), MidpointRounding.AwayFromZero) * tool.rpWidth + pos;
                                 int StopHeight = (int)Math.Round((tool.lookAheadDistanceOnPixelsLeft - rpHeight2) + (mOn * pos), MidpointRounding.AwayFromZero) * tool.rpWidth + pos;
                                 int StopHydHeight = (int)Math.Round((vehicle.hydLiftLookAheadDistanceLeft - rpHeight2) + (mHyd * pos), MidpointRounding.AwayFromZero) * tool.rpWidth + pos;
 
                                 for (int a = isToolInHeadland ? pos : StartHeight; a <= StopHeight || (isToolInHeadland && a <= StopHydHeight); a += tool.rpWidth)
                                 {
-                                    if (a > 0 && a < grnPixelsLength)
+                                    if (a >= 0 && a < grnPixelsLength)
                                     {
                                         int Procent5 = grnPixels[a] % 5;
-                                        if (a >= StartHeight && a < StopHeight)
+                                        if (a >= StartHeight && a <= StopHeight)
                                         {
                                             totalPixs++;
                                             if (bnd.bndList.Count == 0 ? grnPixels[a] == 252 : (grnPixels[a] == 250 || grnPixels[a] == 245 || grnPixels[a] == 240 || grnPixels[a] == 235))
@@ -1132,17 +1132,17 @@ namespace AgOpenGPS
                             {
                                 section[j].sectionOnRequest = false;
                                 if (section[j].sectionOverlapTimer > 0) section[j].sectionOverlapTimer = 1;
-                                isSuperSectionAllowedOn = false;
                             }
-                            else
-                            {
+                            else if (section[j].sectionOnRequest)
                                 section[j].sectionOnRequest = tagged > 0 && (tagged * 100.0) / totalPixs >= 100.0 - tool.minCoverage;
-                                isSuperSectionAllowedOn &= (tool.isSuperSectionAllowedOn && section[j].sectionOnRequest) || (section[j].isSectionOn && section[j].isMappingOn);
-                            }
+                            else
+                                section[j].sectionOnRequest = tagged > 1 && (tagged * 100.0) / totalPixs >= 100.0 - tool.minCoverage;
+                            
+                            isSuperSectionAllowedOn &= (section[j].mappingOnTimer < 2 && section[j].mappingOffTimer + section[j].sectionOverlapTimer > 1) || (section[j].sectionOnRequest && section[j].isMappingOn);
                         }
                     }
                 }
-                tool.isSuperSectionAllowedOn = isSuperSectionAllowedOn;
+                section[tool.numOfSections].sectionOnRequest = isSuperSectionAllowedOn;
 
                 //set hydraulics based on tool in headland or not
                 bnd.SetHydPosition(totalHead > 0 && taggedHead >= totalHead * 0.999);

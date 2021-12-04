@@ -1,7 +1,6 @@
 ﻿//Please, if you use this, share the improvements
 
 using AgOpenGPS.Properties;
-using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System;
 using System.Diagnostics;
@@ -223,10 +222,9 @@ namespace AgOpenGPS
 
             CheckSettingsNotNull();
 
-
-            //ControlExtension.Draggable(panelSnap, true);
-            ControlExtension.Draggable(oglZoom, true);
-            ControlExtension.Draggable(oglBack, true);
+            //Draggable(panelSnap);
+            Draggable(oglZoom);
+            Draggable(oglBack);
 
             setWorkingDirectoryToolStripMenuItem.Text = gStr.gsDirectories;
             enterSimCoordsToolStripMenuItem.Text = gStr.gsEnterSimCoords;
@@ -973,52 +971,46 @@ namespace AgOpenGPS
                         //keep setting the timer so full when ready to turn off
                         section[j].sectionOverlapTimer = (int)(fixUpdateHz * mapFactor * sped + (fixUpdateHz * tool.turnOffDelay) + 1);
                     }
-
-                    if (section[j].mappingOnTimer == 0) section[j].mappingOnTimer = (int)Math.Max(HzTime * tool.lookAheadOnSetting - 0.5, 1);//tool.mappingOnDelay
+                    if (!section[j].isMappingOn && section[j].mappingOnTimer == 0) section[j].mappingOnTimer = (int)Math.Max(HzTime * tool.lookAheadOnSetting - 0.5, 1);//tool.mappingOnDelay
                     section[j].mappingOffTimer = (int)(HzTime * tool.lookAheadOffSetting + 2);//tool.mappingOffDelay
                 }
                 else if (section[j].sectionOverlapTimer > 0)
                 {
-                    section[j].mappingOffTimer = (int)(HzTime * tool.lookAheadOffSetting + 2);//tool.mappingOffDelay
                     section[j].sectionOverlapTimer--;
                     if (section[j].isSectionOn && section[j].sectionOverlapTimer == 0)
                         section[j].isSectionOn = false;
+                    else
+                        section[j].mappingOffTimer = (int)(HzTime * tool.lookAheadOffSetting + 2);//tool.mappingOffDelay
                 }
 
                 //MAPPING -
-                if (tool.isSuperSectionAllowedOn)
+                if (section[tool.numOfSections].sectionOnRequest)
                 {
+                    section[j].mappingOnTimer = 2;
                     if (section[j].isMappingOn)
-                    {
                         section[j].TurnMappingOff();
-                        section[j].mappingOnTimer = 1;
-                    }
                 }
-                else
+                if (section[j].mappingOnTimer > 0)
                 {
-                    if (section[j].mappingOnTimer > 0)
+                    section[j].mappingOnTimer--;
+                    if (!section[j].isMappingOn && section[j].mappingOnTimer == 0)
+                        section[j].TurnMappingOn();
+                }
+                if (section[j].mappingOffTimer > 0)
+                {
+                    section[j].mappingOffTimer--;
+                    if (section[j].mappingOffTimer == 0)
                     {
-                        section[j].mappingOnTimer--;
-                        if (!section[j].isMappingOn && section[j].mappingOnTimer == 0)
-                            section[j].TurnMappingOn();
-                    }
-
-                    if (section[j].mappingOffTimer > 0)
-                    {
-                        section[j].mappingOffTimer--;
-                        if (section[j].mappingOffTimer == 0)
-                        {
-                            section[j].mappingOnTimer = 0;
-                            if (section[j].isMappingOn)
-                                section[j].TurnMappingOff();
-                        }
+                        section[j].mappingOnTimer = 0;
+                        if (section[j].isMappingOn)
+                            section[j].TurnMappingOff();
                     }
                 }
             }
 
-            if (tool.isSuperSectionAllowedOn && !section[tool.numOfSections].isMappingOn)
+            if (section[tool.numOfSections].sectionOnRequest && !section[tool.numOfSections].isMappingOn)
                 section[tool.numOfSections].TurnMappingOn();
-            else if (!tool.isSuperSectionAllowedOn && section[tool.numOfSections].isMappingOn)
+            else if (!section[tool.numOfSections].sectionOnRequest && section[tool.numOfSections].isMappingOn)
                 section[tool.numOfSections].TurnMappingOff();
 
             #region notes
