@@ -4356,11 +4356,6 @@
             0,
             0,
             0});
-            this.nudLookAhead.Minimum = new decimal(new int[] {
-            2,
-            0,
-            0,
-            65536});
             this.nudLookAhead.Name = "nudLookAhead";
             this.nudLookAhead.ReadOnly = true;
             this.nudLookAhead.Size = new System.Drawing.Size(114, 52);

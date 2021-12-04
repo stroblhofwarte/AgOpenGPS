@@ -300,10 +300,7 @@ namespace AgOpenGPS
         public void setYouTurnButtonStatus(bool isOn)
         {
             enableYouTurnButton(false);
-            yt.isYouTurnBtnOn = false;
             btnAutoYouTurn.Enabled = isOn;
-            btnAutoYouTurn.Image = Properties.Resources.YouTurnNo;
-            yt.ResetYouTurn();
         }
 
         #endregion
@@ -1607,9 +1604,10 @@ namespace AgOpenGPS
             sim.steerAngleScrollBar = (hsbarSteerAngle.Value - 400) * 0.1;
             btnResetSteerAngle.Text = sim.steerAngleScrollBar.ToString("N1");
         }
+
         private void hsbarStepDistance_Scroll(object sender, ScrollEventArgs e)
         {
-            sim.stepDistance = ((double)(hsbarStepDistance.Value)) / 5.0 / (double)fixUpdateHz;
+            sim.stepDistance = ((double)(hsbarStepDistance.Value)) / 3.6;
         }
         private void btnResetSteerAngle_Click(object sender, EventArgs e)
         {
@@ -1617,11 +1615,12 @@ namespace AgOpenGPS
             hsbarSteerAngle.Value = 400;
             btnResetSteerAngle.Text = sim.steerAngleScrollBar.ToString("N1");
         }
+
         private void btnResetSim_Click(object sender, EventArgs e)
         {
-            sim.latitude = Properties.Settings.Default.setGPS_SimLatitude;
-            sim.longitude = Properties.Settings.Default.setGPS_SimLongitude;
+            sim.resetSim();
         }
+
         private void btnSimSetSpeedToZero_Click(object sender, EventArgs e)
         {
             sim.stepDistance = 0;
