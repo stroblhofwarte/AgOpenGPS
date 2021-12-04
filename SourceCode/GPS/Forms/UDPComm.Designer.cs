@@ -618,12 +618,20 @@ namespace AgOpenGPS
 
         private void SetSimStatus(bool status)
         {
-            isFirstFixPositionSet = false;
-            isGPSPositionInitialized = false;
             isFirstHeadingSet = false;
             startCounter = 0;
             panelSim.Visible = status;
             timerSim.Enabled = status;
+
+            if (timerSim.Enabled && !isJobStarted)
+            {
+                pn.latStart = pn.latitude = Properties.Settings.Default.setGPS_SimLatitude;
+                pn.lonStart = pn.longitude = Properties.Settings.Default.setGPS_SimLongitude;
+                sim.resetSim();
+
+                pn.SetLocalMetersPerDegree();
+            }
+
             simulatorOnToolStripMenuItem.Checked = status;
             Properties.Settings.Default.setMenu_isSimulatorOn = simulatorOnToolStripMenuItem.Checked;
             Properties.Settings.Default.Save();
@@ -772,20 +780,20 @@ namespace AgOpenGPS
             //speed up
             if (keyData == Keys.Up)
             {
-                if (sim.stepDistance < 0.04 && sim.stepDistance > -0.04) sim.stepDistance += 0.002;
-                else sim.stepDistance += 0.02;
-                if (sim.stepDistance > 1.9) sim.stepDistance = 1.9;
-                hsbarStepDistance.Value = (int)(sim.stepDistance * 5 * fixUpdateHz);
+                if (sim.stepDistance < 2 && sim.stepDistance > -2) sim.stepDistance += 0.01;
+                else sim.stepDistance += 0.1;
+                if (sim.stepDistance > 27.7778) sim.stepDistance = 27.7778;
+                hsbarStepDistance.Value = (int)(sim.stepDistance * 3.6);
                 return true;
             }
 
             //slow down
             if (keyData == Keys.Down)
             {
-                if (sim.stepDistance < 0.04 && sim.stepDistance > -0.04) sim.stepDistance -= 0.002;
-                else sim.stepDistance -= 0.02;
-                if (sim.stepDistance < -0.35) sim.stepDistance = -0.35;
-                hsbarStepDistance.Value = (int)(sim.stepDistance * 5 * fixUpdateHz);
+                if (sim.stepDistance < 2 && sim.stepDistance > -2) sim.stepDistance -= 0.01;
+                else sim.stepDistance -= 0.1;
+                if (sim.stepDistance < -6.94444) sim.stepDistance = -6.94444;
+                hsbarStepDistance.Value = (int)(sim.stepDistance * 3.6);
                 return true;
             }
 

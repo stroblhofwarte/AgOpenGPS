@@ -340,18 +340,16 @@ namespace AgOpenGPS
                     mf.pn.latStart = latK;
                     mf.pn.lonStart = lonK;
 
+                    mf.pn.SetLocalMetersPerDegree();
+
                     if (mf.timerSim.Enabled)
                     {
-                        mf.sim.latitude = Properties.Settings.Default.setGPS_SimLatitude = latK;
-                        mf.sim.longitude = Properties.Settings.Default.setGPS_SimLongitude = lonK;
+                        mf.pn.latitude = Properties.Settings.Default.setGPS_SimLatitude = latK;
+                        mf.pn.longitude = Properties.Settings.Default.setGPS_SimLongitude = lonK;
 
-                        mf.pn.latitude = latK;
-                        mf.pn.longitude = lonK;
-
+                        mf.sim.resetSim();
                         Properties.Settings.Default.Save();
                     }
-
-                    mf.pn.SetLocalMetersPerDegree();
 
                     //make sure directory exists, or create it
                     if ((!string.IsNullOrEmpty(directoryName)) && (!Directory.Exists(directoryName)))

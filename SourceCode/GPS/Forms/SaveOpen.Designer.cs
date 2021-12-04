@@ -378,6 +378,8 @@ namespace AgOpenGPS
                         pn.latStart = double.Parse(offs[0], CultureInfo.InvariantCulture);
                         pn.lonStart = double.Parse(offs[1], CultureInfo.InvariantCulture);
 
+                        pn.SetLocalMetersPerDegree();
+
                         if (timerSim.Enabled)
                         {
                             pn.latitude = pn.latStart;
@@ -386,9 +388,8 @@ namespace AgOpenGPS
                             sim.latitude = Properties.Settings.Default.setGPS_SimLatitude = pn.latitude;
                             sim.longitude = Properties.Settings.Default.setGPS_SimLongitude = pn.longitude;
                             Properties.Settings.Default.Save();
+                            sim.resetSim();
                         }
-
-                        pn.SetLocalMetersPerDegree();
                     }
                 }
 

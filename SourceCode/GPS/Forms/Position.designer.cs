@@ -742,7 +742,7 @@ namespace AgOpenGPS
                     if (yt.isYouTurnBtnOn)
                     {
                         yt.ResetCreatedYouTurn();
-                        sim.stepDistance = 0 / 17.86;
+                        sim.stepDistance = 0;
                     }
                 }
             }
@@ -1137,9 +1137,6 @@ namespace AgOpenGPS
                 //most recent fixes
                 prevFix.easting = pn.fix.easting;
                 prevFix.northing = pn.fix.northing;
-
-                //run once and return
-                isFirstFixPositionSet = true;
 
                 return;
             }

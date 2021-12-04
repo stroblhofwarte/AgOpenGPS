@@ -112,7 +112,7 @@ namespace AgOpenGPS
             if (isFollowingDubinsToPath)
             {
                 //set a speed of 10 kmh
-                mf.sim.stepDistance = shuttleDubinsList[C].speed / 34.86;
+                mf.sim.stepDistance = shuttleDubinsList[C].speed / 3.6;
 
                 pivotAxlePosRP = mf.pivotAxlePos;
 
@@ -145,7 +145,7 @@ namespace AgOpenGPS
                 //if end of the line then stop
                 if (!isEndOfTheRecLine)
                 {
-                    mf.sim.stepDistance = recList[C].speed / 34.86;
+                    mf.sim.stepDistance = recList[C].speed / 3.6;
                     north = recList[C].northing;
 
                     pathCount = recList.Count - C;
@@ -190,7 +190,7 @@ namespace AgOpenGPS
                     return;
                 }
 
-                mf.sim.stepDistance = shuttleDubinsList[C].speed / 35;
+                mf.sim.stepDistance = shuttleDubinsList[C].speed / 3.6;
                 pivotAxlePosRP = mf.pivotAxlePos;
 
                 //StanleyDubinsPath(shuttleListCount);
