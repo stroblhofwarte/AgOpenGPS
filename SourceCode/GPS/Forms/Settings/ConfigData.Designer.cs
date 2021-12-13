@@ -6,18 +6,6 @@ namespace AgOpenGPS
 {
     public partial class FormConfig
     {
-        #region Fix
-
-        private void tabDFix_Enter(object sender, EventArgs e)
-        {
-        }
-
-        private void tabDFix_Leave(object sender, EventArgs e)
-        {
-
-        }
-
-        #endregion
 
         #region Heading
         private void tabDHeading_Enter(object sender, EventArgs e)
@@ -48,8 +36,6 @@ namespace AgOpenGPS
             nudStartSpeed.Value = (decimal)Properties.Vehicle.Default.setVehicle_startSpeed;
 
             cboxIsDualAsIMU.Checked = Properties.Settings.Default.setIMU_isDualAsIMU;
-
-            nudMinimumFrameTime.Value = Properties.Settings.Default.SetGPS_udpWatchMsec;
 
             nudForwardComp.Value = (decimal)(Properties.Settings.Default.setGPS_forwardComp);
             nudReverseComp.Value = (decimal)(Properties.Settings.Default.setGPS_reverseComp);
@@ -82,15 +68,6 @@ namespace AgOpenGPS
 
             if (rbtnHeadingHDT.Checked) gboxSingle.Enabled = false;
             else gboxSingle.Enabled = true;
-        }
-
-        private void nudMinimumFrameTime_Click(object sender, EventArgs e)
-        {
-            if (mf.KeypadToNUD((NumericUpDown)sender, this))
-            {
-                Properties.Settings.Default.SetGPS_udpWatchMsec = ((int)nudMinimumFrameTime.Value);
-                mf.udpWatchLimit = Properties.Settings.Default.SetGPS_udpWatchMsec;
-            }
         }
 
         private void nudMinFixStepDistance_Click(object sender, EventArgs e)

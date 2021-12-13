@@ -220,19 +220,71 @@ namespace AgOpenGPS
 
                 //lookahead section on
                 GL.Color3(0.20f, 0.7f, 0.2f);
-                GL.Vertex3(toolFarLeftPosition, (lookAheadDistanceOnPixelsLeft) * 0.1 + trailingTool, 0);
-                GL.Vertex3(toolFarRightPosition, (lookAheadDistanceOnPixelsRight) * 0.1 + trailingTool, 0);
+                if (lookAheadDistanceOnPixelsLeft > 0 && lookAheadDistanceOnPixelsRight > 0)
+                {
+                    GL.Vertex3(toolFarLeftPosition, lookAheadDistanceOnPixelsLeft * 0.1 + trailingTool, 0);
+                    GL.Vertex3(toolFarRightPosition, lookAheadDistanceOnPixelsRight * 0.1 + trailingTool, 0);
+                }
+                else 
+                {
+                    double mOn = (lookAheadDistanceOnPixelsRight - lookAheadDistanceOnPixelsLeft) / toolWidth;
+                    if (lookAheadDistanceOnPixelsLeft > 0)
+                    {
+                        GL.Vertex3(toolFarLeftPosition, lookAheadDistanceOnPixelsLeft * 0.1 + trailingTool, 0);
+                        GL.Vertex3(toolFarLeftPosition - lookAheadDistanceOnPixelsLeft / mOn, trailingTool, 0);
+                    }
+                    else if (lookAheadDistanceOnPixelsRight > 0)
+                    {
+                        GL.Vertex3(toolFarRightPosition, lookAheadDistanceOnPixelsRight * 0.1 + trailingTool, 0);
+                        GL.Vertex3(toolFarRightPosition - lookAheadDistanceOnPixelsRight / mOn, trailingTool, 0);
+                    }
+                }
 
                 //lookahead section off
                 GL.Color3(0.70f, 0.2f, 0.2f);
-                GL.Vertex3(toolFarLeftPosition, (lookAheadDistanceOffPixelsLeft) * 0.1 + trailingTool, 0);
-                GL.Vertex3(toolFarRightPosition, (lookAheadDistanceOffPixelsRight) * 0.1 + trailingTool, 0);
+                if (lookAheadDistanceOffPixelsLeft > 0 && lookAheadDistanceOffPixelsRight > 0)
+                {
+                    GL.Vertex3(toolFarLeftPosition, lookAheadDistanceOffPixelsLeft * 0.1 + trailingTool, 0);
+                    GL.Vertex3(toolFarRightPosition, lookAheadDistanceOffPixelsRight * 0.1 + trailingTool, 0);
+                }
+                else
+                {
+                    double mOn = (lookAheadDistanceOffPixelsRight - lookAheadDistanceOffPixelsLeft) / toolWidth;
+                    if (lookAheadDistanceOffPixelsLeft > 0)
+                    {
+                        GL.Vertex3(toolFarLeftPosition, lookAheadDistanceOffPixelsLeft * 0.1 + trailingTool, 0);
+                        GL.Vertex3(toolFarLeftPosition - lookAheadDistanceOffPixelsLeft / mOn, trailingTool, 0);
+                    }
+                    else if (lookAheadDistanceOffPixelsRight > 0)
+                    {
+                        GL.Vertex3(toolFarRightPosition, lookAheadDistanceOffPixelsRight * 0.1 + trailingTool, 0);
+                        GL.Vertex3(toolFarRightPosition - lookAheadDistanceOffPixelsRight / mOn, trailingTool, 0);
+                    }
+                }
 
                 if (mf.vehicle.isHydLiftOn)
                 {
                     GL.Color3(0.70f, 0.2f, 0.72f);
-                    GL.Vertex3(mf.section[0].positionLeft, (mf.vehicle.hydLiftLookAheadDistanceLeft * 0.1) + trailingTool, 0);
-                    GL.Vertex3(mf.section[numOfSections - 1].positionRight, (mf.vehicle.hydLiftLookAheadDistanceRight * 0.1) + trailingTool, 0);
+
+                    if (mf.vehicle.hydLiftLookAheadDistanceLeft > 0 && mf.vehicle.hydLiftLookAheadDistanceRight > 0)
+                    {
+                        GL.Vertex3(toolFarLeftPosition, mf.vehicle.hydLiftLookAheadDistanceLeft * 0.1 + trailingTool, 0);
+                        GL.Vertex3(toolFarRightPosition, mf.vehicle.hydLiftLookAheadDistanceRight * 0.1 + trailingTool, 0);
+                    }
+                    else
+                    {
+                        double mOn = (mf.vehicle.hydLiftLookAheadDistanceRight - mf.vehicle.hydLiftLookAheadDistanceLeft) / toolWidth;
+                        if (mf.vehicle.hydLiftLookAheadDistanceLeft > 0)
+                        {
+                            GL.Vertex3(toolFarLeftPosition, mf.vehicle.hydLiftLookAheadDistanceLeft * 0.1 + trailingTool, 0);
+                            GL.Vertex3(toolFarLeftPosition - mf.vehicle.hydLiftLookAheadDistanceLeft / mOn, trailingTool, 0);
+                        }
+                        else if (mf.vehicle.hydLiftLookAheadDistanceRight > 0)
+                        {
+                            GL.Vertex3(toolFarRightPosition, mf.vehicle.hydLiftLookAheadDistanceRight * 0.1 + trailingTool, 0);
+                            GL.Vertex3(toolFarRightPosition - mf.vehicle.hydLiftLookAheadDistanceRight / mOn, trailingTool, 0);
+                        }
+                    }
                 }
 
                 GL.End();
@@ -266,32 +318,11 @@ namespace AgOpenGPS
                     else if (mf.section[j].isMappingOn || mf.section[numOfSections].isMappingOn)
                         //Section wants to turn mapping off
                         GL.Color3(0.5f, 0.5f, 0.5f);//gray
-                    else if (mf.section[j].mappingOnTimer > 1 && mf.section[j].mappingOffTimer > mf.section[j].mappingOnTimer)
-                    {
+                    else if (mf.section[j].mappingOnTimer > 0 && mf.section[j].mappingOffTimer > mf.section[j].mappingOnTimer)
                         GL.Color3(0.5f, 0.0f, 1.0f);//violet
-                    }
                     else
                         //Both Off
                         GL.Color3(0.97f, 0.0f, 0.0f);//red
-                    /*
-                    //if section is on, green, if off, red color
-                    if (mf.section[j].isSectionOn || mf.section[numOfSections].isSectionOn)
-                    {
-                        if (mf.section[j].manBtnState == btnStates.Auto)
-                        {
-                            GL.Color3(0.0f, 0.9f, 0.0f);
-                            //if (mf.section[j].isMappingOn) GL.Color3(0.0f, 0.7f, 0.0f);
-                            //else GL.Color3(0.70f, 0.0f, 0.90f);
-                        }
-                        else GL.Color3(0.97, 0.97, 0);
-                    }
-                    else
-                    {
-                        //if (!mf.section[j].isMappingOn) GL.Color3(0.70f, 0.2f, 0.2f);
-                        //else GL.Color3(0.00f, 0.250f, 0.90f);
-                        GL.Color3(0.7f, 0.2f, 0.2f);
-                    }
-                    */
 
                     double mid = (mf.section[j].positionRight - mf.section[j].positionLeft) / 2 + mf.section[j].positionLeft;
 

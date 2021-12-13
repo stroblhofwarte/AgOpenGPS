@@ -127,9 +127,6 @@
     <Compile Include="Classes\CDubins.cs" />
     <Compile Include="Classes\CAHRS.cs" />
     <Compile Include="Classes\CFont.cs" />
-    <Compile Include="Classes\CHead.cs">
-      <DependentUpon>CBoundary.cs</DependentUpon>
-    </Compile>
     <Compile Include="Classes\CSim.cs" />
     <Compile Include="Classes\CTram.cs" />
     <Compile Include="Classes\CYouTurn.cs" />

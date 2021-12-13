@@ -7,6 +7,9 @@ namespace AgOpenGPS
         //copy of the mainform address
         private readonly FormGPS mf;
 
+        public bool isHeadlandOn;
+        public bool isSectionControlledByHeadland;
+
         public List<CBoundaryList> bndList = new List<CBoundaryList>();
 
         //constructor

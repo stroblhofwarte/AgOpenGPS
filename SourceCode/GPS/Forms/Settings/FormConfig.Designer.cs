@@ -251,8 +251,6 @@
             this.cboxIsRTK_KillAutoSteer = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
             this.nudAgeAlarm = new System.Windows.Forms.NumericUpDown();
-            this.label104 = new System.Windows.Forms.Label();
-            this.nudMinimumFrameTime = new System.Windows.Forms.NumericUpDown();
             this.cboxIsRTK = new System.Windows.Forms.CheckBox();
             this.gboxSingle = new System.Windows.Forms.GroupBox();
             this.lblFusionIMU = new System.Windows.Forms.Label();
@@ -501,7 +499,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             this.tabDHeading.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudAgeAlarm)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudMinimumFrameTime)).BeginInit();
             this.gboxSingle.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudForwardComp)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudReverseComp)).BeginInit();
@@ -4415,8 +4412,6 @@
             this.tabDHeading.Controls.Add(this.cboxIsRTK_KillAutoSteer);
             this.tabDHeading.Controls.Add(this.label2);
             this.tabDHeading.Controls.Add(this.nudAgeAlarm);
-            this.tabDHeading.Controls.Add(this.label104);
-            this.tabDHeading.Controls.Add(this.nudMinimumFrameTime);
             this.tabDHeading.Controls.Add(this.cboxIsRTK);
             this.tabDHeading.Controls.Add(this.gboxSingle);
             this.tabDHeading.Controls.Add(this.headingGroupBox);
@@ -4503,50 +4498,6 @@
             0});
             this.nudAgeAlarm.Click += new System.EventHandler(this.nudAgeAlarm_Click);
             this.nudAgeAlarm.HelpRequested += new System.Windows.Forms.HelpEventHandler(this.nudAgeAlarm_HelpRequested);
-            // 
-            // label104
-            // 
-            this.label104.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label104.BackColor = System.Drawing.Color.Transparent;
-            this.label104.Font = new System.Drawing.Font("Tahoma", 14.25F);
-            this.label104.ForeColor = System.Drawing.Color.Black;
-            this.label104.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label104.Location = new System.Drawing.Point(17, 323);
-            this.label104.Name = "label104";
-            this.label104.Size = new System.Drawing.Size(178, 56);
-            this.label104.TabIndex = 462;
-            this.label104.Text = "Minimum Frame Pause (msec)";
-            this.label104.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // nudMinimumFrameTime
-            // 
-            this.nudMinimumFrameTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.nudMinimumFrameTime.BackColor = System.Drawing.Color.AliceBlue;
-            this.nudMinimumFrameTime.Font = new System.Drawing.Font("Tahoma", 27.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.nudMinimumFrameTime.InterceptArrowKeys = false;
-            this.nudMinimumFrameTime.Location = new System.Drawing.Point(51, 381);
-            this.nudMinimumFrameTime.Maximum = new decimal(new int[] {
-            90,
-            0,
-            0,
-            0});
-            this.nudMinimumFrameTime.Minimum = new decimal(new int[] {
-            40,
-            0,
-            0,
-            0});
-            this.nudMinimumFrameTime.Name = "nudMinimumFrameTime";
-            this.nudMinimumFrameTime.ReadOnly = true;
-            this.nudMinimumFrameTime.Size = new System.Drawing.Size(125, 52);
-            this.nudMinimumFrameTime.TabIndex = 463;
-            this.nudMinimumFrameTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.nudMinimumFrameTime.Value = new decimal(new int[] {
-            70,
-            0,
-            0,
-            0});
-            this.nudMinimumFrameTime.Click += new System.EventHandler(this.nudMinimumFrameTime_Click);
-            this.nudMinimumFrameTime.HelpRequested += new System.Windows.Forms.HelpEventHandler(this.nudMinimumFrameTime_HelpRequested);
             // 
             // cboxIsRTK
             // 
@@ -7432,7 +7383,6 @@
             this.tabDHeading.ResumeLayout(false);
             this.tabDHeading.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudAgeAlarm)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudMinimumFrameTime)).EndInit();
             this.gboxSingle.ResumeLayout(false);
             this.gboxSingle.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudForwardComp)).EndInit();
@@ -7797,8 +7747,6 @@
         private System.Windows.Forms.PictureBox pictureBox14;
         private System.Windows.Forms.Label label102;
         private System.Windows.Forms.CheckBox checkSteerSetsManual;
-        private System.Windows.Forms.Label label104;
-        private System.Windows.Forms.NumericUpDown nudMinimumFrameTime;
         private System.Windows.Forms.Label label105;
         private System.Windows.Forms.CheckBox cboxAngVel;
         private System.Windows.Forms.Label label106;

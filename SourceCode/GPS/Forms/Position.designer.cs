@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace AgOpenGPS
@@ -84,14 +85,13 @@ namespace AgOpenGPS
         public vecFix2Fix[] stepFixPts = new vecFix2Fix[totalFixSteps];
         public double distanceCurrentStepFix = 0, minFixStepDist = 1, startSpeed = 0.5;
 
-        private double nowHz = 0, testDelta = 0;
+        private double nowHz = 0;
 
         public bool isRTK, isRTK_KillAutosteer;
 
-        public double headlandDistanceDelta = 0, boundaryDistanceDelta = 0;
-
         public vec2 lastGPS = new vec2(0, 0);
 
+        public int framesToDo = 0;
 
         public void UpdateFixPosition()
         {
@@ -100,7 +100,7 @@ namespace AgOpenGPS
             nowHz = ((double)System.Diagnostics.Stopwatch.Frequency) / (double)swHz.ElapsedTicks;
 
             //simple comp filter
-            if (nowHz < 20) HzTime = 0.97 * HzTime + 0.03 * nowHz;
+            if (nowHz < 35) HzTime = 0.97 * HzTime + 0.03 * nowHz;
 
             //auto set gps freq
             fixUpdateHz = (int)(HzTime + 0.5);
@@ -272,7 +272,6 @@ namespace AgOpenGPS
                                 //what is angle between the last valid heading before stopping and one just now
                                 double delta = Math.Abs(Math.PI - Math.Abs(Math.Abs(newHeading - gpsHeading) - Math.PI));
 
-                                testDelta = delta;
                                 //ie change in direction
                                 if (delta > 1.57) //
                                 {
@@ -285,11 +284,11 @@ namespace AgOpenGPS
                                     isReverse = false;
                             }
 
-                            if (isReverse)                            
-                                newHeading -= glm.toRadians(vehicle.antennaPivot / 1 
-                                    * mc.actualSteerAngleDegrees * ahrs.reverseComp);                            
+                            if (isReverse)
+                                newHeading -= glm.toRadians(vehicle.antennaPivot / 1
+                                    * mc.actualSteerAngleDegrees * ahrs.reverseComp);
                             else
-                                newHeading -= glm.toRadians(vehicle.antennaPivot / 1 
+                                newHeading -= glm.toRadians(vehicle.antennaPivot / 1
                                     * mc.actualSteerAngleDegrees * ahrs.forwardComp);
 
                             if (newHeading < 0) newHeading += glm.twoPI;
@@ -362,7 +361,7 @@ namespace AgOpenGPS
                         }
 
                         // IMU Fusion with heading correction, add the correction
-                        if (ahrs.imuHeading != 99999 )
+                        if (ahrs.imuHeading != 99999)
                         {
                             //current gyro angle in radians
                             double imuHeading = (glm.toRadians(ahrs.imuHeading));
@@ -370,7 +369,7 @@ namespace AgOpenGPS
                             //Difference between the IMU heading and the GPS heading
                             double gyroDelta = (imuHeading + imuGPS_Offset) - gpsHeading;
                             //double gyroDelta = Math.Abs(Math.PI - Math.Abs(Math.Abs(imuHeading + gyroCorrection) - gpsHeading) - Math.PI);
-                            
+
                             if (gyroDelta < 0) gyroDelta += glm.twoPI;
                             else if (gyroDelta > glm.twoPI) gyroDelta -= glm.twoPI;
 
@@ -407,7 +406,6 @@ namespace AgOpenGPS
 
                         //Calculate a million other things
                         byPass:
-                        TheRest();
                         break;
                     }
 
@@ -497,8 +495,6 @@ namespace AgOpenGPS
 
                         #endregion Roll
 
-                        TheRest();
-
                         //most recent fixes are now the prev ones
                         prevFix.easting = pn.fix.easting; prevFix.northing = pn.fix.northing;
 
@@ -548,17 +544,50 @@ namespace AgOpenGPS
                         //grab the most current fix and save the distance from the last fix
                         distanceCurrentStepFix = glm.Distance(pn.fix, prevFix);
 
-                        TheRest();
-
-                        //most recent fixes are now the prev ones
-                        prevFix.easting = pn.fix.easting; prevFix.northing = pn.fix.northing;
                         break;
                     }
 
                 default:
                     break;
             }
-        
+
+            //most recent fixes are now the prev ones
+            prevFix.easting = pn.fix.easting; prevFix.northing = pn.fix.northing;
+
+            //positions and headings 
+            CalculatePositionHeading();
+
+            //calculate lookahead at full speed, no sentence misses
+            CalculateSectionLookAhead(toolPos.northing, toolPos.easting, cosSectionHeading, sinSectionHeading);
+
+            //To prevent drawing high numbers of triangles, determine and test before drawing vertex
+            sectionTriggerDistance = glm.Distance(pn.fix, prevSectionPos);
+
+            //section on off and points, contour points
+            if (sectionTriggerDistance > sectionTriggerStepDistance && isJobStarted)
+            {
+                AddSectionOrContourPathPoints();
+
+                //grab fix and elevation
+                if (isLogElevation) sbFix.Append(pn.fix.easting.ToString("N2") + "," + pn.fix.northing.ToString("N2") + ","
+                                                    + pn.altitude.ToString("N2") + ","
+                                                    + pn.latitude + "," + pn.longitude + "\r\n");
+            }
+
+            //test if travelled far enough for new boundary point
+            if (bnd.isOkToAddPoints)
+            {
+                double boundaryDistance = glm.Distance(pn.fix, prevBoundaryPos);
+                if (boundaryDistance > 1) AddBoundaryPoint();
+            }
+
+            //calc distance travelled since last GPS fix
+            //distance = glm.Distance(pn.fix, prevFix);
+            if (pn.speed > 1)
+            {
+                if ((fd.distanceUser += distanceCurrentStepFix) > 3000) fd.distanceUser = 0; ;//userDistance can be reset
+            }
+
 
             #region AutoSteer
 
@@ -753,58 +782,39 @@ namespace AgOpenGPS
 
             #endregion
 
-            //update main window
-            oglMain.MakeCurrent();
-            oglMain.Refresh();
+            if (isGPSPositionInitialized && isJobStarted)
+            {
+                //draw the section control window off screen buffer
+                if (isFastSections || bbCounter++ > 0)
+                {
+                    bbCounter = 0;
+                    oglBack.Refresh();
+                    SendPgnToLoop(p_239.pgn);
+                }
+            }
+
+            if (framesToDo < 2)
+            {
+                //update main window
+                oglMain.MakeCurrent();
+                oglMain.Refresh();
+            }
+            else
+            {
+                udpWatchCounts++;
+                if (isLogNMEA) pn.logNMEASentence.Append("*** "
+                    + DateTime.UtcNow.ToString("ss.ff -> ", CultureInfo.InvariantCulture) + "\r\n");
+            }
 
             //end of UppdateFixPosition
             swFrame.Stop();
 
             //stop the timer and calc how long it took to do calcs and draw
-            frameTimeRough = (double)swFrame.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency * 1000;
+            double frameTimeRough = (double)swFrame.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency * 1000;
 
             if (frameTimeRough > 30) frameTimeRough = 30;
             frameTime = frameTime * 0.99 + frameTimeRough * 0.01;
         }
-
-        double frameTimeRough = 3;
-        private void TheRest()
-        {
-            //positions and headings 
-            CalculatePositionHeading();
-
-            //calculate lookahead at full speed, no sentence misses
-            CalculateSectionLookAhead(toolPos.northing, toolPos.easting, cosSectionHeading, sinSectionHeading);
-
-            //To prevent drawing high numbers of triangles, determine and test before drawing vertex
-            sectionTriggerDistance = glm.Distance(pn.fix, prevSectionPos);
-
-            //section on off and points, contour points
-            if (sectionTriggerDistance > sectionTriggerStepDistance && isJobStarted)
-            {
-                AddSectionOrContourPathPoints();
-
-                //grab fix and elevation
-                if (isLogElevation) sbFix.Append(pn.fix.easting.ToString("N2") + "," + pn.fix.northing.ToString("N2") + ","
-                                                    + pn.altitude.ToString("N2") + ","
-                                                    + pn.latitude + "," + pn.longitude + "\r\n");
-            }
-
-            //test if travelled far enough for new boundary point
-            if (bnd.isOkToAddPoints)
-            {
-                double boundaryDistance = glm.Distance(pn.fix, prevBoundaryPos);
-                if (boundaryDistance > 1) AddBoundaryPoint();
-            }
-
-            //calc distance travelled since last GPS fix
-            //distance = glm.Distance(pn.fix, prevFix);
-            if (pn.speed > 1)
-            {
-                if ((fd.distanceUser += distanceCurrentStepFix) > 3000) fd.distanceUser = 0; ;//userDistance can be reset
-            }
-        }
-
 
         //all the hitch, pivot, section, trailing hitch, headings and fixes
         private void CalculatePositionHeading()
@@ -1085,31 +1095,58 @@ namespace AgOpenGPS
             section[tool.numOfSections].leftPoint = section[0].leftPoint;
             section[tool.numOfSections].rightPoint = section[tool.numOfSections-1].rightPoint;
 
-            if (tool.toolFarLeftSpeed < 0.0) tool.toolFarLeftSpeed = 0.0;
-            if (tool.toolFarRightSpeed < 0.0) tool.toolFarRightSpeed = 0.0;
-
             double oneFrameLeft = tool.toolFarLeftSpeed * fixUpdateTime * 10;
             double oneFrameRight = tool.toolFarRightSpeed * fixUpdateTime * 10;
 
+            if (!isFastSections)
+            {
+                oneFrameLeft *= 2;
+                oneFrameRight *= 2;
+            }
+
             //set the look ahead for hyd Lift in pixels per second
-            vehicle.hydLiftLookAheadDistanceLeft = oneFrameLeft + tool.toolFarLeftSpeed * vehicle.hydLiftLookAheadTime * HzTime;
-            vehicle.hydLiftLookAheadDistanceRight = oneFrameRight + tool.toolFarRightSpeed * vehicle.hydLiftLookAheadTime * HzTime;
+            vehicle.hydLiftLookAheadDistanceLeft = oneFrameLeft + tool.toolFarLeftSpeed * vehicle.hydLiftLookAheadTime * 10;
+            vehicle.hydLiftLookAheadDistanceRight = oneFrameRight + tool.toolFarRightSpeed * vehicle.hydLiftLookAheadTime * 10;
 
-            if (vehicle.hydLiftLookAheadDistanceLeft > 200) vehicle.hydLiftLookAheadDistanceLeft = 200;
-            if (vehicle.hydLiftLookAheadDistanceRight > 200) vehicle.hydLiftLookAheadDistanceRight = 200;
+            if (vehicle.hydLiftLookAheadDistanceLeft > 250) vehicle.hydLiftLookAheadDistanceLeft = 250;
+            else if (vehicle.hydLiftLookAheadDistanceLeft < -250) vehicle.hydLiftLookAheadDistanceLeft = -250;
+            if (vehicle.hydLiftLookAheadDistanceRight > 250) vehicle.hydLiftLookAheadDistanceRight = 250;
+            else if (vehicle.hydLiftLookAheadDistanceRight < -250) vehicle.hydLiftLookAheadDistanceRight = -250;
 
-            tool.lookAheadDistanceOnPixelsLeft = oneFrameLeft + tool.toolFarLeftSpeed * tool.lookAheadOnSetting * HzTime;
-            tool.lookAheadDistanceOnPixelsRight = oneFrameRight + tool.toolFarRightSpeed * tool.lookAheadOnSetting * HzTime;
+            tool.lookAheadDistanceOnPixelsLeft = oneFrameLeft + tool.toolFarLeftSpeed * tool.lookAheadOnSetting * 10;
+            tool.lookAheadDistanceOnPixelsRight = oneFrameRight + tool.toolFarRightSpeed * tool.lookAheadOnSetting * 10;
 
-            if (tool.lookAheadDistanceOnPixelsLeft > 200) tool.lookAheadDistanceOnPixelsLeft = 200;
-            if (tool.lookAheadDistanceOnPixelsRight > 200) tool.lookAheadDistanceOnPixelsRight = 200;
+            tool.lookAheadDistanceOffPixelsLeft = -oneFrameLeft + tool.toolFarLeftSpeed * tool.lookAheadOffSetting * 10;
+            tool.lookAheadDistanceOffPixelsRight = -oneFrameLeft + tool.toolFarRightSpeed * tool.lookAheadOffSetting * 10;
 
-            tool.lookAheadDistanceOffPixelsLeft = tool.toolFarLeftSpeed * tool.lookAheadOffSetting * HzTime;
-            tool.lookAheadDistanceOffPixelsRight = tool.toolFarRightSpeed * tool.lookAheadOffSetting * HzTime;
-
-            if (tool.lookAheadDistanceOffPixelsLeft > 160) tool.lookAheadDistanceOffPixelsLeft = 160;
-            if (tool.lookAheadDistanceOffPixelsRight > 160) tool.lookAheadDistanceOffPixelsRight = 160;
-
+            if (tool.lookAheadDistanceOnPixelsLeft > 250)
+            {
+                tool.lookAheadDistanceOnPixelsLeft = 250;
+                double ss = (1.0 / tool.lookAheadOnSetting) * tool.lookAheadOffSetting;
+                if (tool.lookAheadDistanceOffPixelsLeft > 250 * ss)
+                    tool.lookAheadDistanceOffPixelsLeft = 250 * ss;
+            }
+            else if (tool.lookAheadDistanceOnPixelsLeft < -250)
+            {
+                tool.lookAheadDistanceOnPixelsLeft = -250;
+                double ss = (1.0 / tool.lookAheadOnSetting) * tool.lookAheadOffSetting;
+                if (tool.lookAheadDistanceOffPixelsLeft < -250 * ss)
+                    tool.lookAheadDistanceOffPixelsLeft = -250 * ss;
+            }
+            if (tool.lookAheadDistanceOnPixelsRight > 250)
+            {
+                tool.lookAheadDistanceOnPixelsRight = 250;
+                double ss = (1.0 / tool.lookAheadOnSetting) * tool.lookAheadOffSetting;
+                if (tool.lookAheadDistanceOffPixelsRight > 250 * ss)
+                    tool.lookAheadDistanceOffPixelsRight = 250 * ss;
+            }
+            else if (tool.lookAheadDistanceOnPixelsRight < -250)
+            {
+                tool.lookAheadDistanceOnPixelsRight = -250;
+                double ss = (1.0 / tool.lookAheadOnSetting) * tool.lookAheadOffSetting;
+                if (tool.lookAheadDistanceOffPixelsRight < -250 * ss)
+                    tool.lookAheadDistanceOffPixelsRight = -250 * ss;
+            }
         }
 
         //the start of first few frames to initialize entire program

@@ -4,48 +4,147 @@ using System.Net.Sockets;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Globalization;
-using System.Diagnostics;
+using System.Threading;
 
 namespace AgOpenGPS
 {
     public partial class FormGPS
     {
         // - App Sockets  -----------------------------------------------------
-        private Socket sendToAppSocket;
-        private Socket recvFromAppSocket;
+        private Socket sendToAppSocket, recvFromAppSocket;
 
         //endpoints of modules
-        private EndPoint epAgIO, epSender = new IPEndPoint(IPAddress.Any, 0);
+        private EndPoint epAgIO, epSender;
 
         // Data stream
         private byte[] loopBuffer = new byte[1024];
 
-        // Status delegate
-        private double rollK = 0;
         private int udpWatchCounts = 0;
-        public int udpWatchLimit = 70;
-
-        private readonly Stopwatch udpWatch = new Stopwatch();
-
+        private bool EnableHeadRoll;
+        private static double DualAntennaDistance = 102, DualHeadingCorrection = 90;
         private void ReceiveFromAgIO(byte[] data)
         {
-            if (data[0] == 0x80 && data[1] == 0x81)
+            if (data[0] == 0xB5 && data[1] == 0x62 && data[2] == 0x01)//Daniel P
+            {
+                if (data[3] == 0x07 && data.Length > 99)//UBX-NAV-PVT
+                {
+                    if (timerSim.Enabled)
+                        SetSimStatus(false);
+
+                    int CK_A = 0;
+                    int CK_B = 0;
+
+                    for (int j = 2; j < 98; j += 1)// start with Class and end by Checksum
+                    {
+                        CK_A = (CK_A + data[j]) & 0xFF;
+                        CK_B = (CK_B + CK_A) & 0xFF;
+                    }
+
+                    if (data[98] == CK_A && data[99] == CK_B)
+                    {
+                        long itow = data[6] | (data[7] << 8) | (data[8] << 16) | (data[9] << 24);
+
+                        if ((data[27] & 0x81) == 0x81)
+                        {
+                            pn.fixQuality = 4;
+                            EnableHeadRoll = true;
+                        }
+                        else if ((data[27] & 0x41) == 0x41)
+                        {
+                            pn.fixQuality = 5;
+                            EnableHeadRoll = true;
+                        }
+                        else
+                        {
+                            pn.fixQuality = 1;
+                            EnableHeadRoll = false;
+                        }
+
+                        pn.satellitesTracked = data[29];
+
+                        pn.longitude = (data[30] | (data[31] << 8) | (data[32] << 16) | (data[33] << 24)) * 0.0000001;//to deg
+                        pn.latitude = (data[34] | (data[35] << 8) | (data[36] << 16) | (data[37] << 24)) * 0.0000001;//to deg
+
+                        //Height above ellipsoid
+                        pn.altitude = (data[38] | (data[39] << 8) | (data[40] << 16) | (data[41] << 24)) * 0.001;//to meters
+                        // Height above mean sea level
+                        pn.altitude = (data[42] | (data[43] << 8) | (data[44] << 16) | (data[45] << 24)) * 0.001;//to meters
+
+                        pn.hdop = (data[46] | (data[47] << 8) | (data[48] << 16) | (data[49] << 24)) * 0.01;
+
+                        if (pn.longitude != 0)
+                        {
+                            pn.speed = (data[66] | (data[67] << 8) | (data[68] << 16) | (data[69] << 24)) * 0.0036;//to km/h
+
+                            //if (vehicle.isReverse && Speed > 0) Speed *= -1;
+
+                            pn.ConvertWGS84ToLocal(pn.latitude, pn.longitude, out pn.fix.northing, out pn.fix.easting);
+
+                            //average the speed
+                            pn.AverageTheSpeed();
+
+
+                            sentenceCounter = 0;
+
+                            if (framesToDo < 10)
+                                UpdateFixPosition();
+                            else
+                                udpWatchCounts++;
+                        }
+                        else
+                        {
+                            EnableHeadRoll = false;
+                            pn.fixQuality = 0;
+                        }
+                    }
+
+                    Interlocked.Decrement(ref framesToDo);
+                }
+                else if (data[3] == 0x3C && data.Length > 71)//Daniel P
+                {
+                    int CK_A = 0;
+                    int CK_B = 0;
+                    for (int j = 2; j < 70; j += 1)// start with Class and end by Checksum
+                    {
+                        CK_A = (CK_A + data[j]) & 0xFF;
+                        CK_B = (CK_B + CK_A) & 0xFF;
+                    }
+
+                    if (data[70] == CK_A && data[71] == CK_B)
+                    {
+                        long itow = data[10] | (data[11] << 8) | (data[12] << 16) | (data[13] << 24);
+                        if (EnableHeadRoll && ((data[67] & 0x01) == 0x01))// && (((data[66] & 0x2D) == 0x2D) || ((data[66] & 0x35) == 0x35)))
+                        {
+                            int relposlength = data[26] | (data[27] << 8) | (data[28] << 16) | (data[29] << 24);//in cm!
+
+                            if ((DualAntennaDistance - 0.05) * 100.0 < relposlength && relposlength < (DualAntennaDistance + 0.05) * 100.0)
+                            {
+                                double RelPosN = ((data[14] | (data[15] << 8) | (data[16] << 16) | (data[17] << 24)) + (sbyte)data[38] * 0.01);
+                                double RelPosE = ((data[18] | (data[19] << 8) | (data[20] << 16) | (data[21] << 24)) + (sbyte)data[39] * 0.01);
+                                double relPosD = ((data[22] | (data[23] << 8) | (data[24] << 16) | (data[25] << 24)) + (sbyte)data[40] * 0.01);
+
+                                ahrs.imuRoll = (int)(Math.Atan2(relPosD, Math.Sqrt(RelPosN * RelPosN + RelPosE * RelPosE)) * 916.732472209);
+                            }
+
+                            pn.headingTrueDual = (data[30] | (data[31] << 8) | (data[32] << 16) | (data[33] << 24)) * 0.00001 + DualHeadingCorrection;
+
+                            if (ahrs.isDualAsIMU) ahrs.imuHeading = pn.headingTrueDual;
+                        }
+                        else //Bad Quality
+                        {
+                            ahrs.imuRoll = 88888;
+                            pn.headingTrueDual = 0;
+                        }
+                    }
+                }
+                return;
+            }
+            else if (data[0] == 0x80 && data[1] == 0x81)
             {
                 switch (data[3])
                 {
                     case 0xD6:
                         {
-                            if (udpWatch.ElapsedMilliseconds < udpWatchLimit)
-                            {
-                                udpWatchCounts++;
-                                if (isLogNMEA) pn.logNMEASentence.Append("*** "
-                                    + DateTime.UtcNow.ToString("ss.ff -> ", CultureInfo.InvariantCulture)
-                                    + udpWatch.ElapsedMilliseconds + "\r\n");
-                                return;
-                            }
-                            udpWatch.Reset();
-                            udpWatch.Start();
-
                             double Lon = BitConverter.ToDouble(data, 5);
                             double Lat = BitConverter.ToDouble(data, 13);
 
@@ -121,8 +220,13 @@ namespace AgOpenGPS
                                         pn.headingTrueDual.ToString("N1") + "\r\n"
                                         );
 
-                                UpdateFixPosition();
+                                if (framesToDo < 10)
+                                    UpdateFixPosition();
+                                else
+                                    udpWatchCounts++;
                             }
+
+                            Interlocked.Decrement(ref framesToDo);
                         }
                         break;
 
@@ -136,7 +240,7 @@ namespace AgOpenGPS
                             ahrs.imuHeading *= 0.1;
                             
                             //Roll
-                            rollK = (Int16)((data[8] << 8) + data[7]);
+                            double rollK = (Int16)((data[8] << 8) + data[7]);
 
                             if (ahrs.isRollInvert) rollK *= -0.1;
                             else rollK *= 0.1;
@@ -185,7 +289,7 @@ namespace AgOpenGPS
                             }
 
                             //Roll
-                            rollK = (Int16)((data[10] << 8) + data[9]);
+                            double rollK = (Int16)((data[10] << 8) + data[9]);
                             if (rollK != 8888)
                             {
                                 if (ahrs.isRollInvert) rollK *= -0.1;
@@ -220,12 +324,61 @@ namespace AgOpenGPS
                     case 234://MTZ8302 Feb 2020
                         {
                             //Steer angle actual
-                            if (data.Length != 14)
+                            if (data.Length != 14 || !isJobStarted)
                                 break;
 
-                            Buffer.BlockCopy(data, 5, mc.ss, 1, 8);
+                            //MTZ8302 Feb 2020 
+                            if (data[5] != ssP[0])// MainSW was used
+                            {
+                                //Main SW pressed
+                                if ((data[5] & 1) == 1)
+                                    setSectionButtonState(btnStates.On);
+                                //if Main SW in Arduino is pressed OFF
+                                else if ((data[5] & 2) == 2)
+                                    setSectionButtonState(btnStates.Off);
 
-                            DoRemoteSwitches();
+                                ssP[0] = data[5];
+                            }  //Main or Rate SW
+
+                            int set = 1;
+                            int idx1 = 9;
+                            int idx2 = 10;
+                            int idx3 = 1;
+
+                            for (int j = 0; j < tool.numOfSections; j++)
+                            {
+                                if (j == 8)
+                                {
+                                    set = 1;
+                                    idx1 = 11;
+                                    idx2 = 12;
+                                    idx3 = 2;
+                                }
+
+                                //do nothing if bit isn't set [only works fully when BBBBB is deleted]
+                                btnStates status = section[j].manBtnState;
+
+                                if ((data[idx1] & set) == set)
+                                {
+                                    if (autoBtnState == btnStates.Auto && (data[idx2] & set) == set)//AAAAA
+                                        status = btnStates.Auto;//not sure if we want to force on when auto is off!
+                                    else if (autoBtnState != btnStates.Off)
+                                        status = btnStates.On;
+                                }
+                                else if ((data[idx2] & set) == set)
+                                    status = btnStates.Off;
+                                else if ((data[idx2] & set) != (ssP[idx3] & set) && status == btnStates.Off)//BBBBB
+                                    status = btnStates.Auto;//should change to AAAAA (Both on [so that it doesnt change when you send clear bits])
+
+                                set <<= 1;
+
+                                if (section[j].manBtnState != status)
+                                    section[j].UpdateButton(status);
+                            }
+
+                            //only needed for BBBBB
+                            ssP[1] = data[10];
+                            ssP[2] = data[12];
 
                             break;
                         }
@@ -234,354 +387,9 @@ namespace AgOpenGPS
             }
         }
 
-        private void DoRemoteSwitches()
-        {
-            //MTZ8302 Feb 2020 
-            if (isJobStarted)
-            {
-                //MainSW was used
-                if (mc.ss[mc.swMain] != mc.ssP[mc.swMain])
-                {
-                    //Main SW pressed
-                    if ((mc.ss[mc.swMain] & 1) == 1)
-                    {
-                        setSectionButtonState(btnStates.On);
-                    }
-                    //if Main SW in Arduino is pressed OFF
-                    else if ((mc.ss[mc.swMain] & 2) == 2)
-                    {
-                        setSectionButtonState(btnStates.Off);
-                    } // if Main SW OFF
-
-                    mc.ssP[mc.swMain] = mc.ss[mc.swMain];
-                }  //Main or Rate SW
-
-
-                int set = 1;
-                int idx1 = mc.swOnGr0;
-                int idx2 = mc.swOffGr0;
-
-                for (int j = 0; j < tool.numOfSections; j++)
-                {
-                    if (j == 8)
-                    {
-                        set = 1;
-                        idx1 = mc.swOnGr1;
-                        idx2 = mc.swOffGr1;
-                    }
-
-                    //do nothing if bit isn't set [only works fully when BBBBB is deleted]
-                    btnStates status = section[j].manBtnState;
-
-                    if ((mc.ss[idx1] & set) == set)
-                    {
-                        if (autoBtnState == btnStates.Auto && (mc.ss[idx2] & set) == set)//AAAAA
-                            status = btnStates.Auto;//not sure if we want to force on when auto is off!
-                        else if (autoBtnState != btnStates.Off)
-                            status = btnStates.On;
-                    }
-                    else if ((mc.ss[idx2] & set) == set)
-                        status = btnStates.Off;
-                    else if ((mc.ss[idx2] & set) != (mc.ssP[idx2] & set) && status == btnStates.Off)//BBBBB
-                                status = btnStates.Auto;//should change to AAAAA (Both on [so that it doesnt change when you send clear bits])
-
-                    set <<= 1;
-
-                    if (section[j].manBtnState != status)
-                        section[j].UpdateButton(status);
-                    /*
-                    if (section[j].manBtnState != status)
-                    {
-                        if (status == btnStates.Off)
-                            section[j].manBtnState = btnStates.On;
-                        else if (status == btnStates.Auto)
-                            section[j].manBtnState = btnStates.Off;
-                        if (status == btnStates.On)
-                            section[j].manBtnState = btnStates.Auto;
-
-                        Button button = oglPanel.Controls["btnSection" + (j + 1) + "Man"] as Button;
-
-                        if (button != null)
-                            ManualBtnUpdate(j, button);
-                        //off --> auto
-                        //auto -> on
-                        //on ---> off
-                    }
-                    */
-                }
-
-                //only needed for unlogical auto
-                mc.ssP[mc.swOffGr0] = mc.ss[mc.swOffGr0];
-                mc.ssP[mc.swOffGr1] = mc.ss[mc.swOffGr1];
-
-                /*
-                if (mc.ss[mc.swOnGr0] != 0)
-                {
-                    // ON Signal from Arduino 
-                    if ((mc.ss[mc.swOnGr0] & 128) == 128 & tool.numOfSections > 7)
-                    {
-                        if (section[7].manBtnState != btnStates.Auto) section[7].manBtnState = btnStates.Auto;
-                        btnSection8Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOnGr0] & 64) == 64 & tool.numOfSections > 6)
-                    {
-                        if (section[6].manBtnState != btnStates.Auto) section[6].manBtnState = btnStates.Auto;
-                        btnSection7Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOnGr0] & 32) == 32 & tool.numOfSections > 5)
-                    {
-                        if (section[5].manBtnState != btnStates.Auto) section[5].manBtnState = btnStates.Auto;
-                        btnSection6Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOnGr0] & 16) == 16 & tool.numOfSections > 4)
-                    {
-                        if (section[4].manBtnState != btnStates.Auto) section[4].manBtnState = btnStates.Auto;
-                        btnSection5Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOnGr0] & 8) == 8 & tool.numOfSections > 3)
-                    {
-                        if (section[3].manBtnState != btnStates.Auto) section[3].manBtnState = btnStates.Auto;
-                        btnSection4Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOnGr0] & 4) == 4 & tool.numOfSections > 2)
-                    {
-                        if (section[2].manBtnState != btnStates.Auto) section[2].manBtnState = btnStates.Auto;
-                        btnSection3Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOnGr0] & 2) == 2 & tool.numOfSections > 1)
-                    {
-                        if (section[1].manBtnState != btnStates.Auto) section[1].manBtnState = btnStates.Auto;
-                        btnSection2Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOnGr0] & 1) == 1)
-                    {
-                        if (section[0].manBtnState != btnStates.Auto) section[0].manBtnState = btnStates.Auto;
-                        btnSection1Man.PerformClick();
-                    }
-                    mc.ssP[mc.swOnGr0] = mc.ss[mc.swOnGr0];
-                } //if swONLo != 0 
-                else { if (mc.ssP[mc.swOnGr0] != 0) { mc.ssP[mc.swOnGr0] = 0; } }
-
-                if (mc.ss[mc.swOnGr1] != 0)
-                {
-                    // sections ON signal from Arduino  
-                    if ((mc.ss[mc.swOnGr1] & 128) == 128 & tool.numOfSections > 15)
-                    {
-                        if (section[15].manBtnState != btnStates.Auto) section[15].manBtnState = btnStates.Auto;
-                        btnSection16Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOnGr1] & 64) == 64 & tool.numOfSections > 14)
-                    {
-                        if (section[14].manBtnState != btnStates.Auto) section[14].manBtnState = btnStates.Auto;
-                        btnSection15Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOnGr1] & 32) == 32 & tool.numOfSections > 13)
-                    {
-                        if (section[13].manBtnState != btnStates.Auto) section[13].manBtnState = btnStates.Auto;
-                        btnSection14Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOnGr1] & 16) == 16 & tool.numOfSections > 12)
-                    {
-                        if (section[12].manBtnState != btnStates.Auto) section[12].manBtnState = btnStates.Auto;
-                        btnSection13Man.PerformClick();
-                    }
-
-                    if ((mc.ss[mc.swOnGr1] & 8) == 8 & tool.numOfSections > 11)
-                    {
-                        if (section[11].manBtnState != btnStates.Auto) section[11].manBtnState = btnStates.Auto;
-                        btnSection12Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOnGr1] & 4) == 4 & tool.numOfSections > 10)
-                    {
-                        if (section[10].manBtnState != btnStates.Auto) section[10].manBtnState = btnStates.Auto;
-                        btnSection11Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOnGr1] & 2) == 2 & tool.numOfSections > 9)
-                    {
-                        if (section[9].manBtnState != btnStates.Auto) section[9].manBtnState = btnStates.Auto;
-                        btnSection10Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOnGr1] & 1) == 1 & tool.numOfSections > 8)
-                    {
-                        if (section[8].manBtnState != btnStates.Auto) section[8].manBtnState = btnStates.Auto;
-                        btnSection9Man.PerformClick();
-                    }
-                    mc.ssP[mc.swOnGr1] = mc.ss[mc.swOnGr1];
-                } //if swONHi != 0   
-                else { if (mc.ssP[mc.swOnGr1] != 0) { mc.ssP[mc.swOnGr1] = 0; } }
-
-                // Switches have changed
-                if (mc.ss[mc.swOffGr0] != mc.ssP[mc.swOffGr0])
-                {
-                    //if Main = Auto then change section to Auto if Off signal from Arduino stopped
-                    if (autoBtnState == btnStates.Auto)
-                    {
-                        if (((mc.ssP[mc.swOffGr0] & 128) == 128) & ((mc.ss[mc.swOffGr0] & 128) != 128) & (section[7].manBtnState == btnStates.Off))
-                        {
-                            btnSection8Man.PerformClick();
-                        }
-                        if (((mc.ssP[mc.swOffGr0] & 64) == 64) & ((mc.ss[mc.swOffGr0] & 64) != 64) & (section[6].manBtnState == btnStates.Off))
-                        {
-                            btnSection7Man.PerformClick();
-                        }
-                        if (((mc.ssP[mc.swOffGr0] & 32) == 32) & ((mc.ss[mc.swOffGr0] & 32) != 32) & (section[5].manBtnState == btnStates.Off))
-                        {
-                            btnSection6Man.PerformClick();
-                        }
-                        if (((mc.ssP[mc.swOffGr0] & 16) == 16) & ((mc.ss[mc.swOffGr0] & 16) != 16) & (section[4].manBtnState == btnStates.Off))
-                        {
-                            btnSection5Man.PerformClick();
-                        }
-                        if (((mc.ssP[mc.swOffGr0] & 8) == 8) & ((mc.ss[mc.swOffGr0] & 8) != 8) & (section[3].manBtnState == btnStates.Off))
-                        {
-                            btnSection4Man.PerformClick();
-                        }
-                        if (((mc.ssP[mc.swOffGr0] & 4) == 4) & ((mc.ss[mc.swOffGr0] & 4) != 4) & (section[2].manBtnState == btnStates.Off))
-                        {
-                            btnSection3Man.PerformClick();
-                        }
-                        if (((mc.ssP[mc.swOffGr0] & 2) == 2) & ((mc.ss[mc.swOffGr0] & 2) != 2) & (section[1].manBtnState == btnStates.Off))
-                        {
-                            btnSection2Man.PerformClick();
-                        }
-                        if (((mc.ssP[mc.swOffGr0] & 1) == 1) & ((mc.ss[mc.swOffGr0] & 1) != 1) & (section[0].manBtnState == btnStates.Off))
-                        {
-                            btnSection1Man.PerformClick();
-                        }
-                    }
-                    mc.ssP[mc.swOffGr0] = mc.ss[mc.swOffGr0];
-                }
-
-                if (mc.ss[mc.swOffGr1] != mc.ssP[mc.swOffGr1])
-                {
-                    //if Main = Auto then change section to Auto if Off signal from Arduino stopped
-                    if (autoBtnState == btnStates.Auto)
-                    {
-                        if (((mc.ssP[mc.swOffGr1] & 128) == 128) & ((mc.ss[mc.swOffGr1] & 128) != 128) & (section[15].manBtnState == btnStates.Off))
-                        { btnSection16Man.PerformClick(); }
-
-                        if (((mc.ssP[mc.swOffGr1] & 64) == 64) & ((mc.ss[mc.swOffGr1] & 64) != 64) & (section[14].manBtnState == btnStates.Off))
-                        { btnSection15Man.PerformClick(); }
-
-                        if (((mc.ssP[mc.swOffGr1] & 32) == 32) & ((mc.ss[mc.swOffGr1] & 32) != 32) & (section[13].manBtnState == btnStates.Off))
-                        { btnSection14Man.PerformClick(); }
-
-                        if (((mc.ssP[mc.swOffGr1] & 16) == 16) & ((mc.ss[mc.swOffGr1] & 16) != 16) & (section[12].manBtnState == btnStates.Off))
-                        { btnSection13Man.PerformClick(); }
-
-
-                        if (((mc.ssP[mc.swOffGr1] & 8) == 8) & ((mc.ss[mc.swOffGr1] & 8) != 8) & (section[11].manBtnState == btnStates.Off))
-                        {
-                            btnSection12Man.PerformClick();
-                        }
-                        if (((mc.ssP[mc.swOffGr1] & 4) == 4) & ((mc.ss[mc.swOffGr1] & 4) != 4) & (section[10].manBtnState == btnStates.Off))
-                        {
-                            btnSection11Man.PerformClick();
-                        }
-                        if (((mc.ssP[mc.swOffGr1] & 2) == 2) & ((mc.ss[mc.swOffGr1] & 2) != 2) & (section[9].manBtnState == btnStates.Off))
-                        {
-                            btnSection10Man.PerformClick();
-                        }
-                        if (((mc.ssP[mc.swOffGr1] & 1) == 1) & ((mc.ss[mc.swOffGr1] & 1) != 1) & (section[8].manBtnState == btnStates.Off))
-                        {
-                            btnSection9Man.PerformClick();
-                        }
-                    }
-                    mc.ssP[mc.swOffGr1] = mc.ss[mc.swOffGr1];
-                }
-
-                // OFF Signal from Arduino
-                if (mc.ss[mc.swOffGr0] != 0)
-                {
-                    //if section SW in Arduino is switched to OFF; check always, if switch is locked to off GUI should not change
-                    if ((mc.ss[mc.swOffGr0] & 128) == 128 & section[7].manBtnState != btnStates.Off)
-                    {
-                        section[7].manBtnState = btnStates.On;
-                        btnSection8Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOffGr0] & 64) == 64 & section[6].manBtnState != btnStates.Off)
-                    {
-                        section[6].manBtnState = btnStates.On;
-                        btnSection7Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOffGr0] & 32) == 32 & section[5].manBtnState != btnStates.Off)
-                    {
-                        section[5].manBtnState = btnStates.On;
-                        btnSection6Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOffGr0] & 16) == 16 & section[4].manBtnState != btnStates.Off)
-                    {
-                        section[4].manBtnState = btnStates.On;
-                        btnSection5Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOffGr0] & 8) == 8 & section[3].manBtnState != btnStates.Off)
-                    {
-                        section[3].manBtnState = btnStates.On;
-                        btnSection4Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOffGr0] & 4) == 4 & section[2].manBtnState != btnStates.Off)
-                    {
-                        section[2].manBtnState = btnStates.On;
-                        btnSection3Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOffGr0] & 2) == 2 & section[1].manBtnState != btnStates.Off)
-                    {
-                        section[1].manBtnState = btnStates.On;
-                        btnSection2Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOffGr0] & 1) == 1 & section[0].manBtnState != btnStates.Off)
-                    {
-                        section[0].manBtnState = btnStates.On;
-                        btnSection1Man.PerformClick();
-                    }
-                } // if swOFFLo !=0
-                if (mc.ss[mc.swOffGr1] != 0)
-                {
-                    //if section SW in Arduino is switched to OFF; check always, if switch is locked to off GUI should not change
-                    if ((mc.ss[mc.swOffGr1] & 128) == 128 & section[15].manBtnState != btnStates.Off)
-                    {
-                        section[15].manBtnState = btnStates.On;
-                        btnSection16Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOffGr1] & 64) == 64 & section[14].manBtnState != btnStates.Off)
-                    {
-                        section[14].manBtnState = btnStates.On;
-                        btnSection15Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOffGr1] & 32) == 32 & section[13].manBtnState != btnStates.Off)
-                    {
-                        section[13].manBtnState = btnStates.On;
-                        btnSection14Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOffGr1] & 16) == 16 & section[12].manBtnState != btnStates.Off)
-                    {
-                        section[12].manBtnState = btnStates.On;
-                        btnSection13Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOffGr1] & 8) == 8 & section[11].manBtnState != btnStates.Off)
-                    {
-                        section[11].manBtnState = btnStates.On;
-                        btnSection12Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOffGr1] & 4) == 4 & section[10].manBtnState != btnStates.Off)
-                    {
-                        section[10].manBtnState = btnStates.On;
-                        btnSection11Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOffGr1] & 2) == 2 & section[9].manBtnState != btnStates.Off)
-                    {
-                        section[9].manBtnState = btnStates.On;
-                        btnSection10Man.PerformClick();
-                    }
-                    if ((mc.ss[mc.swOffGr1] & 1) == 1 & section[8].manBtnState != btnStates.Off)
-                    {
-                        section[8].manBtnState = btnStates.On;
-                        btnSection9Man.PerformClick();
-                    }
-                } // if swOFFHi !=0
-                */
-            }//if serial or udp port open
-        }
+        // ---- Section control switches to AOG  ---------------------------------------------------------
+        //PGN - 32736 - 127.249 0x7FF9
+        public byte[] ssP = new byte[3];
 
         //start the UDP server
         public void StartLoopbackServer()
@@ -597,18 +405,16 @@ namespace AgOpenGPS
 
                 // AOG sends to AgIO using this endpoint
                 epAgIO = new IPEndPoint(IPAddress.Parse("127.255.255.255"), 17777);
+                epSender = new IPEndPoint(IPAddress.Any, 0);
 
                 // Initialise the client socket
                 recvFromAppSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
                 // IPEndPoint for AOG  to listen on 
-                recvFromAppSocket.Bind(new IPEndPoint(IPAddress.Loopback, 15555));
-
-                // Initialise the IPEndPoint for the client
-                EndPoint clientEp = new IPEndPoint(IPAddress.Any, 0);
+                recvFromAppSocket.Bind(new IPEndPoint(IPAddress.Any, 15555));
 
                 // Start listening for incoming data
-                recvFromAppSocket.BeginReceiveFrom(loopBuffer, 0, loopBuffer.Length, SocketFlags.None, ref clientEp, new AsyncCallback(ReceiveAppData), recvFromAppSocket);
+                recvFromAppSocket.BeginReceiveFrom(loopBuffer, 0, loopBuffer.Length, SocketFlags.None, ref epSender, new AsyncCallback(ReceiveAppData), recvFromAppSocket);
             }
             catch (Exception ex)
             {
@@ -622,14 +428,17 @@ namespace AgOpenGPS
             startCounter = 0;
             panelSim.Visible = status;
             timerSim.Enabled = status;
-
-            if (timerSim.Enabled && !isJobStarted)
+            if (timerSim.Enabled)
             {
-                pn.latStart = pn.latitude = Properties.Settings.Default.setGPS_SimLatitude;
-                pn.lonStart = pn.longitude = Properties.Settings.Default.setGPS_SimLongitude;
-                sim.resetSim();
+                framesToDo = 0;
+                if (!isJobStarted)
+                {
+                    pn.latStart = pn.latitude = Properties.Settings.Default.setGPS_SimLatitude;
+                    pn.lonStart = pn.longitude = Properties.Settings.Default.setGPS_SimLongitude;
+                    sim.resetSim();
 
-                pn.SetLocalMetersPerDegree();
+                    pn.SetLocalMetersPerDegree();
+                }
             }
 
             simulatorOnToolStripMenuItem.Checked = status;
@@ -642,8 +451,6 @@ namespace AgOpenGPS
         {
             try
             {
-                // Initialise the IPEndPoint for the clients
-
                 // Receive all data
                 int msgLen = recvFromAppSocket.EndReceiveFrom(asyncResult, ref epSender);
 
@@ -652,18 +459,31 @@ namespace AgOpenGPS
 
                 // Listen for more connections again...
                 recvFromAppSocket.BeginReceiveFrom(loopBuffer, 0, loopBuffer.Length, SocketFlags.None, ref epSender, new AsyncCallback(ReceiveAppData), recvFromAppSocket);
-
-                int Length = Math.Max((localMsg[4]) + 5, 5);
-                if (localMsg.Length > Length)
+                if (localMsg.Length > 3)
                 {
-                    byte CK_A = 0;
-                    for (int j = 2; j < Length; j++)
+                    int Length = Math.Max((localMsg[4]) + 5, 5);
+                    if (localMsg[0] == 0xB5 && localMsg[1] == 0x62 && localMsg[2] == 0x01)
                     {
-                        CK_A += localMsg[j];
-                    }
-
-                    if (localMsg[Length] == (byte)CK_A)
+                        if (localMsg[3] == 0x07 && localMsg.Length > 99)
+                            Interlocked.Increment(ref framesToDo);
                         BeginInvoke((MethodInvoker)(() => ReceiveFromAgIO(localMsg)));
+                    }
+                    else if (localMsg.Length > Length)
+                    {
+                        byte CK_A = 0;
+                        for (int j = 2; j < Length; j++)
+                        {
+                            CK_A += localMsg[j];
+                        }
+
+                        if (localMsg[Length] == (byte)CK_A)
+                        {
+                            if (localMsg[0] == 0x80 && localMsg[1] == 0x81 && localMsg[3] == 0xD6)
+                                Interlocked.Increment(ref framesToDo);
+
+                            BeginInvoke((MethodInvoker)(() => ReceiveFromAgIO(localMsg)));
+                        }
+                    }
                 }
             }
             catch (Exception)

@@ -426,21 +426,12 @@ namespace AgOpenGPS
                     TimedMessageBox(2000, "No File Found", "Can't Find AgIO");
                 }
             }
-
-            //nmea limiter
-            udpWatch.Start();
         }
 
         private void btnVideoHelpRecPath_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(gStr.v_RecordedPathForm))
                 System.Diagnostics.Process.Start(gStr.v_RecordedPathForm);
-        }
-
-        private void lblCurveLineName_Click(object sender, EventArgs e)
-        {
-            mode += 1;
-            if (mode > 2) mode = 0;
         }
 
         //form is closing so tidy up and save settings
@@ -658,53 +649,6 @@ namespace AgOpenGPS
             }
             else
                 enableYouTurnButton(false);
-        }
-
-        private void BuildMachineByte()
-        {
-            int set = 1;
-            int reset = 2046;
-            p_254.pgn[p_254.sc1to8] = 0;
-            p_254.pgn[p_254.sc9to16] = 0;
-
-            int machine = 0;
-
-            //check if super section is on
-            if (section[tool.numOfSections].isSectionOn)
-            {
-                for (int j = 0; j < tool.numOfSections; j++)
-                {
-                    //all the sections are on, so set them
-                    machine |= set;
-                    set <<= 1;
-                }
-            }
-
-            else
-            {
-                for (int j = 0; j < MAXSECTIONS; j++)
-                {
-                    //set if on, reset bit if off
-                    if (section[j].isSectionOn) machine |= set;
-                    else machine &= reset;
-
-                    //move set and reset over 1 bit left
-                    set <<= 1;
-                    reset <<= 1;
-                    reset += 1;
-                }
-            }
-
-            //sections in autosteer
-            p_254.pgn[p_254.sc9to16] = unchecked((byte)(machine >> 8));
-            p_254.pgn[p_254.sc1to8] = unchecked((byte)machine);
-
-            //machine pgn
-            p_239.pgn[p_239.sc9to16] = p_254.pgn[p_254.sc9to16];
-            p_239.pgn[p_239.sc1to8] = p_254.pgn[p_254.sc1to8];
-            p_239.pgn[p_239.tram] = unchecked((byte)tram.controlByte);
-
-            //out serial to autosteer module  //indivdual classes load the distance and heading deltas 
         }
 
         //dialog for requesting user to save or cancel
@@ -948,122 +892,6 @@ namespace AgOpenGPS
             recPath.recList.Clear();
             recPath.shortestDubinsList.Clear();
             recPath.shuttleDubinsList.Clear();
-        }
-
-        //Does the logic to process section on off requests
-        private void ProcessSectionOnOffRequests()
-        {
-            double mapFactor = 1 + ((100 - tool.minCoverage) * 0.01);
-            for (int j = 0; j < tool.numOfSections; j++)
-            {
-                //SECTIONS - 
-                if (section[j].sectionOnRequest)
-                {
-                    section[j].isSectionOn = true;
-
-                    if (mode == 1 || mode == 2)
-                        section[j].sectionOverlapTimer = (int)Math.Max(HzTime * tool.turnOffDelay, 1);
-                    else
-                    {
-                        double sped = 1 / ((pn.speed + 3) * 0.5);
-                        if (sped < 0.3) sped = 0.3;
-
-                        //keep setting the timer so full when ready to turn off
-                        section[j].sectionOverlapTimer = (int)(fixUpdateHz * mapFactor * sped + (fixUpdateHz * tool.turnOffDelay) + 1);
-                    }
-                    if (!section[j].isMappingOn && section[j].mappingOnTimer == 0) section[j].mappingOnTimer = (int)Math.Max(HzTime * tool.lookAheadOnSetting - 0.5, 1);//tool.mappingOnDelay
-                    section[j].mappingOffTimer = (int)(HzTime * tool.lookAheadOffSetting + 2);//tool.mappingOffDelay
-                }
-                else if (section[j].sectionOverlapTimer > 0)
-                {
-                    section[j].sectionOverlapTimer--;
-                    if (section[j].isSectionOn && section[j].sectionOverlapTimer == 0)
-                        section[j].isSectionOn = false;
-                    else
-                        section[j].mappingOffTimer = (int)(HzTime * tool.lookAheadOffSetting + 2);//tool.mappingOffDelay
-                }
-
-                //MAPPING -
-                if (section[tool.numOfSections].sectionOnRequest)
-                {
-                    section[j].mappingOnTimer = 2;
-                    if (section[j].isMappingOn)
-                        section[j].TurnMappingOff();
-                }
-                if (section[j].mappingOnTimer > 0)
-                {
-                    section[j].mappingOnTimer--;
-                    if (!section[j].isMappingOn && section[j].mappingOnTimer == 0)
-                        section[j].TurnMappingOn();
-                }
-                if (section[j].mappingOffTimer > 0)
-                {
-                    section[j].mappingOffTimer--;
-                    if (section[j].mappingOffTimer == 0)
-                    {
-                        section[j].mappingOnTimer = 0;
-                        if (section[j].isMappingOn)
-                            section[j].TurnMappingOff();
-                    }
-                }
-            }
-
-            if (section[tool.numOfSections].sectionOnRequest && !section[tool.numOfSections].isMappingOn)
-                section[tool.numOfSections].TurnMappingOn();
-            else if (!section[tool.numOfSections].sectionOnRequest && section[tool.numOfSections].isMappingOn)
-                section[tool.numOfSections].TurnMappingOff();
-
-            #region notes
-            //Turn ON
-            //if requested to be on, set the timer to Max 10 (1 seconds) = 10 frames per second
-            //if (section[j].sectionOnRequest && !section[j].sectionOnOffCycle)
-            //{
-            //    section[j].sectionOnTimer = (int)(pn.speed * section[j].lookAheadOn) + 1;
-            //    if (section[j].sectionOnTimer > fixUpdateHz + 3) section[j].sectionOnTimer = fixUpdateHz + 3;
-            //    section[j].sectionOnOffCycle = true;
-            //}
-
-            ////reset the ON request
-            //section[j].sectionOnRequest = false;
-
-            ////decrement the timer if not zero
-            //if (section[j].sectionOnTimer > 0)
-            //{
-            //    //turn the section ON if not and decrement timer
-            //    section[j].sectionOnTimer--;
-            //    if (!section[j].isSectionOn) section[j].isSectionOn = true;
-
-            //    //keep resetting the section OFF timer while the ON is active
-            //    //section[j].sectionOffTimer = (int)(fixUpdateHz * tool.toolTurnOffDelay);
-            //}
-            //if (!section[j].sectionOffRequest) 
-            //    section[j].sectionOffTimer = (int)(fixUpdateHz * tool.turnOffDelay);
-
-            ////decrement the off timer
-            //if (section[j].sectionOffTimer > 0 && section[j].sectionOnTimer == 0) section[j].sectionOffTimer--;
-
-            ////Turn OFF
-            ////if Off section timer is zero, turn off the section
-            //if (section[j].sectionOffTimer == 0 && section[j].sectionOnTimer == 0 && section[j].sectionOffRequest)
-            //{
-            //    if (section[j].isSectionOn) section[j].isSectionOn = false;
-            //    //section[j].sectionOnOffCycle = false;
-            //    section[j].sectionOffRequest = false;
-            //    //}
-            //}
-            //Turn ON
-            //if requested to be on, set the timer to Max 10 (1 seconds) = 10 frames per second
-            //if (section[j].mappingOnRequest && !section[j].mappingOnOffCycle)
-            //{
-            //    section[j].mappingOnTimer = (int)(fixUpdateHz * 1) + 1;
-            //    section[j].mappingOnOffCycle = true;
-            //}
-
-            ////reset the ON request
-            //section[j].mappingOnRequest = false;
-
-            //decrement the timer if not zero
-            #endregion notes
         }
 
         //take the distance from object and convert to camera data

@@ -310,10 +310,6 @@ namespace AgOpenGPS
                 unitsFtM = " ft";
             }
 
-            //timeToShowMenus = Properties.Settings.Default.setDisplay_showMenusTime;
-
-            udpWatchLimit = Properties.Settings.Default.SetGPS_udpWatchMsec;
-
             startSpeed = Vehicle.Default.setVehicle_startSpeed;
 
             //load up colors
@@ -853,7 +849,7 @@ namespace AgOpenGPS
         public string SatsTracked { get { return Convert.ToString(pn.satellitesTracked); } }
         public string HDOP { get { return Convert.ToString(pn.hdop); } }
         public string Heading { get { return Convert.ToString(Math.Round(glm.toDegrees(fixHeading), 1)) + "\u00B0"; } }
-        public string GPSHeading { get { return (Math.Round(glm.toDegrees(gpsHeading), 1)) + "\u00B0"; } }
+        public string GPSHeading { get { return (Math.Round(glm.toDegrees(fixHeading), 1)) + "\u00B0"; } }
         public string FixQuality
         {
             get

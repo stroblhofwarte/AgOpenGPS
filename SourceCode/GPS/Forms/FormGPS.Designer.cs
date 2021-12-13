@@ -1590,7 +1590,6 @@
             this.lblCurveLineName.Size = new System.Drawing.Size(34, 16);
             this.lblCurveLineName.TabIndex = 486;
             this.lblCurveLineName.Text = "Line";
-            this.lblCurveLineName.Click += new System.EventHandler(this.lblCurveLineName_Click);
             // 
             // lblCurrentField
             // 

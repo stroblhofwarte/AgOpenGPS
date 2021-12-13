@@ -246,18 +246,21 @@ namespace AgOpenGPS
 
         public void setSectionButtonState(btnStates status, bool? enable = null)
         {
-            if (status == btnStates.On || (autoBtnState == btnStates.On && status == btnStates.Off))
-                System.Media.SystemSounds.Asterisk.Play();
-            else if (status == btnStates.Auto || (autoBtnState == btnStates.Auto && status == btnStates.Off))
-                System.Media.SystemSounds.Exclamation.Play();
+            if (autoBtnState != status)
+            {
+                if (status == btnStates.On || (autoBtnState == btnStates.On && status == btnStates.Off))
+                    System.Media.SystemSounds.Asterisk.Play();
+                else if (status == btnStates.Auto || (autoBtnState == btnStates.Auto && status == btnStates.Off))
+                    System.Media.SystemSounds.Exclamation.Play();
 
-            autoBtnState = status;
-            btnManualOffOn.Image = status == btnStates.On ? Properties.Resources.ManualOn : Properties.Resources.ManualOff;
-            btnSectionOffAutoOn.Image = status == btnStates.Auto ? Properties.Resources.SectionMasterOn : Properties.Resources.SectionMasterOff;
+                autoBtnState = status;
+                btnManualOffOn.Image = status == btnStates.On ? Properties.Resources.ManualOn : Properties.Resources.ManualOff;
+                btnSectionOffAutoOn.Image = status == btnStates.Auto ? Properties.Resources.SectionMasterOn : Properties.Resources.SectionMasterOff;
 
-            //set sections buttons to status
-            for (int j = 0; j < tool.numOfSections; j++)
-                section[j].UpdateButton(status, enable);
+                //set sections buttons to status
+                for (int j = 0; j < tool.numOfSections; j++)
+                    section[j].UpdateButton(status, enable);
+            }
         }
 
         private void btnAutoSteer_Click(object sender, EventArgs e)
